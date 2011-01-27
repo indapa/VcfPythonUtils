@@ -2,6 +2,7 @@ VcfPythonUtils contains utilities to work with Variant Call Format (VCF) files.
 
 vcfIO.py contains python functions that read VCF files.
 
+vcfToBeagle.py convert VCF to beagle_3.3 input format
 
 
 Amit Indap

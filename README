@@ -1,0 +1,8 @@
+VcfPythonUtils contains utilities to work with Variant Call Format (VCF) files. 
+
+vcfIO.py contains python functions that read VCF files.
+
+
+
+Amit Indap
+indapa@gmail.com

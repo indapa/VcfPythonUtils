@@ -8,7 +8,7 @@ from vcfIO import *
 
 
 def printIdentifierLine(fh):
-"""print Beagle id column headers with sample names taken from VCF filehandle """
+    """print Beagle id column headers with sample names taken from VCF filehandle """
     id_string=["I", "id"]
     samples=get_vcfsamples(fh)
     samples_diploid=[]
@@ -23,7 +23,7 @@ def printIdentifierLine(fh):
 
 #beagle format described in http://faculty.washington.edu/browning/beagle/beagle_3.3_26Dec10.pdf
 def main():
-""" create a Beagle v3.3 input file from a VCF file """
+    """ create a Beagle v3.3 input file from a VCF file """
     usage = "usage: %prog [options] vcfile"
     parser = OptionParser(usage)
 

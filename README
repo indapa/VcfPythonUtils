@@ -4,6 +4,7 @@ vcfIO.py contains python functions that read VCF files.
 
 vcfToBeagle.py convert VCF to beagle_3.3 input format
 
+vcfCallRate.py - given a VCF file the file snpcallrate.txt and samplecallrate.txt give the callrates for individuals and markers in a VCF file
 
 Amit Indap
 indapa@gmail.com

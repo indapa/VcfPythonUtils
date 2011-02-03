@@ -8,5 +8,8 @@ vcfCallRate.py - given a VCF file the file snpcallrate.txt and samplecallrate.tx
 
 vcfUnion.py - using the bx-python bitset api, take the union of any number of VCF files and print bed file of coordinates to STDOUT
 
+comparePhasedVcf.py - compare genotypes for phased and unphased versions of the same VCF file
+
+
 Amit Indap
 indapa@gmail.com

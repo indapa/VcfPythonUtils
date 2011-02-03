@@ -80,7 +80,7 @@ def get_vcfsamples_keep(fh, keepList):
     """ yield a list of samples that are in the keepList """
     for line in fh:
         line.strip()
-        if 'CHROM' in line:
+        if '#CHROM' in line:
             fields = line.strip().split('\t')
             samples = fields[9::]
             kept=[s for s in samples if s in keepList]
@@ -89,7 +89,7 @@ def get_vcfsamples_keep(fh, keepList):
 def get_vcfsamples(fh):
     """yield list of samples """
     line=fh.readline()
-    if 'CHROM' in line:
+    if '#CHROM' in line:
         fields = line.strip().split('\t')
         samples = fields[9::]
         return samples

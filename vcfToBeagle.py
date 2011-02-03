@@ -7,8 +7,8 @@ from optparse import OptionParser
 from vcfIO import *
 
 
-def printIdentifierLine(fh):
-    """print Beagle id column headers with sample names taken from VCF filehandle """
+def returnIdentifierLine(fh):
+    """return Beagle id column headers with sample names taken from VCF filehandle """
     id_string=["I", "id"]
     samples=get_vcfsamples(fh)
     samples_diploid=[]
@@ -18,8 +18,10 @@ def printIdentifierLine(fh):
         samples_diploid.append(s)
 
     samplestring= "\t".join(samples_diploid)
+    idstring="I\tid\t"+samplestring
+    return idstring
 
-    print "I\tid\t",samplestring
+
 
 #beagle format described in http://faculty.washington.edu/browning/beagle/beagle_3.3_26Dec10.pdf
 def main():
@@ -30,7 +32,8 @@ def main():
     (options, args)=parser.parse_args()
 
     vcfile=args[0]
-    
+    bglfile=vcfile.replace('.vcf', 'bg')
+    bgfh=open(bgfile,'r')
 
     try:
         sys.stderr.write("opening vcfile ....\n")
@@ -38,7 +41,9 @@ def main():
     except:
         sys.stderr.write("unable to open vcfile!\n")
             
-    printIdentifierLine(vcf_fh)
+    bglIdline=returnIdentifierLine(vcf_fh)
+    bgfh.write(bglIdline+"\n")
+
     vcf_fh.seek(0)
     
     #each t(uple) represents a snp locus with 2*N alleles
@@ -57,8 +62,9 @@ def main():
         marker_id=chrom+"."+pos
         allele_str="\t".join(alleles)
         marker_line="\t".join(['M',marker_id, allele_str])
-        print marker_line
+        bgfh.write(marker_line+"\n")
 
+    bgfh.close()
 
 if __name__ == "__main__":
     main()

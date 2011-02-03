@@ -88,11 +88,11 @@ def get_vcfsamples_keep(fh, keepList):
 
 def get_vcfsamples(fh):
     """yield list of samples """
-    line=fh.readline()
-    if '#CHROM' in line:
-        fields = line.strip().split('\t')
-        samples = fields[9::]
-        return samples
+    for line in fh:
+        if '#CHROM' in line:
+            fields = line.strip().split('\t')
+            samples = fields[9::]
+            return samples
 
 def stripGT(gt_string):
     """ strip a genotype string to only its GT field GT: => GT  """

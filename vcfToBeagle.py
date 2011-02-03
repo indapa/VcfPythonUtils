@@ -32,8 +32,8 @@ def main():
     (options, args)=parser.parse_args()
 
     vcfile=args[0]
-    bglfile=vcfile.replace('.vcf', 'bg')
-    bgfh=open(bglfile,'r')
+    bglfile=vcfile.replace('.vcf', '.bg')
+    bgfh=open(bglfile,'w')
 
     try:
         sys.stderr.write("opening vcfile ....\n")

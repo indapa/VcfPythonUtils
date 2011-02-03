@@ -1,9 +1,23 @@
+
+
+
+def compareSampleLists(list1, list2):
+    """ given two list of samplenames, compare element by element; return 1 if they are all the same 0 otherwise """
+    if len(list1) != len(list2): return 0
+
+    for i in range(0, len(list1) ):
+        if list1[i] != list2[i]: return 0
+
+    return 1
+
 def get_vcfdataline(fh):
     """yield datalines """
     for line in fh:
         if '#' not in line: yield line.strip()
         
-
+def split_vcfdataline(line):
+    """ spliti the fields of a vcf dataline and return in a list """
+    return line.strip().split('\t')
 
 def get_vcfdataline_passfilter(fh):
     """ yield list that has not been filtered """
@@ -50,9 +64,11 @@ def get_vcftuple_passfilter(fh):
 
 
 
+
 def get_vcftuples(fh):
     """yield tuple with (chrom, pos, ref, alt, [ (sample,gt), ..., (sample,gt) ] ) of datalines regarless of filter field"""
     samples = get_vcfsamples(fh)
+    
     for line in fh:
         if '#' not in line:
             fields = line.strip().split('\t')
@@ -64,7 +80,7 @@ def get_vcfsamples_keep(fh, keepList):
     """ yield a list of samples that are in the keepList """
     for line in fh:
         line.strip()
-        if '#CHROM' in line:
+        if 'CHROM' in line:
             fields = line.strip().split('\t')
             samples = fields[9::]
             kept=[s for s in samples if s in keepList]
@@ -72,12 +88,11 @@ def get_vcfsamples_keep(fh, keepList):
 
 def get_vcfsamples(fh):
     """yield list of samples """
-    for line in fh:
-        line.strip()
-        if '#CHROM' in line:
-            fields = line.strip().split('\t')
-            samples = fields[9::]
-            return samples
+    line=fh.readline()
+    if 'CHROM' in line:
+        fields = line.strip().split('\t')
+        samples = fields[9::]
+        return samples
 
 def stripGT(gt_string):
     """ strip a genotype string to only its GT field GT: => GT  """
@@ -95,4 +110,39 @@ def returnAlleles_unphased(gt):
     else:
         return None
 
+def returnAlleles_phased(gt):
+    """ return tuple of (allele1, allele2) of phased and stripped  GT string e.g. 0|0 returns (0,0) """
+    if ':' in gt:
+        sys.stderr.write("strip string to only its GT field first!")
+        return None
+    if '|' in gt:
+        (a1,a2)= gt.split('|')
+        return (a1,a2)
+    else:
+        return None
 
+
+def compare_phased_to_unphased(phased, unphased):
+    """ give two lists of the form  [ (sample, gt_string), ....  ] in which one is unphased and theother phased iterate thru and compare the genotypes per individual  """
+
+    unmatched_genotypes=[]
+    if len(phased) != len(unphased):
+        sys.stderr.write("cannot compare phased unphased genotypes; unequal size of lists!")
+    else:
+        for i in range( 0, len( phased ) ):
+            if stripGT(unphased[i][1]) != '.':
+                (p1,p2) = returnAlleles_phased ( stripGT(phased[i][1] ) )
+                (u1, u2) = returnAlleles_unphased ( stripGT(unphased[i][1]) )
+                if getNonRefDosage(p1,p2) != getNonRefDosage(u1,u2):
+                    unmatched_genotypes.append( (phased[i][1], unphased[i][1], unphased[i][0] )    )
+    return  unmatched_genotypes
+
+    
+def getNonRefDosage(allele1,allele2):
+    """ return the number of non-ref alleles given the two alleles from a genotype """
+
+    dosage=0
+    if '1' in allele1: dosage+=1
+    if '1' in allele2: dosage+=1
+
+    return dosage

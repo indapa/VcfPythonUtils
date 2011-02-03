@@ -33,7 +33,7 @@ def main():
 
     vcfile=args[0]
     bglfile=vcfile.replace('.vcf', 'bg')
-    bgfh=open(bgfile,'r')
+    bgfh=open(bglfile,'r')
 
     try:
         sys.stderr.write("opening vcfile ....\n")

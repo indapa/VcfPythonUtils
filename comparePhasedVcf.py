@@ -64,6 +64,7 @@ def main():
         linecount1+=1
         linecount2+=1
         #check to see if the chrom/pos match between the phased adn unphased
+        print phased_data[0:2], unphased_data[0:2]
         if phased_data[0:2] != unphased_data[0:2]:
             sys.stderr.write("chrom/position doesn't match!")
             print phased_data[0:2], unphased_data[0:2], linecount1, linecount2

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2.6
 import sys
 import os
 import string
@@ -27,47 +27,43 @@ def main():
     phased_samples=get_vcfsamples(phased_fh)
     unphased_samples=get_vcfsamples(unphased_fh)
 
-    #print phased_samples
-    #print unphased_samples
-
-    #compare the sample lists to makesure the samples are the same
+        #compare the sample lists to makesure the samples are the same
     if compareSampleLists(phased_samples, unphased_samples) == 0:
         sys.stderr.write("vcf files have different samples!")
         exit(1)
 
-    #the phased adn unphased vcf should have teh same number of loci!
-    phased_fh.seek(0)
+
     unphased_fh.seek(0)
-    
-    linecount1=0
-    linecount2=0
-    #for phasedline in phased_fh:
+    phased_fh.seek(0)
+
     while 1:
-       #print line.strip()
-        unphasedline=unphased_fh.readline()
-        phasedline = phased_fh.readline()
+        if '#' in unphased_fh.readline(): break
+
+    while 1:
+        if '#' in phased_fh.readline(): break
+
+    while 1:
+       
+    #   #print line.strip()
+        unphasedline= unphased_fh.readline()
+        phasedline =  phased_fh.readline()
 
         if unphasedline == '' or phasedline == '':
             sys.stderr.write("unphased vcf has reached EOF!")
             exit(1)
         
-        
-        
-        if '#' in phasedline or '#' in unphasedline: continue
-
-
-        #print phasedline
-        #print unphasedline
+    #    print phasedline
+    #    #print unphasedline
 
         phased_data=split_vcfdataline(phasedline)
         unphased_data=split_vcfdataline(unphasedline)
-        linecount1+=1
-        linecount2+=1
-        #check to see if the chrom/pos match between the phased adn unphased
+     #   linecount1+=1
+     #   linecount2+=1
+     #   #check to see if the chrom/pos match between the phased adn unphased
         print phased_data[0:2], unphased_data[0:2]
         if phased_data[0:2] != unphased_data[0:2]:
             sys.stderr.write("chrom/position doesn't match!")
-            print phased_data[0:2], unphased_data[0:2], linecount1, linecount2
+            print phased_data[0:2], unphased_data[0:2]
             exit(1)
         
         #ziptuple=zip[ (sample, genotypefield), .... ]
@@ -77,7 +73,7 @@ def main():
         #collect the unmatched genotypes at a locus, and if there are any, print to STDOUT
         unmatched_genotypes =compare_phased_to_unphased(phased_ziptuple, unphased_ziptuple)
         if len(unmatched_genotypes) > 0:
-            print phased_data[0], phased_data[1], "unmatched genotypes: ", unmatched_genotypes
+             print phased_data[0], phased_data[1], "unmatched genotypes: ", unmatched_genotypes
         
 
 if __name__ == "__main__":

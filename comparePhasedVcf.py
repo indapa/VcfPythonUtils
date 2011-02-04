@@ -39,7 +39,8 @@ def main():
     phased_fh.seek(0)
     unphased_fh.seek(0)
     
-
+    linecount1=0
+    linecount2=0
     #for phasedline in phased_fh:
     while 1:
        #print line.strip()
@@ -60,11 +61,12 @@ def main():
 
         phased_data=split_vcfdataline(phasedline)
         unphased_data=split_vcfdataline(unphasedline)
-
+        linecount1+=1
+        linecount2+=1
         #check to see if the chrom/pos match between the phased adn unphased
         if phased_data[0:2] != unphased_data[0:2]:
             sys.stderr.write("chrom/position doesn't match!")
-            print phased_data[0:2], unphased_data[0:2]
+            print phased_data[0:2], unphased_data[0:2], linecount1, linecount2
             exit(1)
         
         #ziptuple=zip[ (sample, genotypefield), .... ]

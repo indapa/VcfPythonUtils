@@ -37,10 +37,10 @@ def main():
     phased_fh.seek(0)
 
     while 1:
-        if '#' in unphased_fh.readline(): break
+        if '#CHROM' in unphased_fh.readline(): break
 
     while 1:
-        if '#' in phased_fh.readline(): break
+        if '#CHROM' in phased_fh.readline(): break
 
     while 1:
        

@@ -27,18 +27,36 @@ def main():
     phased_samples=get_vcfsamples(phased_fh)
     unphased_samples=get_vcfsamples(unphased_fh)
 
+    #print phased_samples
+    #print unphased_samples
+
     #compare the sample lists to makesure the samples are the same
     if compareSampleLists(phased_samples, unphased_samples) == 0:
         sys.stderr.write("vcf files have different samples!")
         exit(1)
 
     #the phased adn unphased vcf should have teh same number of loci!
-    for phasedline in phased_fh:
+    phased_fh.seek(0)
+    unphased_fh.seek(0)
+    
+
+    #for phasedline in phased_fh:
+    while 1:
        #print line.strip()
         unphasedline=unphased_fh.readline()
-        if unphasedline == '':
+        phasedline = phased_fh.readline()
+
+        if unphasedline == '' or phasedline == '':
             sys.stderr.write("unphased vcf has reached EOF!")
             exit(1)
+        
+        
+        
+        if '#' in phasedline or '#' in unphasedline: continue
+
+
+        #print phasedline
+        #print unphasedline
 
         phased_data=split_vcfdataline(phasedline)
         unphased_data=split_vcfdataline(unphasedline)
@@ -49,7 +67,7 @@ def main():
             print phased_data[0::2], unphased_data[0:2]
             exit(1)
         
-        #ziptuple: [ (sample, genotypefield), .... ]
+        #ziptuple=zip[ (sample, genotypefield), .... ]
         phased_ziptuple=zip(phased_samples, phased_data[9::] )
         unphased_ziptuple=zip(unphased_samples, unphased_data[9::] )
 

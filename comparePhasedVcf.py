@@ -64,7 +64,7 @@ def main():
         #check to see if the chrom/pos match between the phased adn unphased
         if phased_data[0:2] != unphased_data[0:2]:
             sys.stderr.write("chrom/position doesn't match!")
-            print phased_data[0::2], unphased_data[0:2]
+            print phased_data[0:2], unphased_data[0:2]
             exit(1)
         
         #ziptuple=zip[ (sample, genotypefield), .... ]

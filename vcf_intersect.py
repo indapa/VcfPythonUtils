@@ -36,6 +36,7 @@ def binned_bitsets_from_vcffile( f, chrom_col=0, start_col=1,  upstream_pad=0, d
     last_bitset = None
     bitsets = dict()
     MAX=2147483647
+
     for line in f:
         if line.startswith("#") or line.isspace():
             continue
@@ -46,7 +47,7 @@ def binned_bitsets_from_vcffile( f, chrom_col=0, start_col=1,  upstream_pad=0, d
         filter  = fields[6]
        
         if filter != 'PASS':
-            print filter
+            #print filter
             continue
         
         chrom="chr"+chrom

@@ -52,7 +52,7 @@ def binned_bitsets_from_vcffile( f, chrom_col=0, start_col=1,  upstream_pad=0, d
             else:
                 continue
 
-
+        print filter
         chrom="chr"+chrom
         if chrom != last_chrom:
             if chrom not in bitsets:

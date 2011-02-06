@@ -1,6 +1,5 @@
 
 
-
 def compareSampleLists(list1, list2):
     """ given two list of samplenames, compare element by element; return 1 if they are all the same 0 otherwise """
     if len(list1) != len(list2): return 0
@@ -15,6 +14,16 @@ def get_vcfdataline(fh):
     for line in fh:
         if '#' not in line: yield line.strip()
         
+
+def yield_bedinterval(fh):
+    """ yield tuple of (chr, start, end) zero-based half-open interval of vcf dataline """
+    for line in fh:
+        if '#' not in line:
+            fields=split_vcfdataline( line.strip () )
+            (chr,start)=fields[0:2]
+            yield (chr, int(start)-1, int(start) )
+
+
 def split_vcfdataline(line):
     """ spliti the fields of a vcf dataline and return in a list """
     return line.strip().split('\t')
@@ -24,7 +33,7 @@ def get_vcfdataline_passfilter(fh):
     for line in fh:
         if '#' not in line:
             fields = line.strip().split('\t')
-            if fields[6] == '.':
+            if fields[6] == '.' or fields[6]=='PASS':
                 yield line.strip().split('\t')
 
 def get_vcfdatafields(fh):
@@ -52,13 +61,16 @@ def get_vcftuples_keep(fh, keepList):
             filtered_tuple= [x for x in tuple if x[0] in keepList]
             yield(fields[0], fields[1], fields[3], fields[4], filtered_tuple)
 
+
+
+
 def get_vcftuple_passfilter(fh):
     """yield tuple with (chrom, pos, ref, alt, [ (sample,gt), ...., (sample,gt) ] )  of datalines that were not filtered"""
     samples = get_vcfsamples(fh)
     for line in fh:
         if '#' not in line:
             fields = line.strip().split('\t')
-            if fields[6] == '.':
+            if fields[6] == '.' or fields[6] == 'PASS':
                 t=zip(samples,fields[9::])
                 yield (fields[0],fields[1],fields[3], fields[4], t)
 
@@ -85,19 +97,39 @@ def get_vcfsamples_keep(fh, keepList):
             samples = fields[9::]
             kept=[s for s in samples if s in keepList]
             return kept
+     
 
 def get_vcfsamples(fh):
-    """yield list of samples """
+    """return list of samples """
     for line in fh:
         if '#CHROM' in line:
             fields = line.strip().split('\t')
             samples = fields[9::]
             return samples
 
+    
+    
+
 def stripGT(gt_string):
     """ strip a genotype string to only its GT field GT: => GT  """
     gtformatfields=gt_string.split(':')
     return gtformatfields[0]
+
+
+def returnAlleles(gt):
+    """ return tuple (allele1, allele2) of stripped genotype GT field"""
+    if ':' in gt:
+        sys.stderr.write("strip string to only its GT field first!")
+        return None
+    if '/' in gt:
+        (a1,a2)= gt.split('/')
+        return (a1,a2)
+    elif '|' in gt:
+        (a1, a2) = gt.split('|')
+        return (a1,a2)
+    else:
+        return None
+        
 
 def returnAlleles_unphased(gt):
     """ return tuple of (allele1, allele2) of unphased and stripped  GT string e.g. 0/0 returns (0,0) """
@@ -121,6 +153,22 @@ def returnAlleles_phased(gt):
     else:
         return None
 
+
+def compare_genotypes(g1, g2):
+    """ given two lists of the form [ (sample, gt_string), ....  ], iterate thru and compare genotypes per individual    """
+    """ return list of [ ( g1_genotype, g2_genotype, samplename) ] of missmatched genotypes"""
+    unmatched_genotypes=[]
+    if len(g1) != len(g2):
+        sys.stderr.write("cannot compare phased unphased genotypes; unequal size of lists!")
+    else:
+        for i in range( 0, len( g1 ) ):
+            if g2[i][1] == '.' or g1[i][1] == '.': continue
+            
+            (p1,p2) = returnAlleles ( stripGT(g1[i][1] ) )
+            (u1, u2) = returnAlleles ( stripGT(g2[i][1]) )
+            if getNonRefDosage(p1,p2) != getNonRefDosage(u1,u2):
+                unmatched_genotypes.append( (g1[i][1], g2[i][1], g2[i][0] )    )
+    return  unmatched_genotypes
 
 def compare_phased_to_unphased(phased, unphased):
     """ give two lists of the form  [ (sample, gt_string), ....  ] in which one is unphased and theother phased iterate thru and compare the genotypes per individual  """
@@ -146,3 +194,5 @@ def getNonRefDosage(allele1,allele2):
     if '1' in allele2: dosage+=1
 
     return dosage
+
+

@@ -5,6 +5,16 @@ import string
 import re
 from optparse import OptionParser
 from vcfIO import *
+import numpy as np
+
+
+def computeNRD(gtm):
+    """ compute the Non-reference discrepancy rate: http://www.broadinstitute.org/gsa/wiki/index.php/File:GenotypeConcordanceGenotypeErrorRate.png  """
+    """ ignores concordant calls that are  ref/ref; conditions on calls being made by both callsets """
+    discordant_call_count = gtm[0,1]+gtm[0,2]+gtm[1,0]+gtm[1,2]+gtm[2,0]+gtm[2,1]
+    total_count = gtm[0,1]+gtm[0,2]+gtm[1,0]+gtm[1,1]+ gtm[1,2]+gtm[2,0]+gtm[2,1] +gtm[2,2]
+    nrd= float(discordant_call_count)/float(total_count)
+    return nrd
 
 def main():
     """compare the genotypes in second vcf file to the ones in the first vcf file
@@ -42,7 +52,7 @@ def main():
     #key samplename value discordance count of genotypes between the two vcf files
     discordance_dict={}
     for s in common_samples:
-        discordance_dict[s]=0
+        discordance_dict[s]=np.matrix( [ [ 0,0,0,0 ], [ 0,0,0,0 ], [ 0,0,0,0 ], [ 0,0,0,0 ] ] )
 
     
     #reset the filehandle positions
@@ -87,15 +97,18 @@ def main():
         filtered__vcf2=  [x for x in vcf2_ziptuple if x[0] in common_samples]
 
         
-        #collect the unmatched genotypes at a locus, and if there are any, print to STDOUT
-        unmatched_genotypes = compare_genotypes(filtered_vcf1, filtered__vcf2)
-        if len(unmatched_genotypes) > 0:
-            #print vcf1_data[0], vcf1_data[1], "unmatched genotypes: ", unmatched_genotypes
-            for (g1,g2,sample) in unmatched_genotypes:
-                discordance_dict[sample]+=1
-            #print "\n"
-    for s in discordance_dict.keys():
-        print s, discordance_dict[s]
+        
+        #collect the compariosn results
+        comparison_results = compare_genotypes(filtered_vcf1, filtered__vcf2)
 
+        for (g1, g2, sample) in comparison_results:
+            discordance_dict[sample][g1,g2]+=1
+    print "sample","NRD", "totalGenotypes"
+    for sample in discordance_dict.keys():
+        #print sample
+        #print discordance_dict[sample]
+        #print "total gneotypes: ", np.sum( discordance_dict[sample] )
+        print sample,computeNRD(  discordance_dict[sample]  ), np.sum( discordance_dict[sample] )
+        #print "=="
 if __name__ == "__main__":
     main()

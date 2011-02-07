@@ -112,8 +112,12 @@ def get_vcfsamples(fh):
 
 def stripGT(gt_string):
     """ strip a genotype string to only its GT field GT: => GT  """
-    gtformatfields=gt_string.split(':')
-    return gtformatfields[0]
+
+    if gt_string == '.':
+        return './.'
+    else:
+        gtformatfields=gt_string.split(':')
+        return gtformatfields[0]
 
 
 def returnAlleles(gt):
@@ -157,18 +161,22 @@ def returnAlleles_phased(gt):
 def compare_genotypes(g1, g2):
     """ given two lists of the form [ (sample, gt_string), ....  ], iterate thru and compare genotypes per individual    """
     """ return list of [ ( g1_genotype, g2_genotype, samplename) ] of missmatched genotypes"""
-    unmatched_genotypes=[]
+
+    compared_genotypes=[] # [ (g1_type, g2_type, sample) ... ]
+
     if len(g1) != len(g2):
         sys.stderr.write("cannot compare phased unphased genotypes; unequal size of lists!")
     else:
         for i in range( 0, len( g1 ) ):
-            if g2[i][1] == '.' or g1[i][1] == '.': continue
-            
             (p1,p2) = returnAlleles ( stripGT(g1[i][1] ) )
             (u1, u2) = returnAlleles ( stripGT(g2[i][1]) )
-            if getNonRefDosage(p1,p2) != getNonRefDosage(u1,u2):
-                unmatched_genotypes.append( (g1[i][1], g2[i][1], g2[i][0] )    )
-    return  unmatched_genotypes
+
+            g1_alleletype=typeofGenotype(p1,p2)
+            g2_alleletype=typeofGenotype(u1,u2)
+            #print g1[i], g1_alleletype
+            #print g2[i], g2_alleletype
+            compared_genotypes.append( (g1_alleletype, g2_alleletype, g1[i][0])  )
+    return  compared_genotypes
 
 def compare_phased_to_unphased(phased, unphased):
     """ give two lists of the form  [ (sample, gt_string), ....  ] in which one is unphased and theother phased iterate thru and compare the genotypes per individual  """
@@ -195,4 +203,16 @@ def getNonRefDosage(allele1,allele2):
 
     return dosage
 
+def typeofGenotype(allele1, allele2):
+    """ I really should be a python version of a typedef here, but dont know how 
+        hom_ref =1 het =2 hom_nonref=3 no_call=4                              """
 
+    if allele1 == '0' and allele2 == '0': return 0
+
+    if  allele1 == '0' and allele2== '1': return 1
+    if allele1 =='1' and allele2 == '0': return 1
+
+    if allele1== '1' and allele2== '1': return 2
+
+    if allele1== '.' or allele2 == '.': return 3
+    if allele1 == '.' and allele2 == '.': return 3

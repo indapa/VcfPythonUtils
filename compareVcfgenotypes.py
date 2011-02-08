@@ -11,10 +11,26 @@ import numpy as np
 def computeNRD(gtm):
     """ compute the Non-reference discrepancy rate: http://www.broadinstitute.org/gsa/wiki/index.php/File:GenotypeConcordanceGenotypeErrorRate.png  """
     """ ignores concordant calls that are  ref/ref; conditions on calls being made by both callsets """
+
+
     discordant_call_count = gtm[0,1]+gtm[0,2]+gtm[1,0]+gtm[1,2]+gtm[2,0]+gtm[2,1]
     total_count = gtm[0,1]+gtm[0,2]+gtm[1,0]+gtm[1,1]+ gtm[1,2]+gtm[2,0]+gtm[2,1] +gtm[2,2]
     nrd= float(discordant_call_count)/float(total_count)
     return nrd
+
+
+def computeNRS(gtm):
+    """ compute non-reference sensitivity: http://www.broadinstitute.org/gsa/wiki/images/0/07/GenotypeConcordanceVarSens.png """
+    """ number variant genotypes in evalutationset / number of variant genotypes in comparison truthset """
+
+    variant_count_evaluation= gtm[1,1]+ gtm[1,2]+ gtm[2,1]+ gtm[2,2]
+
+    variant_count_comparison= gtm[0,1]+gtm[0,2]+gtm[1,1]+gtm[1,2]+gtm[2,1]+gtm[2,2]+gtm[3,1]+gtm[3,2]
+
+    nrs= float(variant_count_evaluation)/float(variant_count_comparison)
+    return nrs
+
+
 
 def main():
     """compare the genotypes in second vcf file to the ones in the first vcf file
@@ -103,12 +119,15 @@ def main():
 
         for (g1, g2, sample) in comparison_results:
             discordance_dict[sample][g1,g2]+=1
-    print "sample","NRD", "totalGenotypes"
+    print "sample","NRD", "NRC", "totalGenotypes"
     for sample in discordance_dict.keys():
         #print sample
         #print discordance_dict[sample]
         #print "total gneotypes: ", np.sum( discordance_dict[sample] )
-        print sample,computeNRD(  discordance_dict[sample]  ), np.sum( discordance_dict[sample] )
+
+        nrc=computeNRS( discordant_dict[sample] )
+        nrd=computeNRD(  discordance_dict[sample]  )
+        print sample,nrd, nrc,  np.sum( discordance_dict[sample] )
         #print "=="
 if __name__ == "__main__":
     main()

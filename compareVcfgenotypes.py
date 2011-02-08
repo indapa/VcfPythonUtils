@@ -125,7 +125,7 @@ def main():
         #print discordance_dict[sample]
         #print "total gneotypes: ", np.sum( discordance_dict[sample] )
 
-        nrc=computeNRS( discordant_dict[sample] )
+        nrc=computeNRS( discordance_dict[sample] )
         nrd=computeNRD(  discordance_dict[sample]  )
         print sample,nrd, nrc,  np.sum( discordance_dict[sample] )
         #print "=="

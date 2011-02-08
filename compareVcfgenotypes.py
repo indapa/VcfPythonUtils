@@ -127,9 +127,10 @@ def main():
 
         nrc=computeNRS( discordance_dict[sample] )
         nrd=computeNRD(  discordance_dict[sample]  )
-        row_marginal_sums = discordance_dict[sample].sum(axis=1)
-        colum_marginal_sums = discordance_dict[sample].sum(axis=1)
-        #print discordance_dict[sample]
-        print sample,nrd, nrc,  np.sum( discordance_dict[sample] ) , np.sum(row_marginal_sums[3]), np.sum(colum_marginal_sums[3])
+        gtm= discordance_dict[sample]
+        eval_nocalls = gtm[3,0] + gtm[3,1] + gtm[3,2] + gtm[3,3]
+        comparison_nocalls = gtm[0,3] + gtm[1,3] + gtm[2,3] + gtm[3,3]
+        
+        print sample,nrd, nrc,  np.sum( discordance_dict[sample] ) , eval_nocalls, comparison_nocalls
 if __name__ == "__main__":
     main()

@@ -119,7 +119,7 @@ def main():
 
         for (g1, g2, sample) in comparison_results:
             discordance_dict[sample][g1,g2]+=1
-    print "sample","NRD", "NRC", "totalGenotypes"
+    print "sample","NRD", "NRS", "totalGenotypes", "noCallsEval", "noCallsComparison"
     for sample in discordance_dict.keys():
         #print sample
         #print discordance_dict[sample]
@@ -127,7 +127,10 @@ def main():
 
         nrc=computeNRS( discordance_dict[sample] )
         nrd=computeNRD(  discordance_dict[sample]  )
-        print sample,nrd, nrc,  np.sum( discordance_dict[sample] )
+        missing_genotypes = discordance_dict[sample][3,0]
+        missing_genotypes_comparison= discordance_dict[sample][0,3]
+
+        print sample,nrd, nrc,  np.sum( discordance_dict[sample] ) , np.sum( missing_genotypes ), np.sum( missing_genotypes_comparison )
         #print "=="
 if __name__ == "__main__":
     main()

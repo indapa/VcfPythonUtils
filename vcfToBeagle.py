@@ -32,7 +32,7 @@ def main():
     (options, args)=parser.parse_args()
 
     vcfile=args[0]
-    bglfile=vcfile.replace('.vcf', '.bg')
+    bglfile=vcfile.replace('.vcf', '.bgl')
     bgfh=open(bglfile,'w')
 
     try:
@@ -45,20 +45,39 @@ def main():
     bgfh.write(bglIdline+"\n")
 
     vcf_fh.seek(0)
-    
+
+    sys.stderr.write("writing Beagle file input file ...\n")
     #each t(uple) represents a snp locus with 2*N alleles
     for (chrom, pos, ref, alt,genotype_tuple) in get_vcftuples(vcf_fh):
+        #print genotype_tuple
         alleles=[]
         for (sample, gt) in genotype_tuple:
             (allele1, allele2) = ('.', '.')
-            if stripGT(gt) == '.': # no genotype call represent as ? in beagle
-                allele1='?'
+            strippedGenotype=stripGT(gt)
+            #print strippedGenotype
+            (allele1, allele2) = returnAlleles_unphased( strippedGenotype )
+            
+            if allele1 == '0':
+                allele1=ref
+            elif allele1 == '1':
+                allele1 = alt
+            elif allele1 == '.':
+                allele1 = '?'
+            else:
+                pass
+
+            if allele2 == '0':
+                allele2=ref
+            elif allele2 == '1':
+                allele2=alt
+            elif allele2 == '.':
                 allele2='?'
             else:
-               (allele1, allele2) = returnAlleles_unphased( stripGT(gt) )
-
+                pass
+            #print strippedGenotype, allele1, allele2, "\t",  ref, alt
             alleles.append(allele1)
             alleles.append(allele2)
+        
         marker_id=chrom+"."+pos
         allele_str="\t".join(alleles)
         marker_line="\t".join(['M',marker_id, allele_str])

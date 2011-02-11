@@ -6,6 +6,16 @@ import re
 from optparse import OptionParser
 from vcfIO import *
 
+"""
+given a VCF file generate a Beagle input file. The VCF file is assumed to be unphased and the file it generates
+will be given to Beagle to phase and impute missing data. If the input VCF is named file.vcf the output Beagle file is file.bgl
+
+The Beagle output has the nucleotide genotypes. The program maps the VCF genotypes 0 (ref) 1 (alt) to the actual nucletides
+listed in the REF ALT column and those are the genotypes printed to the *bgl file Missing genotypes in the VCF are encoded as '?' in the
+*.bgl file
+
+"""
+
 
 def returnIdentifierLine(fh):
     """return Beagle id column headers with sample names taken from VCF filehandle """

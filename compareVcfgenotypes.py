@@ -43,7 +43,7 @@ def main():
     usage = "usage: %prog file1.vcf file2.vcf\n"+description
 
     parser = OptionParser(usage)
-    
+    parser.add_option("--compareImputed",  action="store_true", dest="imputedonly", default=False, help="set option if you want to compare only imputed genotypes in the first file  to the genotypes in the second")
     (options, args)=parser.parse_args()
     (vcf_fname1, vcf_fname2) =  args[0:2]
    
@@ -98,11 +98,14 @@ def main():
         vcf1_data=split_vcfdataline(vcf1_line)
         vcf2_data=split_vcfdataline(vcf2_line)
      
+        vcf1_formatstr= vcf1_data[8]
+
         if vcf1_data[0:2] != vcf2_data[0:2]:
             sys.stderr.write("chrom/position doesn't match!")
             print vcf1_data[0:2], vcf2_data[0:2]
             exit(1)
         
+
         #ziptuple=zip[ (sample, genotypefield), .... ]
 
         vcf1_ziptuple=zip(vcf1_samples, vcf1_data[9::] )
@@ -115,11 +118,17 @@ def main():
         
         
         #collect the compariosn results
-        comparison_results = compare_genotypes(filtered_vcf1, filtered__vcf2)
+        if (options.imputedonly == True):
+            comparison_results= compare_imputed_genotypes(filtered_vcf1, filtered__vcf2, vcf1_formatstr)
+        else:
+            comparison_results = compare_genotypes(filtered_vcf1, filtered__vcf2)
 
         for (g1, g2, sample) in comparison_results:
             discordance_dict[sample][g1,g2]+=1
-    print "sample","NRD", "NRS", "totalGenotypes", "noCallsEval"
+
+
+
+    print "sample","NRD", "NRS", "totalGenotypes", "noCallsEval", "noCallsComparison"
     for sample in discordance_dict.keys():
         #print sample
         #print discordance_dict[sample]

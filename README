@@ -10,6 +10,8 @@ vcfUnion.py - using the bx-python bitset api, take the union of any number of VC
 
 comparePhasedVcf.py - compare genotypes for phased and unphased versions of the same VCF file
 
+compareVcfGenotypes.py - compare the genotypes in second VCF  file to the ones in the first VCF  file
+The two VCFs should have the same sites but not necessarily the same samples
 
 Amit Indap
 indapa@gmail.com

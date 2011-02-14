@@ -8,6 +8,19 @@ from vcfIO import *
 import numpy as np
 
 
+def calibrateBins (matrix):
+    outfh=open('calibration.txt', 'w')
+    for i in range(0, len(matrix) ):
+        total=len(matrix[i])
+        totalCorrect=0
+        for (prob, flag) in matrix[i]:
+            if flag == 1: totalCorrect+=1
+        j=float(i)/10
+        outstring = "\t".join([str(j), str(totalCorrect), str(total)])
+        outfh.write(outstring+"\n")
+
+    outfh.close()
+
 def computeNRD(gtm):
     """ compute the Non-reference discrepancy rate: http://www.broadinstitute.org/gsa/wiki/index.php/File:GenotypeConcordanceGenotypeErrorRate.png  """
     """ ignores concordant calls that are  ref/ref; conditions on calls being made by both callsets """
@@ -15,6 +28,9 @@ def computeNRD(gtm):
 
     discordant_call_count = gtm[0,1]+gtm[0,2]+gtm[1,0]+gtm[1,2]+gtm[2,0]+gtm[2,1]
     total_count = gtm[0,1]+gtm[0,2]+gtm[1,0]+gtm[1,1]+ gtm[1,2]+gtm[2,0]+gtm[2,1] +gtm[2,2]
+
+    if total_count==0: return 'NA'
+
     nrd= float(discordant_call_count)/float(total_count)
     return nrd
 
@@ -27,10 +43,17 @@ def computeNRS(gtm):
 
     variant_count_comparison= gtm[0,1]+gtm[0,2]+gtm[1,1]+gtm[1,2]+gtm[2,1]+gtm[2,2]+gtm[3,1]+gtm[3,2]
 
+    if variant_count_comparison ==0:
+        return 'NA'
     nrs= float(variant_count_evaluation)/float(variant_count_comparison)
     return nrs
 
 
+def binCalibrations( gprobs_calibrations, calibration_matrix):
+    """ given a calibrationList [ (gprob, 0|1), ... ] and a 2d matrix calibrationMatrix append the tuple to the proper bin (row) in the matrix """
+
+    
+    return calibration_matrix
 
 def main():
     """compare the genotypes in second vcf file to the ones in the first vcf file
@@ -71,6 +94,13 @@ def main():
         discordance_dict[s]=np.matrix( [ [ 0,0,0,0 ], [ 0,0,0,0 ], [ 0,0,0,0 ], [ 0,0,0,0 ] ] )
 
     
+    calibration_matrix= []
+    for i in range(0,10):
+        calibration_matrix.append( [] )
+   
+
+
+
     #reset the filehandle positions
     vcf_fh1.seek(0)
     vcf_fh2.seek(0)
@@ -116,10 +146,40 @@ def main():
         filtered__vcf2=  [x for x in vcf2_ziptuple if x[0] in common_samples]
 
         
-        
+       
         #collect the compariosn results
         if (options.imputedonly == True):
             comparison_results= compare_imputed_genotypes(filtered_vcf1, filtered__vcf2, vcf1_formatstr)
+            gprobs_calibrations = posterior_imputed_gprob_calibration(filtered_vcf1, filtered__vcf2, vcf1_formatstr)
+            for x in gprobs_calibrations:
+                (gprob, comparison_result) =x
+                gprob =float(gprob)
+                
+                if gprob <= .10:
+                    calibration_matrix[0].append(x)
+                elif gprob <= .20:
+                    calibration_matrix[1].append(x)
+                elif gprob <= .30:
+                    calibraton_matrix[2].append(x)
+                elif gprob <= .40:
+                    calibration_matrix[3].append(x)
+                elif gprob <= .50:
+                    calibration_matrix[4].append(x)
+                elif gprob <= .60:
+                    calibration_matrix[5].append(x)
+                elif gprob <= .70:
+                    calibration_matrix[6].append(x)
+                elif gprob <= .80:
+                    calibration_matrix[7].append(x)
+                elif gprob <= .90:
+                    calibration_matrix[8].append(x)
+                elif gprob <= 1.0:
+                    calibration_matrix[9].append(x)
+                else:
+                    pass
+            
+
+
         else:
             comparison_results = compare_genotypes(filtered_vcf1, filtered__vcf2)
 
@@ -128,7 +188,9 @@ def main():
 
 
 
-    print "sample","NRD", "NRS", "totalGenotypes", "noCallsEval", "noCallsComparison"
+    outfh=open('nrd.nrs.txt', 'w')
+    headerstring = "\t".join( [ "sample","NRD", "NRS", "totalGenotypes", "noCallsEval", "noCallsComparison"] )
+    outfh.write(headerstring+"\n")
     for sample in discordance_dict.keys():
         #print sample
         #print discordance_dict[sample]
@@ -140,6 +202,13 @@ def main():
         eval_nocalls = gtm[3,0] + gtm[3,1] + gtm[3,2] + gtm[3,3]
         comparison_nocalls = gtm[0,3] + gtm[1,3] + gtm[2,3] + gtm[3,3]
         
-        print sample,nrd, nrc,  np.sum( discordance_dict[sample] ) , eval_nocalls, comparison_nocalls
+        outstring = "\t".join(sample, str(nrd), str(nrc),  str ( np.sum( discordance_dict[sample] ) ) , str(eval_nocalls) , str(comparison_nocalls) )
+        outfh.write(outstring+"\n")
+
+    outfh.close()
+
+    sys.stderr.write("writing accuracy v. posterior prob calibration...\n")
+    calibrateBins(calibration_matrix)
+
 if __name__ == "__main__":
     main()

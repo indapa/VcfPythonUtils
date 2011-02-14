@@ -162,6 +162,53 @@ def returnAlleles_phased(gt):
     else:
         return None
 
+def posterior_imputed_gprob_calibration ( g1, g2, formatstr):
+    """ given two lists of the form [ (sample, gt_string), ... ] and the second one is the 'truth' genotypes
+        return a list [ (max_gprob, 0|1), ... ] where 1 is the imputed genotype matched the truth 0 is it did not
+        note the list returned will only be as long as how many imputed gentypes there were for that marker  """
+
+    formatfields=formatstr.split(':')
+    if 'GPROB' in formatstr and 'OG' in formatstr:
+        gprobs_index=formatfields.index('GPROB')
+        og_index=formatfields.index('OG')
+    else:
+        sys.stderr.write("genotype format doesn't contain GPROB and/or OG , cannot perform posterior genotype calibration!")
+        exit(1)
+    imputed_genotype_calibration=[]
+
+    if len(g1) != len(g2):
+        sys.stderr.write("cannot compare phased unphased genotypes; unequal size of lists!")
+    else:
+        for i in range( 0, len( g1 ) ):
+
+            if g1[i][0] != g2[i][0]:
+                sys.stderr.write("samples don't match in genotypes comparison!")
+                exit(1)
+
+            (og1, og2) = returnAlleles ( getFormatfield( g1[i][1], og_index ) )
+            if (typeofGenotype(og1,og2) != 3):
+                continue
+            g1_maxprob= max ( getFormatfield( g1[i][1], gprobs_index ).split(';') )
+            
+            
+            (p1,p2) = returnAlleles ( stripGT( g1[i][1] ) )
+            (u1, u2) = returnAlleles ( stripGT( g2[i][1]) )
+
+            (p1,p2) = returnAlleles ( stripGT( g1[i][1] ) )
+            (u1, u2) = returnAlleles ( stripGT( g2[i][1]) )
+
+            g1_alleletype=typeofGenotype(p1,p2)
+            g2_alleletype=typeofGenotype(u1,u2)
+            correctly_imputed=0
+            if g1_alleletype != 3 and g2_alleletype !=3 and ( g1_alleletype != g2_alleletype ):
+                correctly_imputed=0
+            else:
+                correctly_imputed=1
+            imputed_genotype_calibration.append( (g1_maxprob, correctly_imputed) )
+            #print  g1_maxprob, g1_alleletype, g2_alleletype, correctly_imputed
+
+        return imputed_genotype_calibration
+
 
 def compare_imputed_genotypes( g1, g2, formatstr):
     """ given two lists of the form [ (sample, gt_string), ... ] iterate and compare *imputed* genotypes in g1 to genotypes in g2  """
@@ -180,6 +227,10 @@ def compare_imputed_genotypes( g1, g2, formatstr):
         sys.stderr.write("cannot compare phased unphased genotypes; unequal size of lists!")
     else:
         for i in range( 0, len( g1 ) ):
+
+            if g1[i][0] != g2[i][0]:
+                sys.stderr.write("samples don't match in genotypes comparison!")
+                exit(1)
 
             #check if the original genotype in g1 was imputed; if not pass on the comparison!
             (og1, og2) = returnAlleles ( getFormatfield( g1[i][1], og_index ) )
@@ -208,6 +259,9 @@ def compare_genotypes(g1, g2):
         sys.stderr.write("cannot compare phased unphased genotypes; unequal size of lists!")
     else:
         for i in range( 0, len( g1 ) ):
+            if g1[i][0] != g2[i][0]: 
+                sys.stderr.write("samples don't match in genotypes comparison!")
+                exit(1)
             (p1,p2) = returnAlleles ( stripGT(g1[i][1] ) )
             (u1, u2) = returnAlleles ( stripGT(g2[i][1]) )
 

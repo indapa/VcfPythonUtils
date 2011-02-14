@@ -202,7 +202,7 @@ def main():
         eval_nocalls = gtm[3,0] + gtm[3,1] + gtm[3,2] + gtm[3,3]
         comparison_nocalls = gtm[0,3] + gtm[1,3] + gtm[2,3] + gtm[3,3]
         
-        outstring = "\t".join(sample, str(nrd), str(nrc),  str ( np.sum( discordance_dict[sample] ) ) , str(eval_nocalls) , str(comparison_nocalls) )
+        outstring = "\t".join( [ sample, str(nrd), str(nrc),  str ( np.sum( discordance_dict[sample] ) ) , str(eval_nocalls) , str(comparison_nocalls ) ] )
         outfh.write(outstring+"\n")
 
     outfh.close()

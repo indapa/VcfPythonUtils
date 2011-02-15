@@ -206,7 +206,7 @@ def posterior_imputed_gprob_calibration ( g1, g2, formatstr):
                 
             elif g1_alleletype != 3 and g2_alleletype !=3 and ( g1_alleletype == g2_alleletype ):
                 correctly_imputed=1
-                print g1_maxprob, g2[i][1], correctly_imputed
+                #print g1_maxprob, g2[i][1], correctly_imputed
             else:
                 pass
 
@@ -244,9 +244,10 @@ def compare_imputed_genotypes( g1, g2, formatstr):
             if (typeofGenotype(og1,og2) != 3):
                 continue
             g1_maxprob= max ( getFormatfield( g1[i][1], gprobs_index ).split(';') )
+            g1_maxprob=float(g1_maxprob)
             #posterior prob of imputed genotype did not meet threshold!
-            if g1_maxprob <=0.90:
-                continue
+            #if g1_maxprob <=float(0.90):
+            #    continue
             (p1,p2) = returnAlleles ( stripGT( g1[i][1] ) )
             (u1, u2) = returnAlleles ( stripGT( g2[i][1]) )
 

@@ -1,4 +1,5 @@
 import sys
+import re
 
 def compareSampleLists(list1, list2):
     """ given two list of samplenames, compare element by element; return 1 if they are all the same 0 otherwise """
@@ -216,7 +217,7 @@ def posterior_imputed_gprob_calibration ( g1, g2, formatstr):
     return imputed_genotype_calibration
 
 
-def compare_imputed_genotypes( g1, g2, formatstr):
+def compare_imputed_genotypes( g1, g2, formatstr, thresh):
     """ given two lists of the form [ (sample, gt_string), ... ] iterate and compare *imputed* genotypes in g1 to genotypes in g2  """
     """ to find out which genotypes in g1 are imputed the FORMAT string must contain the OG tag and the OG must be a nocall """
     """ return list of [ ( g1_alleletype, g2_alleletype, samplename) ] where alleletype is [0, homref; 1, het; 2 hom_nonref; 3, nocall  """
@@ -246,8 +247,8 @@ def compare_imputed_genotypes( g1, g2, formatstr):
             g1_maxprob= max ( getFormatfield( g1[i][1], gprobs_index ).split(';') )
             g1_maxprob=float(g1_maxprob)
             #posterior prob of imputed genotype did not meet threshold!
-            #if g1_maxprob <=float(0.90):
-            #    continue
+            if g1_maxprob <=float(thresh):
+                continue
             (p1,p2) = returnAlleles ( stripGT( g1[i][1] ) )
             (u1, u2) = returnAlleles ( stripGT( g2[i][1]) )
 
@@ -321,3 +322,15 @@ def typeofGenotype(allele1, allele2):
 
     if allele1== '.' or allele2 == '.': return 3
     if allele1 == '.' and allele2 == '.': return 3
+
+
+def doPatternSearch(pattern, string):
+    """ given a pattern object that represents a regular expression search for the pattern in string
+        return matched string. if there is no match return None                                  """
+
+    match=pattern.search(string)
+
+    if match.group() == None:
+        return None
+    else:
+        return match.group()

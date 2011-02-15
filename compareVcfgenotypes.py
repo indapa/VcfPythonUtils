@@ -67,6 +67,10 @@ def main():
 
     parser = OptionParser(usage)
     parser.add_option("--compareImputed",  action="store_true", dest="imputedonly", default=False, help="set option if you want to compare only imputed genotypes in the first file  to the genotypes in the second")
+    parser.add_option("--gprob", type="float", dest="gprob", default=0.0, help="for comparison to genotypes in second VCF, *imputed* genotype probabilties in first VCF must be at least gprob and have the format tag GPROB")
+    parser.add_option("--r2", type="float", dest="rsquare", default=0.0, help="for comparison of *imputed*  genotypes in first VCF to those  in second VCF, SNP r2 of the site in first VCF must be at least rsquare and have the  info tag R2")
+
+
     (options, args)=parser.parse_args()
     (vcf_fname1, vcf_fname2) =  args[0:2]
    
@@ -113,7 +117,10 @@ def main():
         if '#CHROM' in vcf_fh2.readline(): break
 
    
-    sys.stderr.write("comparing genotypes between vcf files...\n")
+    if options.imputedonly == True:
+        sys.stderr.write("comparing only imputed genotypes in first VCF to genotypes in the second\n")
+    else:
+        sys.stderr.write("comparing genotypes between vcf files...\n")
 
 
     while 1:
@@ -129,6 +136,13 @@ def main():
         vcf2_data=split_vcfdataline(vcf2_line)
      
         vcf1_formatstr= vcf1_data[8]
+        vcf1_infostr = vcf1_data[7]
+
+        pattern=re.compile('R2=\d\.\d+')
+        match=doPatternSearch(pattern, vcf1_infostr)
+        if match != None:
+            (r2,value)=match.split('=')
+            if float(value) <= options.rsquare: continue
 
         if vcf1_data[0:2] != vcf2_data[0:2]:
             sys.stderr.write("chrom/position doesn't match!")
@@ -149,7 +163,7 @@ def main():
        
         #collect the compariosn results
         if (options.imputedonly == True):
-            comparison_results= compare_imputed_genotypes(filtered_vcf1, filtered__vcf2, vcf1_formatstr)
+            comparison_results= compare_imputed_genotypes(filtered_vcf1, filtered__vcf2, vcf1_formatstr, options.gprob)
             gprobs_calibrations = posterior_imputed_gprob_calibration(filtered_vcf1, filtered__vcf2, vcf1_formatstr)
             for x in gprobs_calibrations:
                 (gprob, comparison_result) =x

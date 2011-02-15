@@ -137,12 +137,17 @@ def main():
      
         vcf1_formatstr= vcf1_data[8]
         vcf1_infostr = vcf1_data[7]
-
-        pattern=re.compile('R2=\d\.\d+')
-        match=doPatternSearch(pattern, vcf1_infostr)
-        if match != None:
-            (r2,value)=match.split('=')
-            if float(value) <= options.rsquare: continue
+        #print vcf1_infostr
+        
+        if 'R2' in vcf1_infostr:
+            infofields=vcf1_infostr.split(';')
+            #print infofields
+            if 'R2' in infofields[3]:
+                (r2,value)=infofields[3].split('=')
+                value=float(value)
+                if float(value) <= options.rsquare:
+                    #print options.rsquare, value
+                    continue
 
         if vcf1_data[0:2] != vcf2_data[0:2]:
             sys.stderr.write("chrom/position doesn't match!")

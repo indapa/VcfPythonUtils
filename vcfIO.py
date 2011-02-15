@@ -202,12 +202,18 @@ def posterior_imputed_gprob_calibration ( g1, g2, formatstr):
             correctly_imputed=0
             if g1_alleletype != 3 and g2_alleletype !=3 and ( g1_alleletype != g2_alleletype ):
                 correctly_imputed=0
-            else:
+                #print  g1_maxprob, g1[i][1], g2[i][1], correctly_imputed
+                
+            elif g1_alleletype != 3 and g2_alleletype !=3 and ( g1_alleletype == g2_alleletype ):
                 correctly_imputed=1
-            imputed_genotype_calibration.append( (g1_maxprob, correctly_imputed) )
-            #print  g1_maxprob, g1_alleletype, g2_alleletype, correctly_imputed
+                print g1_maxprob, g2[i][1], correctly_imputed
+            else:
+                pass
 
-        return imputed_genotype_calibration
+            imputed_genotype_calibration.append( (g1_maxprob, correctly_imputed) )
+            
+
+    return imputed_genotype_calibration
 
 
 def compare_imputed_genotypes( g1, g2, formatstr):
@@ -216,10 +222,11 @@ def compare_imputed_genotypes( g1, g2, formatstr):
     """ return list of [ ( g1_alleletype, g2_alleletype, samplename) ] where alleletype is [0, homref; 1, het; 2 hom_nonref; 3, nocall  """
 
     formatfields=formatstr.split(':')
-    if 'OG' in formatstr:
+    if 'GPROB' in formatstr and 'OG' in formatstr:
+        gprobs_index=formatfields.index('GPROB')
         og_index=formatfields.index('OG')
     else:
-        sys.stderr.write("genotype format doesn't contain OG, cannot determine if genotype was imputed!")
+        sys.stderr.write("genotype format doesn't contain GPROB/OG, cannot determine if genotype was imputed!")
         exit(1)
     compared_imputed_genotypes=[]
 
@@ -236,7 +243,10 @@ def compare_imputed_genotypes( g1, g2, formatstr):
             (og1, og2) = returnAlleles ( getFormatfield( g1[i][1], og_index ) )
             if (typeofGenotype(og1,og2) != 3):
                 continue
-
+            g1_maxprob= max ( getFormatfield( g1[i][1], gprobs_index ).split(';') )
+            #posterior prob of imputed genotype did not meet threshold!
+            if g1_maxprob <=0.90:
+                continue
             (p1,p2) = returnAlleles ( stripGT( g1[i][1] ) )
             (u1, u2) = returnAlleles ( stripGT( g2[i][1]) )
 

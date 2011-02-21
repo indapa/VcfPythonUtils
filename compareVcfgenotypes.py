@@ -21,6 +21,28 @@ def calibrateBins (matrix):
 
     outfh.close()
 
+
+def computeCalledGenotypes (gtm):
+    """ given a genotype matrix of counts of genotypes in the 4 possible classes, sum the total called genotypes """
+
+    total_calls = gtm[0,0] + gtm[0,1] + gtm[0,2] + gtm[1,0] + gtm[1,1] + gtm[1,2] + gtm[2,0] + gtm[2,1] + gtm[2,2]
+    return total_calls
+
+def computeRowMarginalAltCount (gtm):
+    """ given a genotype matrix of counts of genotypes in the 4 possible classes,  compute the row marginal alt allele count  """
+    het_calls = gtm[1,0] + gtm[1,1] + gtm[1,2] + gtm[1,3]
+    homoz_alt_calls = gtm[2,0] + gtm[2,1] + gtm[2,2]  + gtm[2,3]
+    alt_count = het_calls + (2*homoz_alt_calls)
+    return alt_count
+
+def computeColMarginalAltCount (gtm):
+    """ given a genotype matrix of counts of genotypes in the 4 possible classes,  compute the column marginal alt allele count  """
+    het_calls = gtm[0,1] + gtm[1,1] + gtm[2,1] + gtm[3,1]
+    homoz_alt_count = gtm[0,2] + gtm[1,2] + gtm[2,2] + gtm[3,2]
+
+    alt_count = het_calls + (2*homoz_alt_count)
+    return alt_count
+
 def computeNRD(gtm):
     """ compute the Non-reference discrepancy rate: http://www.broadinstitute.org/gsa/wiki/index.php/File:GenotypeConcordanceGenotypeErrorRate.png  """
     """ ignores concordant calls that are  ref/ref; conditions on calls being made by both callsets """
@@ -66,7 +88,8 @@ def main():
     usage = "usage: %prog file1.vcf file2.vcf\n"+description
 
     parser = OptionParser(usage)
-    parser.add_option("--compareImputed",  action="store_true", dest="imputedonly", default=False, help="set option if you want to compare only imputed genotypes in the first file  to the genotypes in the second")
+    parser.add_option("--onlyImputed",  action="store_true", dest="imputedonly", default=False, help="set option if you want to compare *only imputed* genotypes in the first file  to the genotypes in the second")
+    parser.add_option("--ignoreImputed",  action="store_true", dest="ignoreimputed", default=False, help="set option if you want to *ignore* imputed genotypes in the first file  to the genotypes in the second")
     parser.add_option("--gprob", type="float", dest="gprob", default=0.0, help="for comparison to genotypes in second VCF, *imputed* genotype probabilties in first VCF must be at least gprob and have the format tag GPROB")
     parser.add_option("--r2", type="float", dest="rsquare", default=0.0, help="for comparison of *imputed*  genotypes in first VCF to those  in second VCF, SNP r2 of the site in first VCF must be at least rsquare and have the  info tag R2")
 
@@ -78,7 +101,10 @@ def main():
     vcf_fh1= open(vcf_fname1, 'r')
     vcf_fh2= open(vcf_fname2, 'r')
  
-    
+    logfh= open('mismatch.log', 'w')
+    sitefh = open('site.nrd.nrs.txt', 'w')
+    site_header= "\t".join( [ 'chrom', 'pos', 'ref', 'alt', 'rsquare', 'total', 'called', 'totalChrom', 'vcf1_ac', 'vcf1_nocall', 'vcf2_ac', 'vcf2_nocall', 'vcf2_maf', 'nrs', 'nrd'])
+    sitefh.write(site_header+'\n')
 
     vcf1_samples=get_vcfsamples(vcf_fh1)
     vcf2_samples=get_vcfsamples(vcf_fh2)
@@ -128,6 +154,8 @@ def main():
         vcf1_line= vcf_fh1.readline()
         vcf2_line =  vcf_fh2.readline()
 
+
+
         if vcf1_line == '' or vcf2_line == '':
             #sys.stderr.write("unphased vcf has reached EOF!\n")
             break
@@ -139,19 +167,34 @@ def main():
         vcf1_infostr = vcf1_data[7]
         #print vcf1_infostr
         
+        #print vcf1_data[0], vcf1_data[1],  vcf1_data[3:5], vcf2_data[3:5]
+
+        #the genotype comparison matrix for the VCF site
+        #reset everytime a new site is analyzed
+        site_discordance=np.matrix( [ [ 0,0,0,0 ], [ 0,0,0,0 ], [ 0,0,0,0 ], [ 0,0,0,0 ] ] )
+
+        #print site_discordance
+
+        r2value=''
         if 'R2' in vcf1_infostr:
             infofields=vcf1_infostr.split(';')
             #print infofields
             if 'R2' in infofields[3]:
-                (r2,value)=infofields[3].split('=')
-                value=float(value)
-                if float(value) <= options.rsquare:
+                (r2,r2value)=infofields[3].split('=')
+                value=float(r2value)
+                if float(r2value) <= options.rsquare:
                     #print options.rsquare, value
                     continue
 
+        if vcf1_data[3:5] != vcf2_data[3:5]:
+            sys.stderr.write("ref/alt alleles don't match between vcfs!\n")
+            outstr = "\t".join( [vcf1_data[0], vcf1_data[1], vcf1_data[3], vcf1_data[4], vcf2_data[0], vcf2_data[1], vcf2_data[3], vcf2_data[4] ] )
+            logfh.write(outstr+"\n")
+            continue
+
         if vcf1_data[0:2] != vcf2_data[0:2]:
             sys.stderr.write("chrom/position doesn't match!")
-            print vcf1_data[0:2], vcf2_data[0:2]
+            print vcf1_data[0], vcf1_data[1],vcf2_data[0], vcf2_data[1]
             exit(1)
         
 
@@ -164,7 +207,8 @@ def main():
         filtered_vcf1= [x for x in vcf1_ziptuple if x[0] in common_samples]
         filtered__vcf2=  [x for x in vcf2_ziptuple if x[0] in common_samples]
 
-        
+        maf_vcf2 = calMaf(filtered__vcf2) #get the MAF for the site in the second VCF
+        #print len(filtered_vcf1), len(filtered__vcf2)
        
         #collect the compariosn results
         if (options.imputedonly == True):
@@ -197,16 +241,49 @@ def main():
                 else:
                     pass
             
-
-
+        elif (options.ignoreimputed == True):
+            comparison_results= compare_nonimputed_genotypes(filtered_vcf1, filtered__vcf2, vcf1_formatstr, options.gprob)
         else:
             comparison_results = compare_genotypes(filtered_vcf1, filtered__vcf2)
+            #print comparison_results
 
-        for (g1, g2, sample) in comparison_results:
-            discordance_dict[sample][g1,g2]+=1
+        for (g1, g2, sample) in comparison_results: #iterate thru the compariosn results
+            discordance_dict[sample][g1,g2]+=1      #incrment the per-sample counts of genotype compariosns results
+            site_discordance[g1,g2]+=1              #incrment the per-site counts of genotype compariosns results
+            
+        #collect site specific nrd, nrs, called genotypes, alt count, etc for this current site
+        site_nrs=computeNRS( site_discordance )
+        site_nrd=computeNRD ( site_discordance )
+        #if site_nrd == 'NA': print site_discordance
+        vcf1_nocalls = site_discordance[3,0] + site_discordance[3,1] + site_discordance[3,2] + site_discordance[3,3]
+        vcf2_nocalls = site_discordance[0,3] + site_discordance[1,3] + site_discordance[2,3] + site_discordance[3,3]
 
 
+        totalCalledGenotypes = computeCalledGenotypes(site_discordance)
+        totalChroms=2*totalCalledGenotypes
+        
+        vcf1_altcount=computeRowMarginalAltCount(site_discordance)
+        vcf2_altcount =computeColMarginalAltCount(site_discordance)
 
+        #if vcf1_altcount == 1: print "ac ==1\n", site_discordance
+        #if site_nrd == 1.0: print "nrd==1\n", site_discordance
+
+        outstr= "\t".join( [ vcf1_data[0], vcf1_data[1], vcf1_data[3], vcf1_data[4], str(r2value), str( len(filtered_vcf1) ), str(totalCalledGenotypes), str(totalChroms), str(vcf1_altcount), str(vcf1_nocalls), str(vcf2_altcount), str(vcf2_nocalls) ])
+
+        sitefh.write(outstr +"\t")
+        sitefh.write('%.3f'%maf_vcf2+'\t')
+        #maf_vcf2,'%2f''%site_nrs), str(site_nrd)
+        if site_nrs != 'NA':
+            sitefh.write('%.3f'%site_nrs+'\t')
+        else:
+            sitefh.write(site_nrs+'\t')
+        if site_nrd != 'NA':
+            sitefh.write('%.3f'%site_nrd+'\n')
+        else:
+            sitefh.write(site_nrd+'\n')
+
+    #broke out of the while loop - finished comparing the two vcf files
+    #now collect and write per sample nrd and nrs results
     outfh=open('nrd.nrs.txt', 'w')
     headerstring = "\t".join( [ "sample","NRD", "NRS", "totalGenotypes", "noCallsEval", "noCallsComparison"] )
     outfh.write(headerstring+"\n")
@@ -220,7 +297,6 @@ def main():
         gtm= discordance_dict[sample]
         eval_nocalls = gtm[3,0] + gtm[3,1] + gtm[3,2] + gtm[3,3]
         comparison_nocalls = gtm[0,3] + gtm[1,3] + gtm[2,3] + gtm[3,3]
-        
         outstring = "\t".join( [ sample, str(nrd), str(nrc),  str ( np.sum( discordance_dict[sample] ) ) , str(eval_nocalls) , str(comparison_nocalls ) ] )
         outfh.write(outstring+"\n")
 

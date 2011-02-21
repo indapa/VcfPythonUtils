@@ -141,6 +141,8 @@ def returnAlleles(gt):
         return None
         
 
+
+
 def returnAlleles_unphased(gt):
     """ return tuple of (allele1, allele2) of unphased and stripped  GT string e.g. 0/0 returns (0,0) """
     if ':' in gt:
@@ -162,6 +164,26 @@ def returnAlleles_phased(gt):
         return (a1,a2)
     else:
         return None
+
+def calMaf (g):
+    """ given a list in the form [ (sample, gt_string) ] determine the minor allele freq= alt/2*called genotypes """
+    total=0
+    alt_count=0
+    for (sample, genotype) in g:
+        (p1,p2) = returnAlleles ( stripGT( genotype ) )
+        
+        alleletype=typeofGenotype(p1,p2)
+
+        if alleletype != 3: total+=1
+        if alleletype ==1 : 
+            alt_count+=1
+        elif alleletype == 2:
+            alt_count +=2
+        else:
+            pass
+    maf = float(alt_count) / float(2*total)
+    #print p1, p2, sample, maf, alt_count, total
+    return round(maf,3)
 
 def posterior_imputed_gprob_calibration ( g1, g2, formatstr):
     """ given two lists of the form [ (sample, gt_string), ... ] and the second one is the 'truth' genotypes
@@ -217,6 +239,51 @@ def posterior_imputed_gprob_calibration ( g1, g2, formatstr):
     return imputed_genotype_calibration
 
 
+def compare_nonimputed_genotypes( g1, g2, formatstr, thresh):
+    """ given two lists of the form [ (sample, gt_string), ... ] iterate and compare *non-imputed* genotypes in g1 to genotypes in g2  """
+    """ to find out which genotypes in g1 are imputed the FORMAT string must contain the OG tag and the OG must be a nocall """
+    """ return list of [ ( g1_alleletype, g2_alleletype, samplename) ] where alleletype is [0, homref; 1, het; 2 hom_nonref; 3, nocall  """
+
+    formatfields=formatstr.split(':')
+    if 'GPROB' in formatstr and 'OG' in formatstr:
+        gprobs_index=formatfields.index('GPROB')
+        og_index=formatfields.index('OG')
+    else:
+        sys.stderr.write("genotype format doesn't contain GPROB/OG, cannot determine if genotype was imputed!")
+        exit(1)
+    compared_imputed_genotypes=[]
+
+    if len(g1) != len(g2):
+        sys.stderr.write("cannot compare phased unphased genotypes; unequal size of lists!")
+    else:
+        for i in range( 0, len( g1 ) ):
+
+            if g1[i][0] != g2[i][0]:
+                sys.stderr.write("samples don't match in genotypes comparison!")
+                exit(1)
+
+            #check if the original genotype in g1 was imputed; if not pass on the comparison!
+            (og1, og2) = returnAlleles ( getFormatfield( g1[i][1], og_index ) )
+            if (typeofGenotype(og1,og2) == 3):
+                continue
+            g1_maxprob= max ( getFormatfield( g1[i][1], gprobs_index ).split(';') )
+            g1_maxprob=float(g1_maxprob)
+            #posterior prob of imputed genotype did not meet threshold!
+            if g1_maxprob <=float(thresh):
+                continue
+            (p1,p2) = returnAlleles ( stripGT( g1[i][1] ) )
+            (u1, u2) = returnAlleles ( stripGT( g2[i][1]) )
+
+            g1_alleletype=typeofGenotype(p1,p2)
+            g2_alleletype=typeofGenotype(u1,u2)
+            #print g1[i], g1_alleletype
+            #print g2[i], g2_alleletype
+            compared_imputed_genotypes.append( (g1_alleletype, g2_alleletype, g1[i][0])  )
+    return  compared_imputed_genotypes
+
+
+
+
 def compare_imputed_genotypes( g1, g2, formatstr, thresh):
     """ given two lists of the form [ (sample, gt_string), ... ] iterate and compare *imputed* genotypes in g1 to genotypes in g2  """
     """ to find out which genotypes in g1 are imputed the FORMAT string must contain the OG tag and the OG must be a nocall """
@@ -264,7 +331,7 @@ def compare_genotypes(g1, g2):
     """ return list of [ ( g1_alleletype, g2_alleletype, samplename) ] where alleletype is [0, homref; 1, het; 2 hom_nonref; 3, nocall """
 
 
-
+    
     compared_genotypes=[] # [ (g1_type, g2_type, sample) ... ]
 
     if len(g1) != len(g2):

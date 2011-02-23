@@ -122,6 +122,21 @@ def stripGT(gt_string):
         gtformatfields=gt_string.split(':')
         return gtformatfields[0]
 
+def yieldGQ (g1, formatstr):
+    """ given a list of [ (sample, gt_string) ] parse out the GQ and yield the genotype quality for the genotype """
+    formatfields=formatstr.split(':')
+    if 'GQ' in formatfields:
+        gq_index = formatfields.index('GQ')
+    else:
+        sys.stderr.write("GQ not in genotype format string, cannot return genotype quality!\n")
+        exit(1)
+    for (sample, gtstring) in g1:
+        (allele1, allele2) = returnAlleles( stripGT(gtstring)  )
+        if (allele1 == '.' or allele2 == '.'): continue
+        gq=getFormatfield(gtstring, gq_index)
+        yield gq
+    
+
 
 def returnAlleles(gt):
     """ return tuple (allele1, allele2) of stripped genotype GT field"""

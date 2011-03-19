@@ -76,7 +76,10 @@ def main():
     usage = "usage: %prog [options] vcf_file_one vcf|bed_file_two\n\nFind regions in the first vcf file that overlap regions of the second vcf or bed file\n"
     parser = OptionParser(usage)
     parser.add_option("--minCols", type="int", dest="mincols", default=1, help="mininum basepair overlap (default is one)")
+    parser.add_option("--v", action="store_true", dest="reverse",  help="Print regions in first vcf  that DO NOT overlap second vcf|bed file")
     (options, args)=parser.parse_args()
+
+
     
     vcf_file_one=args[0]
     in2_fname=args[1]
@@ -106,8 +109,10 @@ def main():
         #print chr, str(start), str(end)
         chrom="chr"+chrom
         if chrom in bitsets and bitsets[chrom].count_range( start, end-start ) >= options.mincols:
-            print dataline.strip()
-
+            if not options.reverse: print dataline.strip()
+        else:
+            if options.reverse == True:
+                print dataline.strip()
 
 
 

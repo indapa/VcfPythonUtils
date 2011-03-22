@@ -22,6 +22,7 @@ def calibrateBins (matrix):
     outfh.close()
 
 
+
 def computeCalledGenotypes (gtm):
     """ given a genotype matrix of counts of genotypes in the 4 possible classes, sum the total called genotypes """
 
@@ -53,8 +54,39 @@ def computeNRD(gtm):
 
     if total_count==0: return 'NA'
 
-    nrd= float(discordant_call_count)/float(total_count)
+    nrd= round( float(discordant_call_count)/float(total_count), 3)
     return nrd
+
+def computeNRD_class (gtm):
+    """ compute the discrepancy in each genotype class (homoz_ref, het, homoz_nonref) """
+    total_homoz_ref= gtm[0,0] + gtm[1,0] + gtm[2,0]
+    discord_homoz_ref= gtm[1,0] + gtm[2,0]
+
+    total_het= gtm[0,1] + gtm[1,1] + gtm[2,1]
+    discord_het= gtm[0,1] + gtm[2,1]
+
+    total_homoz_nonref= gtm[0,2] + gtm[1,2] + gtm[2,2]
+    discord_homoz_nonref = gtm[0,2] + gtm[1,2]
+
+    if total_homoz_ref == 0:
+        nrd_homoz_ref='NA'
+    else:
+        nrd_homoz_ref= round ( float(discord_homoz_ref)/float(total_homoz_ref), 3 )
+
+    if total_het == 0:
+        nrd_het = 'NA'
+    else:
+        nrd_het = round( float(discord_het)/float(total_het), 3 )
+
+    if total_homoz_nonref == 0:
+        nrd_homoz_ref = 'NA'
+    else:
+        nrd_homoz_ref= round ( float(discord_homoz_nonref)/float(total_homoz_nonref), 3 )
+
+    return (nrd_homoz_ref, nrd_het, nrd_homoz_ref,
+            (total_homoz_ref, discord_homoz_ref),
+            (total_het, discord_het),
+            (total_homoz_nonref, discord_homoz_nonref) )
 
 
 def computeNRS(gtm):
@@ -67,15 +99,36 @@ def computeNRS(gtm):
 
     if variant_count_comparison ==0:
         return 'NA'
-    nrs= float(variant_count_evaluation)/float(variant_count_comparison)
+    nrs= round ( float(variant_count_evaluation)/float(variant_count_comparison), 3 )
     return nrs
 
 
-def binCalibrations( gprobs_calibrations, calibration_matrix):
-    """ given a calibrationList [ (gprob, 0|1), ... ] and a 2d matrix calibrationMatrix append the tuple to the proper bin (row) in the matrix """
+def binGenoytpeQualities( gq_calibrations):
+    """ given a calibrationList [ (gq, 0|1), ... ] bin the data"""
+    bins = np.linspace(0, 100, 11) #11 bins between 0 and 100 (0,10,20,30,40,50,60,70,80,90,100)
+    L =[ [ ] for i in range(0, len(bins)) ] # L is a list of lists [ [] ,,, [] ]
+    outfh=open('gq.calibration.txt', 'w')
+
+    for (gq, truth) in gq_calibrations:
+
+        for i in range(0, len(bins)-1 ):
+            if int(gq) >= bins[i] and int(gq) < bins[i+1]:
+                L[i].append(  truth )
+                #print str(gq), truth
+                continue
+    for i in range(0, len(L) ):
+        total=len(L[i])
+        totalinCorrect=0
+        for flag in L[i]:
+            if flag == 0: totalinCorrect+=1
+
+        j=bins[i]
+        outstring = "\t".join([str(j), str(totalinCorrect), str(total)])
+        outfh.write(outstring+"\n")
+
+    outfh.close()
 
     
-    return calibration_matrix
 
 def main():
     """compare the genotypes in second vcf file to the ones in the first vcf file
@@ -103,11 +156,21 @@ def main():
  
     logfh= open('mismatch.log', 'w')
     sitefh = open('site.nrd.nrs.txt', 'w')
-    site_header= "\t".join( [ 'chrom', 'pos', 'ref', 'alt', 'rsquare', 'total', 'called', 'totalChrom', 'vcf1_ac', 'vcf1_nocall', 'vcf2_ac', 'vcf2_nocall', 'vcf2_maf', 'nrs', 'nrd'])
+    site_header= "\t".join( [ 'chrom', 'pos', 'ref', 'alt', 'rsquare', 'total', 'called', 'totalChrom', 'vcf1_ac', 'vcf1_nocall', 'vcf2_ac', 'vcf2_nocall', 'vcf2_maf', 'nrs', 'nrd', 'nrd_homoz_ref', 'nrd_het', 'nrd_homoz_nonref'])
     sitefh.write(site_header+'\n')
 
     vcf1_samples=get_vcfsamples(vcf_fh1)
     vcf2_samples=get_vcfsamples(vcf_fh2)
+
+
+    sitetotalAA=0
+    sitetotalAA_discord=0
+
+    sitetotalAB=0
+    sitetotalAB_discord=0
+
+    sitetotalBB=0
+    sitetotalBB_discord=0
 
 
     common_samples= []
@@ -128,7 +191,7 @@ def main():
     for i in range(0,10):
         calibration_matrix.append( [] )
    
-
+    genotype_quality_list=[] # [ (gq, 0|1) .... ]
 
 
     #reset the filehandle positions
@@ -165,7 +228,7 @@ def main():
      
         vcf1_formatstr= vcf1_data[8]
         vcf1_infostr = vcf1_data[7]
-        #print vcf1_infostr
+        #print vcf1_formatstr
         
         #print vcf1_data[0], vcf1_data[1],  vcf1_data[3:5], vcf2_data[3:5]
 
@@ -175,7 +238,7 @@ def main():
 
         #print site_discordance
 
-        r2value=''
+        r2value='NA'
         if 'R2' in vcf1_infostr:
             infofields=vcf1_infostr.split(';')
             #print infofields
@@ -245,15 +308,31 @@ def main():
             comparison_results= compare_nonimputed_genotypes(filtered_vcf1, filtered__vcf2, vcf1_formatstr, options.gprob)
         else:
             comparison_results = compare_genotypes(filtered_vcf1, filtered__vcf2)
+            gq_calibrations = gq_calibration(filtered_vcf1, filtered__vcf2, vcf1_formatstr)
+            for t in gq_calibrations:
+                genotype_quality_list.append(t)
             #print comparison_results
 
         for (g1, g2, sample) in comparison_results: #iterate thru the compariosn results
             discordance_dict[sample][g1,g2]+=1      #incrment the per-sample counts of genotype compariosns results
             site_discordance[g1,g2]+=1              #incrment the per-site counts of genotype compariosns results
-            
+
+        #print site_discordance
         #collect site specific nrd, nrs, called genotypes, alt count, etc for this current site
         site_nrs=computeNRS( site_discordance )
         site_nrd=computeNRD ( site_discordance )
+        (site_nrd_homoz_ref, site_nrd_het, site_nrd_homoz_nonref, aa, ab, bb )=computeNRD_class( site_discordance)
+
+        sitetotalAA+=aa[0]
+        sitetotalAA_discord+=aa[1]
+
+        sitetotalAB+=ab[0]
+        sitetotalAB_discord+=ab[1]
+
+        sitetotalBB+=bb[0]
+        sitetotalBB_discord+=bb[1]
+
+
         #if site_nrd == 'NA': print site_discordance
         vcf1_nocalls = site_discordance[3,0] + site_discordance[3,1] + site_discordance[3,2] + site_discordance[3,3]
         vcf2_nocalls = site_discordance[0,3] + site_discordance[1,3] + site_discordance[2,3] + site_discordance[3,3]
@@ -268,23 +347,23 @@ def main():
         #if vcf1_altcount == 1: print "ac ==1\n", site_discordance
         #if site_nrd == 1.0: print "nrd==1\n", site_discordance
 
-        outstr= "\t".join( [ vcf1_data[0], vcf1_data[1], vcf1_data[3], vcf1_data[4], str(r2value), str( len(filtered_vcf1) ), str(totalCalledGenotypes), str(totalChroms), str(vcf1_altcount), str(vcf1_nocalls), str(vcf2_altcount), str(vcf2_nocalls) ])
+        outstr= "\t".join( [ vcf1_data[0], vcf1_data[1], vcf1_data[3],
+                             vcf1_data[4], str(r2value), str( len(filtered_vcf1) ),
+                             str(totalCalledGenotypes), str(totalChroms), str(vcf1_altcount),
+                             str(vcf1_nocalls), str(vcf2_altcount), str(vcf2_nocalls) ])
 
         sitefh.write(outstr +"\t")
         sitefh.write('%.3f'%maf_vcf2+'\t')
-        #maf_vcf2,'%2f''%site_nrs), str(site_nrd)
-        if site_nrs != 'NA':
-            sitefh.write('%.3f'%site_nrs+'\t')
-        else:
-            sitefh.write(site_nrs+'\t')
-        if site_nrd != 'NA':
-            sitefh.write('%.3f'%site_nrd+'\n')
-        else:
-            sitefh.write(site_nrd+'\n')
+        sitefh.write( str(site_nrs)+'\t')
+        sitefh.write( str(site_nrd)+'\t')
+        sitefh.write( str(site_nrd_homoz_ref) + '\t')
+        sitefh.write( str(site_nrd_het) + '\t')
+        sitefh.write( str(site_nrd_homoz_nonref) + '\n')
+       
 
     #broke out of the while loop - finished comparing the two vcf files
     #now collect and write per sample nrd and nrs results
-    outfh=open('nrd.nrs.txt', 'w')
+    outfh=open('sample.nrd.nrs.txt', 'w')
     headerstring = "\t".join( [ "sample","NRD", "NRS", "totalGenotypes", "noCallsEval", "noCallsComparison"] )
     outfh.write(headerstring+"\n")
     for sample in discordance_dict.keys():
@@ -302,8 +381,14 @@ def main():
 
     outfh.close()
 
-    sys.stderr.write("writing accuracy v. posterior prob calibration...\n")
-    calibrateBins(calibration_matrix)
+    #sys.stderr.write("writing accuracy v. posterior prob calibration...\n")
+    #calibrateBins(calibration_matrix)
+    #calibmatrix = binGenoytpeQualities(genotype_quality_list)
+
+    outstr="\t".join( [str(sitetotalAA), str(sitetotalAA_discord),
+                      str(sitetotalAB), str(sitetotalAB_discord),
+                      str(sitetotalBB), str(sitetotalBB_discord)] )
+    print outstr
 
 if __name__ == "__main__":
     main()

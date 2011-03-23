@@ -8,10 +8,12 @@ vcfCallRate.py - given a VCF file the file snpcallrate.txt and samplecallrate.tx
 
 vcfUnion.py - using the bx-python bitset api, take the union of any number of VCF files and print bed file of coordinates to STDOUT
 
-comparePhasedVcf.py - compare genotypes for phased and unphased versions of the same VCF file
+comparePhasedVcf.py - *deprecated* compare genotypes for phased and unphased versions of the same VCF file
 
 compareVcfGenotypes.py - compare the genotypes in second VCF  file to the ones in the first VCF  file
 The two VCFs should have the same sites but not necessarily the same samples
+
+vcf_hwe.py - compute likelihood ratio test statistic for HWE for bi-allelic SNPs
 
 Amit Indap
 indapa@gmail.com

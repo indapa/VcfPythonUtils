@@ -36,7 +36,7 @@ def get_vcfdataline_passfilter(fh):
         if '#' not in line:
             fields = line.strip().split('\t')
             if fields[6] == '.' or fields[6]=='PASS':
-                yield line.strip().split('\t')
+                yield line.strip()
 
 def get_vcfdatafields(fh):
     """ yield data fields """

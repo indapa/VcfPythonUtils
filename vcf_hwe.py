@@ -27,7 +27,7 @@ def main():
     header="\t".join(['chrom', 'position', 'lrts', 'obsAA', 'obsAB', 'obsBB', 'expAA', 'expAB', 'expBB'])
     print header
 
-    for vcf1_line in get_vcfdataline(vcf1_fh):
+    for vcf1_line in get_vcfdataline_passfilter(vcf1_fh):
         vcf1_data=split_vcfdataline(vcf1_line)
         vcf1_formatstr= vcf1_data[8]
         vcf1_infostr = vcf1_data[7]

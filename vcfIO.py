@@ -1,5 +1,6 @@
 import sys
 import re
+import math
 
 def compareSampleLists(list1, list2):
     """ given two list of samplenames, compare element by element; return 1 if they are all the same 0 otherwise """
@@ -180,6 +181,18 @@ def returnAlleles_phased(gt):
     else:
         return None
 
+def getCalledGenotypeCount (g):
+    """ return the numebr of called genotpes given a list  [ (sample, gt_string) ... ] return the number of called genotypes """
+    total=0
+    for (sample, genotype) in g:
+        (p1,p2) = returnAlleles ( stripGT( genotype ) )
+
+        if typeofGenotype(p1,p2) != 3:
+            total+=1
+
+    return total
+
+
 def calMaf (g):
     """ given a list in the form [ (sample, gt_string) ] determine the minor allele freq= alt/2*called genotypes """
     total=0
@@ -189,7 +202,9 @@ def calMaf (g):
         
         alleletype=typeofGenotype(p1,p2)
 
-        if alleletype != 3: total+=1
+        if alleletype == 3:
+            continue
+        total+=1
         if alleletype ==1 : 
             alt_count+=1
         elif alleletype == 2:
@@ -197,8 +212,109 @@ def calMaf (g):
         else:
             pass
     maf = float(alt_count) / float(2*total)
+    #print float(2*total)
     #print p1, p2, sample, maf, alt_count, total
-    return round(maf,3)
+    return  ( round(maf,3) )
+
+
+def return_expected_genotype_counts ( g1 ):
+    """ given a list in the form [ (sample, gt_string), ... ] return expected counts of 3 genotypes """
+
+    theta = calMaf(g1)
+
+    pAA =  float(1-theta) * float(1-theta) * float( getCalledGenotypeCount(g1) )
+    pAB =  float( 2*theta*(1-theta) ) * float ( getCalledGenotypeCount(g1) )
+    pBB =  float( theta) * float (theta) * float ( getCalledGenotypeCount(g1) )
+
+    return (round(pAA,3), round(pAB,3), round(pBB,3) )
+
+
+def return_observed_genotype_counts( g1 ):
+    """ given a list in the form [ (sample, gt_string), ... ] return the counts of the 3 types of genotypes """
+    homoz_ref=0
+    het=0
+    homoz_nonref=0
+    for i in range (0, len( g1 ) ):
+        (p1,p2) = returnAlleles ( stripGT( g1[i][1] ) )
+        if typeofGenotype(p1,p2) == 3:
+            continue
+        else:
+            alleletype=typeofGenotype(p1,p2)
+            #print g1[i][0], alleletype, g1[i][1]
+            if alleletype==0:
+                homoz_ref+=1
+            if alleletype==1:
+                het+=1
+            if alleletype==2:
+                homoz_nonref+=1
+    return( homoz_ref,  het, homoz_nonref )
+
+def hweLRT ( g1 ):
+    """ return the LRT for HWE """
+
+    #2 * sum (obs * log(obs/exp)) = LRT
+
+    lrt=0
+
+    obs = (pAAobs, pABobs, pBBobs ) = return_observed_genotype_counts ( g1 )
+    exp = (pAAexp, pABexp, pBBexp) =  return_expected_genotype_counts ( g1 )
+
+    for i in range(0, len(obs)):
+        if obs[i] == 0:
+            lrt+=0
+        else:
+            lrt+= float(obs[i]) * math.log(obs[i]/exp[i])
+
+    lrt *= 2
+    return  lrt
+
+
+def gq_calibration ( g1, truth, formatstr):
+    """ given two lists in the form [ (sample, gt_string), ... ] and the second list are 'truth' genotypes return a list of [ (gq, 0|1) ] were 1
+    indicates the genotype in g1 matched the truth and 0 indicates it did not. Note, 'GQ' needs to be in format string inorder to calibrate """
+
+    formatfields = formatstr.split(':')
+    if 'GQ' in formatstr:
+        gq_index = formatfields.index('GQ')
+        
+    else:
+        sys.stderr.write("genotype format string doesn't contain GQ, cannot perform genotype quality calibration!\n")
+        exit(1)
+
+    gq_calibration = []
+    
+    if len(g1) != len(truth):
+        sys.stderr.write("gq_calibration: cannot compare  genotypes; unequal size of lists!\n")
+        exit(1)
+    else:
+        for i in range(0, len(g1) ):
+            if g1[i][0] != truth[i][0]:
+                sys.stderr.write("gq_calibration:samples don't match in comparison\n")
+                exit(1)
+            (p1,p2) = returnAlleles ( stripGT( g1[i][1] ) )
+            if typeofGenotype(p1,p2) == 3: continue
+            
+            gq=getFormatfield(g1[i][1], gq_index)
+            
+            (u1, u2) = returnAlleles ( stripGT( truth[i][1]) )
+            if typeofGenotype(u1,u2) == 3: continue
+
+            correctly_genotyped=0
+
+            g1_alleletype=typeofGenotype(p1,p2)
+            g2_alleletype=typeofGenotype(u1,u2)
+
+            if g1_alleletype != 3 and g2_alleletype !=3 and ( g1_alleletype != g2_alleletype ):
+                correctly_genotyped=0
+            elif g1_alleletype != 3 and g2_alleletype !=3 and ( g1_alleletype == g2_alleletype ):
+                correctly_genotyped=1
+                #print g1_maxprob, g2[i][1], correctly_imputed
+            else:
+                pass
+
+            gq_calibration.append( (gq, correctly_genotyped) )
+            
+    return gq_calibration
 
 def posterior_imputed_gprob_calibration ( g1, g2, formatstr):
     """ given two lists of the form [ (sample, gt_string), ... ] and the second one is the 'truth' genotypes
@@ -210,12 +326,12 @@ def posterior_imputed_gprob_calibration ( g1, g2, formatstr):
         gprobs_index=formatfields.index('GPROB')
         og_index=formatfields.index('OG')
     else:
-        sys.stderr.write("genotype format doesn't contain GPROB and/or OG , cannot perform posterior genotype calibration!")
+        sys.stderr.write("genotype format doesn't contain GPROB and/or OG , cannot perform posterior genotype calibration!\n")
         exit(1)
     imputed_genotype_calibration=[]
 
     if len(g1) != len(g2):
-        sys.stderr.write("cannot compare phased unphased genotypes; unequal size of lists!")
+        sys.stderr.write("posterior_imputed_gprob_calibration: cannot compare  genotypes; unequal size of lists!\n")
     else:
         for i in range( 0, len( g1 ) ):
 
@@ -223,21 +339,24 @@ def posterior_imputed_gprob_calibration ( g1, g2, formatstr):
                 sys.stderr.write("samples don't match in genotypes comparison!")
                 exit(1)
 
+            #get the original genotype and make sure it was originally missing data (only want to compare imputed genotypes)
             (og1, og2) = returnAlleles ( getFormatfield( g1[i][1], og_index ) )
             if (typeofGenotype(og1,og2) != 3):
                 continue
+
+            #get the genotyep proba of the imputed genotype
             g1_maxprob= max ( getFormatfield( g1[i][1], gprobs_index ).split(';') )
             
             
             (p1,p2) = returnAlleles ( stripGT( g1[i][1] ) )
             (u1, u2) = returnAlleles ( stripGT( g2[i][1]) )
 
-            (p1,p2) = returnAlleles ( stripGT( g1[i][1] ) )
-            (u1, u2) = returnAlleles ( stripGT( g2[i][1]) )
+            
 
             g1_alleletype=typeofGenotype(p1,p2)
             g2_alleletype=typeofGenotype(u1,u2)
             correctly_imputed=0
+
             if g1_alleletype != 3 and g2_alleletype !=3 and ( g1_alleletype != g2_alleletype ):
                 correctly_imputed=0
                 #print  g1_maxprob, g1[i][1], g2[i][1], correctly_imputed
@@ -303,7 +422,7 @@ def compare_imputed_genotypes( g1, g2, formatstr, thresh):
     """ given two lists of the form [ (sample, gt_string), ... ] iterate and compare *imputed* genotypes in g1 to genotypes in g2  """
     """ to find out which genotypes in g1 are imputed the FORMAT string must contain the OG tag and the OG must be a nocall """
     """ return list of [ ( g1_alleletype, g2_alleletype, samplename) ] where alleletype is [0, homref; 1, het; 2 hom_nonref; 3, nocall  """
-
+    
     formatfields=formatstr.split(':')
     if 'GPROB' in formatstr and 'OG' in formatstr:
         gprobs_index=formatfields.index('GPROB')
@@ -336,9 +455,10 @@ def compare_imputed_genotypes( g1, g2, formatstr, thresh):
 
             g1_alleletype=typeofGenotype(p1,p2)
             g2_alleletype=typeofGenotype(u1,u2)
-            #print g1[i], g1_alleletype
-            #print g2[i], g2_alleletype
+            
             compared_imputed_genotypes.append( (g1_alleletype, g2_alleletype, g1[i][0])  )
+
+    
     return  compared_imputed_genotypes
 
 def compare_genotypes(g1, g2):

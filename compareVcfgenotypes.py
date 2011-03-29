@@ -172,14 +172,16 @@ def main():
     sitetotalBB=0
     sitetotalBB_discord=0
 
-
-    common_samples= []
+    common_samples=[]
+    
     for s in vcf2_samples:
         if s in vcf1_samples: common_samples.append(s)
 
     if len(common_samples) == 0:
         sys.stderr.write("vcf files have no common samples!\n")
         exit(1)
+
+    #sys.stderr.write("common samples between the two VCFs: "+ str(len(common_samples)) +"\n")
 
     #key samplename value discordance count of genotypes between the two vcf files
     discordance_dict={}
@@ -206,10 +208,10 @@ def main():
         if '#CHROM' in vcf_fh2.readline(): break
 
    
-    if options.imputedonly == True:
-        sys.stderr.write("comparing only imputed genotypes in first VCF to genotypes in the second\n")
-    else:
-        sys.stderr.write("comparing genotypes between vcf files...\n")
+    #if options.imputedonly == True:
+    #    sys.stderr.write("comparing only imputed genotypes in first VCF to genotypes in the second\n")
+    #else:
+    #    sys.stderr.write("comparing genotypes between vcf files...\n")
 
 
     while 1:
@@ -273,6 +275,9 @@ def main():
         maf_vcf2 = calMaf(filtered__vcf2) #get the MAF for the site in the second VCF
         #print len(filtered_vcf1), len(filtered__vcf2)
        
+        
+        print hweLRT ( filtered_vcf1 )
+
         #collect the compariosn results
         if (options.imputedonly == True):
             comparison_results= compare_imputed_genotypes(filtered_vcf1, filtered__vcf2, vcf1_formatstr, options.gprob)
@@ -384,11 +389,11 @@ def main():
     #sys.stderr.write("writing accuracy v. posterior prob calibration...\n")
     #calibrateBins(calibration_matrix)
     #calibmatrix = binGenoytpeQualities(genotype_quality_list)
-
-    outstr="\t".join( [str(sitetotalAA), str(sitetotalAA_discord),
-                      str(sitetotalAB), str(sitetotalAB_discord),
-                      str(sitetotalBB), str(sitetotalBB_discord)] )
-    print outstr
+    #genotypefh=open("genotype_class.nrd.txt", 'w')
+    #outstr="\t".join( [str(sitetotalAA), str(sitetotalAA_discord),
+    #                  str(sitetotalAB), str(sitetotalAB_discord),
+    #                  str(sitetotalBB), str(sitetotalBB_discord)] )
+    #genotypefh.write(outstr+"\n")
 
 if __name__ == "__main__":
     main()

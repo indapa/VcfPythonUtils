@@ -59,6 +59,8 @@ def computeNRD(gtm):
 
 def computeNRD_class (gtm):
     """ compute the discrepancy in each genotype class (homoz_ref, het, homoz_nonref) """
+    #print gtm
+   
     total_homoz_ref= gtm[0,0] + gtm[1,0] + gtm[2,0]
     discord_homoz_ref= gtm[1,0] + gtm[2,0]
 
@@ -70,6 +72,7 @@ def computeNRD_class (gtm):
 
     if total_homoz_ref == 0:
         nrd_homoz_ref='NA'
+        
     else:
         nrd_homoz_ref= round ( float(discord_homoz_ref)/float(total_homoz_ref), 3 )
 
@@ -79,11 +82,12 @@ def computeNRD_class (gtm):
         nrd_het = round( float(discord_het)/float(total_het), 3 )
 
     if total_homoz_nonref == 0:
-        nrd_homoz_ref = 'NA'
+        nrd_homoz_nonref = 'NA'
     else:
-        nrd_homoz_ref= round ( float(discord_homoz_nonref)/float(total_homoz_nonref), 3 )
+        nrd_homoz_nonref= round ( float(discord_homoz_nonref)/float(total_homoz_nonref), 3 )
 
-    return (nrd_homoz_ref, nrd_het, nrd_homoz_ref,
+    
+    return (nrd_homoz_ref, nrd_het, nrd_homoz_nonref,
             (total_homoz_ref, discord_homoz_ref),
             (total_het, discord_het),
             (total_homoz_nonref, discord_homoz_nonref) )
@@ -145,7 +149,7 @@ def main():
     parser.add_option("--ignoreImputed",  action="store_true", dest="ignoreimputed", default=False, help="set option if you want to *ignore* imputed genotypes in the first file  to the genotypes in the second")
     parser.add_option("--gprob", type="float", dest="gprob", default=0.0, help="for comparison to genotypes in second VCF, *imputed* genotype probabilties in first VCF must be at least gprob and have the format tag GPROB")
     parser.add_option("--r2", type="float", dest="rsquare", default=0.0, help="for comparison of *imputed*  genotypes in first VCF to those  in second VCF, SNP r2 of the site in first VCF must be at least rsquare and have the  info tag R2")
-
+    parser.add_option("--calibrate", action="store_false", dest="calirbate", default=False, help="set if you want to calibrate genotypes based on GQ")
 
     (options, args)=parser.parse_args()
     (vcf_fname1, vcf_fname2) =  args[0:2]
@@ -162,6 +166,8 @@ def main():
     vcf1_samples=get_vcfsamples(vcf_fh1)
     vcf2_samples=get_vcfsamples(vcf_fh2)
 
+   
+    #print vcf2_samples
 
     sitetotalAA=0
     sitetotalAA_discord=0
@@ -274,10 +280,7 @@ def main():
 
         maf_vcf2 = calMaf(filtered__vcf2) #get the MAF for the site in the second VCF
         #print len(filtered_vcf1), len(filtered__vcf2)
-       
-        
-        print hweLRT ( filtered_vcf1 )
-
+              
         #collect the compariosn results
         if (options.imputedonly == True):
             comparison_results= compare_imputed_genotypes(filtered_vcf1, filtered__vcf2, vcf1_formatstr, options.gprob)
@@ -313,15 +316,19 @@ def main():
             comparison_results= compare_nonimputed_genotypes(filtered_vcf1, filtered__vcf2, vcf1_formatstr, options.gprob)
         else:
             comparison_results = compare_genotypes(filtered_vcf1, filtered__vcf2)
-            gq_calibrations = gq_calibration(filtered_vcf1, filtered__vcf2, vcf1_formatstr)
-            for t in gq_calibrations:
-                genotype_quality_list.append(t)
-            #print comparison_results
+            if options.calirbate == True:
+                gq_calibrations = gq_calibration(filtered_vcf1, filtered__vcf2, vcf1_formatstr)
+                for t in gq_calibrations:
+                    genotype_quality_list.append(t)
+                #print comparison_results
 
         for (g1, g2, sample) in comparison_results: #iterate thru the compariosn results
             discordance_dict[sample][g1,g2]+=1      #incrment the per-sample counts of genotype compariosns results
             site_discordance[g1,g2]+=1              #incrment the per-site counts of genotype compariosns results
 
+
+
+        #print site_discordance
         #print site_discordance
         #collect site specific nrd, nrs, called genotypes, alt count, etc for this current site
         site_nrs=computeNRS( site_discordance )

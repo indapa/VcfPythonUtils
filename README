@@ -15,5 +15,10 @@ The two VCFs should have the same sites but not necessarily the same samples
 
 vcf_hwe.py - compute likelihood ratio test statistic for HWE for bi-allelic SNPs
 
+vcf_hwe.py - compute likelihood ratio test statistic for HWE for bi-allelic SNPs
+
+
+vcf_getOrthologBase_from_maf - extract out aligning base(s) of another organism aligned against human in a MAF  from a variant site passing filters in a VCF file. 
+
 Amit Indap
 indapa@gmail.com

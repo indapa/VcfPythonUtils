@@ -71,7 +71,7 @@ def main():
     parser = OptionParser(usage)
     parser.add_option("--minCols", type="int", dest="mincols", default=1, help="mininum basepair overlap (default is one)")
     parser.add_option("--v", action="store_true", dest="reverse",  help="Print regions in first vcf  that DO NOT overlap second vcf|bed file")
-    parser.add_option("--sites", action="store_true", dest="sites", help="print only site information")
+    #parser.add_option("--sites", action="store_true", dest="sites", help="print only site information")
     (options, args)=parser.parse_args()
 
     sys.stderr.write("intersecting two files ...\n")
@@ -101,8 +101,8 @@ def main():
     vcfobj.parseHeaderLine(vcfh)
     vcfobj.printHeaderLine()
     
-    for vrec in vcfobj.yieldVcfRecordwithGenotypes(vcfh):
-        count+=1
+    for vrec in vcfobj.yieldVcfRecord(vcfh):
+
         filtercode = vrec.getFilter()
         chrom = vrec.getChrom()
         pos=int( vrec.getPos() )
@@ -115,16 +115,11 @@ def main():
         chrom="chr"+chrom
         if chrom in bitsets and bitsets[chrom].count_range( start, end-start ) >= options.mincols:
             if not options.reverse:
-                if not options.sites:
-                    print vrec.toStringwithGenotypes()
-                else:
-                    print vrec.toString()
+                print vrec.toString()
         else:
             if options.reverse == True:
-                if options.sites:
-                    print vrec.toString()
-                else:
-                    print vrec.toStringwithGenotypes()
+                print vrec.toString()
+        
 
 
 if __name__ == "__main__":

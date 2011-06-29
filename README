@@ -1,23 +1,23 @@
 VcfPythonUtils contains utilities to work with Variant Call Format (VCF) files. 
 
-vcfIO.py contains python functions that read VCF files.
+I am starting  a complete re-write of VcfPythonUtils using an object oriented approach.
+I don't really consider myself a programmer, but I think using an OO approach the
+API will be simplier to use and modify as the specfiications for VCF files evolve. 
 
-vcfToBeagle.py convert VCF to beagle_3.3 input format
 
-vcfCallRate.py - given a VCF file the file snpcallrate.txt and samplecallrate.txt give the callrates for individuals and markers in a VCF file
+The file VcfFile.py defines a VcfFile object with container objects of 
+MetaLines and HeaderLines which represent the meta info for the file and the header
+line for the VCF file. Datalines in a VCF file are represented with a VcfRecord object
+and genotype fields of a VCF file are represented by VcfGenotype object.
 
-vcfUnion.py - using the bx-python bitset api, take the union of any number of VCF files and print bed file of coordinates to STDOUT
+For analysis operations like intersecting with other VCF or bed files, calculating Hardy-Weinberg
+equlibrium, annotating a VCF file by adding the INFO string will be done by calling methods
+on the VcfFile object. I think this makes for a much cleaner API and makes things like annotating
+a VCF file much easier. I was pretty much ignoring meta info in the (the ## lines in a VCF)
+which made writing results of some analyses in VCF format very difficult. 
 
-comparePhasedVcf.py - *deprecated* compare genotypes for phased and unphased versions of the same VCF file
-
-compareVcfGenotypes.py - compare the genotypes in second VCF  file to the ones in the first VCF  file
-The two VCFs should have the same sites but not necessarily the same samples
-
-vcf_hwe.py - compute likelihood ratio test statistic for HWE for bi-allelic SNPs
-
-vcfToBed.py - print out a bare bones BED3 file based on variant records passing filters in a VCF
-
-vcf_getOrthologBase_from_maf - extract out aligning base(s) of another organism aligned against human in a MAF  from a variant site passing filters in a VCF file. 
+I think this re-factoring of VcfPythonUtils will make it better and make biological analysis based off
+of VCF files easier. 
 
 Amit Indap
 indapa@gmail.com

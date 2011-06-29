@@ -114,6 +114,7 @@ class VcfFile(object):
     def yieldVcfRecord(self,fh):
         """ yield VcfRecord object from reading a dataline in a VCF file """
         for line in fh:
+            if '#' in line: continue
             fields=line.strip().split('\t')
             (chrom,pos,id,ref,alt,qual,filter,info)=fields[0:8]
             yield VcfRecord(chrom,pos,id,ref,alt,qual,filter,info)
@@ -129,7 +130,7 @@ class VcfFile(object):
             (genotypestrings)=fields[9::]
             for gstring in genotypestrings:
                 vrec.addGenotype( VcfGenotype(formatstring,gstring))
-                yield vrec
+            yield vrec
 
     def printDataLineWithGenotypes(self,vcfh):
         for vrec in self.yieldVcfRecordwithGenotypes(vcfh):

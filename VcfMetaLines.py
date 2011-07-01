@@ -32,7 +32,7 @@ class InfoLine(object):
 
     def toString(self):
         """ return string representation of INFO line object """
-        infostring=",".join(["ID="+self.id, "Number="+self.number, "Type="+self.type, "Description="+self.description])
+        infostring=",".join(["ID="+self.id, "Number="+self.number, "Type="+self.type, "Description="+"\""+ self.description + "\""] )
         hashstring="##INFO=<"
         outstring=hashstring+infostring+">"
         return outstring
@@ -119,6 +119,22 @@ class MetaLines(object):
         """ return the INFO IDs in the metaInfoDict """
         return self.metaInfoDict.keys()
 
+
+    def addMetaInfo(self, id, type, number, description):
+        """ add InfoLIne object to metaInfoDict dictionary """
+        if id in self.metaInfoDict.keys():
+            sys.stderr.write(id + " ##INFO id is already being used!\n")
+            exit(1)
+            return
+        else:
+            newinfobject=InfoLine()
+            newinfobject.setId(id)
+            newinfobject.setType(type)
+            newinfobject.setNumber(str(number))
+            newinfobject.setDescription(description)
+            self.metaInfoDict[ newinfobject.getId() ] = newinfobject
+        return
+
     def getMetaFilterNames(self):
         """ return the FILTER IDs in the metaFilterDict """
         return self.metaFilterDict.keys()
@@ -150,6 +166,9 @@ class MetaLines(object):
         for k in self.metaFilterDict.keys():
             description_strings.append( (k, self.metaFilterDict[k].getDescription() ) )
         return description_strings
+
+
+
 
 
     def setFileFormat(self, formatline):

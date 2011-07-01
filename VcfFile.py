@@ -59,6 +59,12 @@ class VcfFile(object):
     def getMetaInfoDescription(self):
         return self.metaline.getMetaInfoDescription()
 
+
+    def addMetaInfoHeader(self, id, type, number, description):
+        """ add an ##INFO header to a vcf file """
+        self.metaline.addMetaInfo(id, type,number,description)
+
+
     def getMetaFilterNames(self):
         """ return the IDs of the FILTER metalines """
         return self.metaline.getMetaFilterNames()

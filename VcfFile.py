@@ -50,7 +50,8 @@ class VcfFile(object):
     def printHeaderLine(self):
         print self.headerline.toString()
 
-
+    def getSampleList(self):
+        return self.headerline.getSampleList()
 
     def getMetaInfoNames(self):
         """  return the IDs of the INFO metalines"""

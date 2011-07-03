@@ -63,8 +63,17 @@ class VcfRecord(object):
     def getFilter(self):
         return self.filter
 
-    def getFilter(self):
+    def getInfo(self):
         return self.info
+
+
+    def check_genotypeFormat(self, formatlist):
+        """ check the ids in the FORMAT column are contained in the list of FORMAT ids (formatlist) """
+        if len(self.genotypes) == 0:
+            sys.stderr.write("VCF file contains no genotype columns\n")
+            return
+        else:
+            self.genotypes[0].checkFormatIds(formatlist)
 
     def checkInfoIds(self, infolist):
         """ check the ids in the INFO field to make sure they are contained in the list of INFO ids ( the infolist)  """
@@ -88,6 +97,22 @@ class VcfRecord(object):
         """ append a VcfGenotype object to genotype list """
         self.genotypes.append(genotypeobj)
 
+
+    def getGenotypesAlleles(self):
+        """ return list of tuples with (allele1, allele2) for each VcfGenotype object in genotypes list  """
+        genotypeAlleles=[]
+        for vcfgenobj in self.genotypes:
+            genotypeAlleles.append( vcfgenobj.getAlleles() )
+       
+        return genotypeAlleles
+
+    def allHets(self):
+        """ return true if all genotypes for the VcfREcord are hets """
+        for gobj in self.genotypes:
+            if gobj.isHet() == False:
+                return False
+        return True
+
     def toString(self):
         outstring="\t".join([self.chrom,self.pos,self.id,self.ref,self.alt,self.qual,self.filter,self.info])
         return outstring
@@ -102,4 +127,7 @@ class VcfRecord(object):
 
         genostring="\t".join(genotypestrings)
         return outstring + "\t" + formatstring + "\t" + genostring
+
+
+
 

@@ -294,9 +294,14 @@ class HeaderLines(object):
         """ check to see if vcf has sample columns and if so append th list samplelist """
         
         fields=headerline.split('\t')
+        
         if len(fields) >9:
             self.samplelist=fields[9::]
             
+            
+    def getSampleList(self):
+        return self.samplelist
+
     def toString(self):
         headerstring= "\t".join(self.headercolumns)
         if len ( self.samplelist ) > 0:

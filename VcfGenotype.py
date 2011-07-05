@@ -72,6 +72,12 @@ class VcfGenotype(object):
         """ return tuple with (allele1, allele2) """
         return (self.allele1, self.allele2)
 
+    def isCalled(self):
+        """ return True if genotype was called and both alleles are not '.' """
+        if self.allele1 != '.' and self.allele2 != '.':
+            return True
+        return False
+
     def isHet(self):
         """ return True if gentoype is het and both alleles are called"""
         

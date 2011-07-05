@@ -92,6 +92,9 @@ class VcfRecord(object):
                     sys.stderr.write(id + " not in ##INFO header!\n")
                     exit(1)
 
+    def appendInfoString(self, infostring ):
+        """ apppend to INFO string for a VCF record """
+        self.info+=";"+infostring
 
     def addGenotype(self,genotypeobj):
         """ append a VcfGenotype object to genotype list """
@@ -112,6 +115,23 @@ class VcfRecord(object):
             if gobj.isHet() == False:
                 return False
         return True
+
+    def siteCallrate(self):
+        """ calculate the site callrate: #called_genotypes/#genotypes """
+        called=0
+        for gobj in self.genotypes:
+            if gobj.isCalled() == True:
+                called+=1
+        callrate=float(called)/float(len(self.genotypes))
+        return callrate
+
+    def sampleCallrate(self,samplist,samplecallsdict):
+        called=[]
+        ziplist= zip(samplist, self.genotypes)
+        for (sample, gobj) in ziplist:
+            if  gobj.isCalled() == True:
+                samplecallsdict[sample]+=1
+            
 
     def toString(self):
         outstring="\t".join([self.chrom,self.pos,self.id,self.ref,self.alt,self.qual,self.filter,self.info])

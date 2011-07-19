@@ -88,7 +88,7 @@ class VcfRecord(object):
                 sys.stderr.write("error in parsing INFO column in VcfRecord!\n")
                 exit(1)
             else:
-                if id not in infolist:
+                if id not in infolist and id != '.' :
                     sys.stderr.write(id + " not in ##INFO header!\n")
                     exit(1)
 

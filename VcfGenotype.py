@@ -16,7 +16,11 @@ class VcfGenotype(object):
         self.gdict={}
         formatids=self.formatstring.split(':')
         gstringvals=self.gstring.split(':')
-        self.parseAlleles(gstringvals[0])
+        if ':' in self.gstring:
+            gstringvals=self.gstring.split(':')
+            self.parseAlleles(gstringvals[0])
+        else:
+            self.parseAlleles(self.gstring)
 
         if gstring != '.':
             if len(formatids) != len(gstringvals):
@@ -49,7 +53,7 @@ class VcfGenotype(object):
         """ set the allele1 and allele2 given a genotype (GT) field """
         delimiter=''
         if '|' in allelefield:
-            setIsPhased()
+            self.setIsPhased()
             delimiter='|'
         elif '/' in allelefield:
             delimiter='/'

@@ -17,7 +17,7 @@ def main():
     parser = OptionParser(usage)
     usage = "usage: %prog [options] file.vcf \n print summary information about site depth in records of a VCF file\n"
     parser = OptionParser(usage)
-    parser.add_option("--v", action="store_true", dest="snp",  help="restrict analysis to SNPs (must have INFO ID SNP in header")
+    #parser.add_option("--v", action="store_true", dest="snp",  help="restrict analysis to SNPs (must have INFO ID SNP in header")
 
     (options, args)=parser.parse_args()
 

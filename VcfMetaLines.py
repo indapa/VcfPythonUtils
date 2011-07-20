@@ -70,7 +70,7 @@ class FormatLine(object):
     def toString(self):
         """ return string representation of FORMAT line object """
 
-        formatstring=",".join(["ID="+self.id, "Number="+self.number, "Type="+self.type, "Description="+self.description])
+        formatstring=",".join(["ID="+self.id, "Number="+self.number, "Type="+self.type, "Description="+"\""+ self.description + "\""])
         hashstring="##FORMAT=<"
         outstring=hashstring+formatstring+">"
         return outstring
@@ -229,6 +229,7 @@ class MetaLines(object):
     def parseMetaFormat(self,line):
         """ parse ##FORMAT """
         """ ##FORMAT=<ID=ID,Number=number,Type=type,Description=description> """
+        print line
         formatobject = FormatLine()
         pattern= '<(.*)>'
         pattern_descrip='Description=\"(.*)\"'
@@ -294,7 +295,7 @@ class HeaderLines(object):
         """ check to see if vcf has sample columns and if so append th list samplelist """
         
         fields=headerline.split('\t')
-        
+       
         if len(fields) >9:
             self.samplelist=fields[9::]
             
@@ -304,7 +305,7 @@ class HeaderLines(object):
 
     def toString(self):
         headerstring= "\t".join(self.headercolumns)
-        if len ( self.samplelist ) > 0:
+        if len ( self.samplelist ) >=1:
             samplestring="\t".join(self.samplelist)
             outstring=headerstring+"\t"+samplestring
         else:

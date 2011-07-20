@@ -71,8 +71,8 @@ def main():
     ecdf = robjects.r['ecdf']
     Fn = ecdf(x)
     percentiles=Fn(x)
-    
-    r.plot(percentiles,x, xlab="percentile", ylab="depth", main="Depth Percentile")
+    filename=vcfilename + "\n percentile plot depth (DP)"
+    r.plot(percentiles,x, xlab="percentile", ylab="depth", main=filename)
     grdevices.dev_off()
 
     sys.stderr.write("see R plot in depth.png\n")

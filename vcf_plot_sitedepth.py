@@ -58,7 +58,7 @@ def main():
     print "mean DP: ", mean( array(depth_list))
     print "total sites analyzed: " ,len(depth_list)
 
-    sys.stder.write("making R plot ...\n")
+    sys.stderr.write("making R plot ...\n")
 
 
     grdevices = importr('grDevices')

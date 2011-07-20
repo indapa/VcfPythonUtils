@@ -4,7 +4,6 @@ import os
 import string
 import re
 from optparse import OptionParser
-from numpy import *
 from VcfFile import *
 import rpy2.robjects as robjects
 from rpy2.robjects.packages import importr

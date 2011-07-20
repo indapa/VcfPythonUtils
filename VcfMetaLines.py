@@ -229,7 +229,7 @@ class MetaLines(object):
     def parseMetaFormat(self,line):
         """ parse ##FORMAT """
         """ ##FORMAT=<ID=ID,Number=number,Type=type,Description=description> """
-        print line
+        
         formatobject = FormatLine()
         pattern= '<(.*)>'
         pattern_descrip='Description=\"(.*)\"'

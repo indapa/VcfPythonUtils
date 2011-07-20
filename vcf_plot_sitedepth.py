@@ -17,6 +17,7 @@ def main():
     parser = OptionParser(usage)
     usage = "usage: %prog [options] file.vcf \n print summary information about site depth in records of a VCF file\n"
     parser = OptionParser(usage)
+    parser.add_option("--max", type="int", dest="max", help="skip records that are greater than or equal to max (default sys.maxint)", default=sys.maxint)
     #parser.add_option("--v", action="store_true", dest="snp",  help="restrict analysis to SNPs (must have INFO ID SNP in header")
 
     (options, args)=parser.parse_args()
@@ -49,12 +50,15 @@ def main():
             sys.stderr.write("unable to parse DP value from INFO field\n")
             continue
         else:
+            if int(dp) >= options.max: continue
             depth_list.append(int(dp))
     print "max DP: ", max( array (depth_list))
     print "min DP: ", min (array (depth_list))
     print "median DP: ", median (array (depth_list))
     print "mean DP: ", mean( array(depth_list))
     print "total sites analyzed: " ,len(depth_list)
+
+    sys.stder.write("making R plot ...\n")
 
 
     grdevices = importr('grDevices')
@@ -71,7 +75,7 @@ def main():
     r.plot(percentiles,x, xlab="percentile", ylab="depth", main="Depth Percentile")
     grdevices.dev_off()
 
-    sys.stderr.write("see R plot in depth.png")
+    sys.stderr.write("see R plot in depth.png\n")
 
 if __name__ == "__main__":
     main()

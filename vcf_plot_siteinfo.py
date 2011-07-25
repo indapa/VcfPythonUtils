@@ -16,10 +16,11 @@ def main():
     parser = OptionParser(usage)
     usage = "usage: %prog [options] file.vcf \n print 5 number summary  information about --info tag ids  in records of a VCF file\n"
     parser = OptionParser(usage)
+    parser.add_option("--noplot", action="store_true", dest="noplot", help="only report 5 number summary; do not make R plot of percentiles")
     parser.add_option("--info", type="string", dest="infotag", help="INFO tag attribute to get stats for", default="")
     parser.add_option("--max", type="int", dest="max", help="skip records that are greater than or equal to max (default sys.maxint)", default=sys.maxint)
 
-
+    
     (options, args)=parser.parse_args()
     if options.infotag == "": 
         sys.stderr.write("provide a value for --info parameter!\n")
@@ -77,9 +78,12 @@ def main():
    
 
     x = robjects.FloatVector(infovalues)
-    ecdf = robjects.r['ecdf']
+
     summary=robjects.r['summary']
     print summary(x)
+    if options.noplot==True:
+        return
+    ecdf = robjects.r['ecdf']
     Fn = ecdf(x)
     percentiles=Fn(x)
     filename=vcfilename + "\n percentile plot " + options.infotag 

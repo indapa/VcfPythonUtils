@@ -132,6 +132,9 @@ class VcfRecord(object):
             if  gobj.isCalled() == True:
                 samplecallsdict[sample]+=1
             
+    def zipGenotypes(self, samplelist):
+        """ return list of tuples [ (samp1,geno1, samp2, geno2) ... ] """
+        return zip(samplelist, self.genotypes)
 
     def toString(self):
         outstring="\t".join([self.chrom,self.pos,self.id,self.ref,self.alt,self.qual,self.filter,self.info])

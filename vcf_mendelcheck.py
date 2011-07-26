@@ -21,7 +21,7 @@ def doCrossAutosomal( maternal, paternal):
             genotype_space.append( pallele+mallele )
     return  list(set(genotype_space))
     
-""" check for Mendelian inconsistencies in genotypes of a VCF file for a nucelar family """
+""" check for Mendelian inconsistencies in genotypes of a VCF file for a nuclear family """
 def main():
     usage = "usage: %prog [options] file.vcf\ncheck for Mendelian inconsistencies in genotypes of a VCF file\n"
     parser = OptionParser(usage)
@@ -56,10 +56,7 @@ def main():
     samplelist=vcfobj.getSampleList()
     founderlist=pedfileobj.returnFounderIds()
     nonfounderlist=pedfileobj.returnNonFounderIds()
-    #print samplelist
-    #print founderlist
-    #print nonfounderlist
-
+    
     print "nonfounder_sample chrom position founder_alleles founder_alleles nonfounder_alleles"
     for vrec in vcfobj.yieldVcfRecordwithGenotypes(vcfh):
 
@@ -83,8 +80,6 @@ def main():
              
             if nonfounder_gstring not in genotype_space and nonfounder_gstring[::-1] not in genotype_space and '.' not in nonfounder_gstring:
                 print nonfounder, vrec.getChrom(), vrec.getPos() , vcfgobj.getAlleles(), founderzipgenolist[0][1].getAlleles(), founderzipgenolist[1][1].getAlleles()
-        #print "===="
-        #print founderzipgenolist
-        #print nonfounderzipgenolist
+       
 if __name__ == "__main__":
     main()

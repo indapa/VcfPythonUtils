@@ -94,7 +94,7 @@ class FilterLine(object):
 
     def toString(self):
         """ return a string representaiton of FILTER line object """
-        filterstring=",".join ( ["ID="+self.id, "Description="+self.description] )
+        filterstring=",".join ( ["ID="+self.id, "Description="+ "\""+self.description + "\""] )
         hashstring="##FILTER=<"
         outstring=hashstring+filterstring+">"
         return outstring
@@ -134,6 +134,18 @@ class MetaLines(object):
             newinfobject.setDescription(description)
             self.metaInfoDict[ newinfobject.getId() ] = newinfobject
         return
+
+    def addMetaFilter(self, id, description):
+        """ add FilterLine object to metaFilterDict dictionary """
+        if id in self.metaFilterDict.keys():
+            sys.stderr.write(id + "##FILTER id already being used!\n")
+            exit(1)
+            return
+        else:
+            newfilterobject=FilterLine(id, description)
+            self.metaFilterDict [ newfilterobject.getId() ] = newfilterobject
+
+
 
     def getMetaFilterNames(self):
         """ return the FILTER IDs in the metaFilterDict """

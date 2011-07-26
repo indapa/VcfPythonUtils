@@ -21,7 +21,7 @@ def doCrossAutosomal( maternal, paternal):
             genotype_space.append( pallele+mallele )
     return  list(set(genotype_space))
     
-""" check for Mendelian inconsistencies in genotypes of a VCF file for a nuclear family """
+""" sets MENDEL for FILTER column  for Mendelian inconsistencies in genotypes of a VCF file for a nuclear family """
 def main():
     usage = "usage: %prog [options] file.vcf\ncheck for Mendelian inconsistencies in genotypes of a VCF file\n"
     parser = OptionParser(usage)
@@ -45,13 +45,17 @@ def main():
 
     pedfh=open(options.pedfile, 'r')
     vcfh=open(args[0], 'r')
+    mendelfh=open('mendel.log', 'w')
 
     pedfileobj.parsePedfile(pedfh)
     
 
     vcfobj.parseMetaLines(vcfh)
+    vcfobj.addMetaFilterHeader("MENDEL", "mendelian inconsistency")
+    vcfobj.printMetaLines()
     vcfh.seek(0)
     vcfobj.parseHeaderLine(vcfh)
+    vcfobj.printHeaderLine()
 
     samplelist=vcfobj.getSampleList()
     founderlist=pedfileobj.returnFounderIds()
@@ -79,7 +83,9 @@ def main():
             nonfounder_gstring=vcfgobj.getAlleles()[0]+vcfgobj.getAlleles()[1]
              
             if nonfounder_gstring not in genotype_space and nonfounder_gstring[::-1] not in genotype_space and '.' not in nonfounder_gstring:
-                print nonfounder, vrec.getChrom(), vrec.getPos() , vcfgobj.getAlleles(), founderzipgenolist[0][1].getAlleles(), founderzipgenolist[1][1].getAlleles()
-       
+                #logstring = "\t". join([nonfounder, vrec.getChrom(), vrec.getPos() , vcfgobj.getAlleles(), founderzipgenolist[0][1].getAlleles(), founderzipgenolist[1][1].getAlleles() ] )
+                #mendelfh.write(logstring+"\n")
+                vrec.setFilter("MENDEL")
+        print vrec.toStringwithGenotypes()
 if __name__ == "__main__":
     main()

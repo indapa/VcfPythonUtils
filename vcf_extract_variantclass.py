@@ -14,7 +14,7 @@ def main():
     parser = OptionParser(usage)
     parser.add_option("--info", type="string", dest="infotag", help="INFO tag id that annotates what type of variant the VCF record is", default="TYPE")
     parser.add_option("--type", type="string", dest="variantype", help="type of variant (SNP INS DEL)", default="")
-
+    parser.add_option("--filter", type="string" dest="filter", help="extract records matching filter (default is PASS)", default="PASS")
 
     (options, args)=parser.parse_args()
     if options.infotag == "":
@@ -50,6 +50,7 @@ def main():
     pattern=options.infotag+'=('+options.variantype+')'
 
     for vrec in vcfobj.yieldVcfRecord(vcfh):
+        if vrec.getFilter() != options.filter: continue
         searchresult=re.search(pattern, vrec.getInfo() )
         if re.search(pattern, vrec.getInfo() ) == None:
             continue

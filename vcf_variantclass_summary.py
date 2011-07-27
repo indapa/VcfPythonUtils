@@ -4,7 +4,6 @@ import os
 import string
 import re
 from optparse import OptionParser
-
 from VcfFile import *
 
 """ print the nuumber of each type of variant class ( e.g. snp insertion, deletion, mnp, complex in a VCF file """
@@ -13,7 +12,6 @@ def main():
     usage = "usage: %prog [options] arg"
     parser = OptionParser(usage)
     parser.add_option("--info", type="string", dest="infotag", help="INFO tag id that annotates what type of variant the VCF record is", default="TYPE")
-
 
 
     (options, args)=parser.parse_args()
@@ -46,6 +44,7 @@ def main():
     pattern=options.infotag+'=(\w+)'
 
     for vrec in vcfobj.yieldVcfRecord(vcfh):
+        if vrec.getFilter() != "PASS": continue
         searchresult=re.search(pattern, vrec.getInfo() )
         if re.search(pattern, vrec.getInfo() ) == None:
             continue

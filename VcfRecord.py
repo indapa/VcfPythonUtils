@@ -36,7 +36,7 @@ class VcfRecord(object):
 
     def setFilter(self,filter):
         """ a VCF filter can have more than one filter tag """
-        if self.filter != '.' and self.filter != filter: # catn tag the site twice with same  filter id
+        if self.filter != '.' and self.filter != filter and self.filter!= "PASS": # catn tag the site twice with same  filter id
             filterstring=",".join( [ self.filter, filter])
             self.filter=filterstring
         else:

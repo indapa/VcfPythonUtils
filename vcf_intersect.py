@@ -63,10 +63,7 @@ def binned_bitsets_from_vcffile( vcfilename, chrom_col=0, start_col=1,  upstream
     return bitsets
 
 def main():
-    usage = "usage: %prog [options] file1.vcf file2.vcf"
-    parser = OptionParser(usage)
-
-
+    
     usage = "usage: %prog [options] vcf_file_one vcf|bed_file_two\n\nFind regions in the first vcf file that overlap regions of the second vcf or bed file\n"
     parser = OptionParser(usage)
     parser.add_option("--minCols", type="int", dest="mincols", default=1, help="mininum basepair overlap (default is one)")
@@ -101,12 +98,10 @@ def main():
     vcfobj.parseHeaderLine(vcfh)
     vcfobj.printHeaderLine()
     
-    for vrec in vcfobj.yieldVcfRecord(vcfh):
-
-        filtercode = vrec.getFilter()
-        chrom = vrec.getChrom()
-        pos=int( vrec.getPos() )
-        (start,end) = (int(pos-1), int(pos))
+    for dataline in vcfobj.yieldVcfDataLine(vcfh):
+        fields=dataline.strip().split('\t')
+        (chrom,pos,id,ref,alt,qual,filtercode,info)=fields[0:8]
+        (start,end) = (int(pos)-1, int(pos))
         if filtercode != 'PASS':
             if filtercode == '.':
                 pass
@@ -115,10 +110,10 @@ def main():
         chrom="chr"+chrom
         if chrom in bitsets and bitsets[chrom].count_range( start, end-start ) >= options.mincols:
             if not options.reverse:
-                print vrec.toString()
+                print dataline
         else:
             if options.reverse == True:
-                print vrec.toString()
+                print dataline
         
 
 

@@ -65,8 +65,8 @@ def main():
     parser = OptionParser(usage)
     parser.add_option("--ped", type="string", dest="pedfile", help="ped format file of sample names that comprise the nucelar family", default="")
     parser.add_option("--info", type="string", dest="infotag", help="INFO tag id that annotates what type of variant the VCF record is", default="TYPE")
-    parser.add_option("--type", type="string", dest="variantype", help="type of variant (SNP INS DEL)", default="SNP")
-
+    parser.add_option("--type", type="string", dest="variantype", help="type of variant (SNP INS DEL) default is SNP", default="SNP")
+    parser.add_option("--filter", type="string", dest="filter", help="only analyze VCF records matching FILTER (default is PASS)", default="PASS")
     (options, args)=parser.parse_args()
 
     if options.pedfile=="":
@@ -107,9 +107,11 @@ def main():
             print vrec.toStringwithGenotypes()
             continue
 
-
+        if vrec.getFilter() != 'PASS':
+            print vrec.toStringwithGenotypes()
+            continue
         zipgenolist=vrec.zipGenotypes(samplelist)
-
+             
         founderzipgenolist=[ (samp, gobj) for (samp, gobj) in zipgenolist if samp in founderlist ]
         nonfounderzipgenolist=[ (samp, gobj) for (samp, gobj) in zipgenolist if samp in nonfounderlist ]
 

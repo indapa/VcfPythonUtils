@@ -103,10 +103,7 @@ def main():
         (chrom,pos,id,ref,alt,qual,filtercode,info)=fields[0:8]
         (start,end) = (int(pos)-1, int(pos))
         if filtercode != 'PASS':
-            if filtercode == '.':
-                pass
-            else:
-                continue
+            continue
         chrom="chr"+chrom
         if chrom in bitsets and bitsets[chrom].count_range( start, end-start ) >= options.mincols:
             if not options.reverse:

@@ -12,7 +12,7 @@ def main():
     usage = "usage: %prog [options] arg"
     parser = OptionParser(usage)
     parser.add_option("--info", type="string", dest="infotag", help="INFO tag id that annotates what type of variant the VCF record is", default="TYPE")
-
+    parser.add_option("--filter", type="string", dest="filter", help="only analyze records with matching filter (default is PASS)", default="PASS")
 
     (options, args)=parser.parse_args()
     if options.infotag == "":
@@ -44,7 +44,7 @@ def main():
     pattern=options.infotag+'=(\w+)'
 
     for vrec in vcfobj.yieldVcfRecord(vcfh):
-        if vrec.getFilter() != "PASS": continue
+        if vrec.getFilter() != options.filter: continue
         searchresult=re.search(pattern, vrec.getInfo() )
         if re.search(pattern, vrec.getInfo() ) == None:
             continue

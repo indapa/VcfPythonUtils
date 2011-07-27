@@ -38,7 +38,7 @@ class VcfFile(object):
     def parseHeaderLine(self,fh):
         for line in fh:
             if '#CHROM' not in line: continue
-            
+           
             self.headerline.add_format_column(line.strip() )
             self.headerline.append_samplelist( line.strip() )
             
@@ -65,6 +65,9 @@ class VcfFile(object):
         """ add an ##INFO header to a vcf file """
         self.metaline.addMetaInfo(id, type,number,description)
 
+    def addMetaFilterHeader(self, id, description):
+        """ add ##FILTER header to a vcf file """
+        self.metaline.addMetaFilter(id, description)
 
     def getMetaFilterNames(self):
         """ return the IDs of the FILTER metalines """
@@ -125,6 +128,14 @@ class VcfFile(object):
             fields=line.strip().split('\t')
             (chrom,pos,id,ref,alt,qual,filter,info)=fields[0:8]
             yield VcfRecord(chrom,pos,id,ref,alt,qual,filter,info)
+
+
+    def yieldVcfDataLine(self,fh):
+        """ yield dataline from filehandle fh reprsenting a vcf file """
+        for line in fh:
+            if '#' in line:continue
+            yield line.strip()
+
 
     def yieldVcfRecordwithGenotypes(self,fh):
         """ yield a VcfRecord with its genotypes list populated """

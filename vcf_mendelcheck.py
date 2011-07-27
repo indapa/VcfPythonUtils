@@ -7,20 +7,58 @@ from optparse import OptionParser
 from VcfFile import *
 from Pedfile import *
 
-def doCrossAutosomal( maternal, paternal):
-    """ given two tuples with alleles do a cross and return list of possible offspring genotypes (assumes autosomal locus) """
-    """ program only checks variants that are SNPs for now ... """
+
+def makeTupleStringRep(t):
+    """http://stackoverflow.com/questions/1455602/printing-tuple-with-string-formatting-in-python"""
+    s = "%s" % (t,)
+    return s
+
+def marginal_segregation( gtuple ):
+    gamete_list=list(gtuple)
+    if '.' in gamete_list:
+        called_alleles =[ elem for elem in gamete_list if elem != '.' ]
+        if len(called_alleles)==0:
+            called_alleles=['0','1']
+        for a in called_alleles:
+            for i in ['0', '1']:
+                yield ( a, i )
+
+
+def doPunnett( maternal, paternal):
     m1,m2=maternal
     p1,p2=paternal
     genotype_space=[]
     for pallele in paternal:
         if pallele=='.': return None
-
         for mallele in maternal:
             if mallele == '.': return None
             genotype_space.append( pallele+mallele )
     return  list(set(genotype_space))
-    
+
+def doCrossAutosomal(maternal, paternal):
+    if '.' in maternal and '.' not in paternal:
+        for maternal_tuple in marginal_segregation(maternal):
+            #print maternal_tuple, paternal
+            yield doPunnett(maternal_tuple, paternal)
+            #print "=="
+    elif '.' in paternal and '.'  not in maternal:
+        for paternal_tuple in marginal_segregation(paternal):
+            yield doPunnett(paternal_tuple, maternal)
+            #print paternal_tuple, maternal
+            #print "=="
+    elif '.' in paternal and '.' in maternal:
+        for paternal_tuple in marginal_segregation(paternal):
+            for maternal_tuple in marginal_segregation(maternal):
+                yield doPunnett(paternal_tuple, maternal_tuple)
+                #print paternal_tuple, maternal_tuple
+                #print "=="
+    else:
+        yield doPunnett(maternal, paternal)
+        #print paternal, maternal
+        #print "=="
+
+
+
 """ sets MENDEL for FILTER column  for Mendelian inconsistencies in genotypes of a VCF file for a nuclear family """
 def main():
     usage = "usage: %prog [options] file.vcf\ncheck for Mendelian inconsistencies in genotypes of a VCF file\n"
@@ -61,11 +99,12 @@ def main():
     founderlist=pedfileobj.returnFounderIds()
     nonfounderlist=pedfileobj.returnNonFounderIds()
     
-    print "nonfounder_sample chrom position founder_alleles founder_alleles nonfounder_alleles"
+    mendelfh.write("#nonfounder_sample chrom position nonfounder_alleles founder_alleles founder_alleles" +"\n")
     for vrec in vcfobj.yieldVcfRecordwithGenotypes(vcfh):
 
         searchresult=re.search(pattern, vrec.getInfo() )
         if re.search(pattern, vrec.getInfo() ) == None:
+            print vrec.toStringwithGenotypes()
             continue
 
 
@@ -76,15 +115,17 @@ def main():
 
         #print founderzipgenolist[0][0], founderzipgenolist[0][1].getAlleles()
         #print founderzipgenolist[1][0], founderzipgenolist[1][1].getAlleles()
-        
-        genotype_space=doCrossAutosomal( founderzipgenolist[0][1].getAlleles(), founderzipgenolist[1][1].getAlleles())
-        if genotype_space == None: continue
+        genotype_space=[]
+        for possible_genotypes in doCrossAutosomal( founderzipgenolist[0][1].getAlleles(), founderzipgenolist[1][1].getAlleles()) :
+            genotype_space+=possible_genotypes
+        #print genotype_space
         for nonfounder,vcfgobj in nonfounderzipgenolist:
             nonfounder_gstring=vcfgobj.getAlleles()[0]+vcfgobj.getAlleles()[1]
              
             if nonfounder_gstring not in genotype_space and nonfounder_gstring[::-1] not in genotype_space and '.' not in nonfounder_gstring:
-                #logstring = "\t". join([nonfounder, vrec.getChrom(), vrec.getPos() , vcfgobj.getAlleles(), founderzipgenolist[0][1].getAlleles(), founderzipgenolist[1][1].getAlleles() ] )
-                #mendelfh.write(logstring+"\n")
+                outstring = "\t".join( [ nonfounder, vrec.getChrom(), vrec.getPos() , makeTupleStringRep ( vcfgobj.getAlleles() ), makeTupleStringRep( founderzipgenolist[0][1].getAlleles() ) , makeTupleStringRep (founderzipgenolist[1][1].getAlleles() ) ] )
+                mendelfh.write( outstring +"\n")
+                
                 vrec.setFilter("MENDEL")
         print vrec.toStringwithGenotypes()
 if __name__ == "__main__":

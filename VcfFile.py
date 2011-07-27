@@ -116,10 +116,7 @@ class VcfFile(object):
         self.printMetaFormatLines()
         self.printMetaFilterLines()
 
-    def yieldDatalines(self, fh):
-        """ yield a dataline from a VCF file """
-        for line in fh:
-            yield line.strip()
+    
 
     def yieldVcfRecord(self,fh):
         """ yield VcfRecord object from reading a dataline in a VCF file """

@@ -45,7 +45,30 @@ class VcfRecord(object):
     def setInfo(self,info):
         self.info=info
 
-
+    def isTransition(self):
+        """ C <->T or A <->G is Transition; everything else is Transversion """
+        if self.ref == 'A':
+            if self.alt == 'G':
+                return True
+            else:
+                return False
+        elif self.ref == 'G':
+            if self.alt == 'A':
+                return True
+            else:
+                return False
+        elif self.ref == 'C':
+            if self.alt == 'T':
+                return True
+            else:
+                return False
+        elif self.ref == 'T':
+            if self.alt == 'C':
+                return True
+            else:
+                return False
+        else:
+            return None
 
     def getChrom(self):
         return self.chrom

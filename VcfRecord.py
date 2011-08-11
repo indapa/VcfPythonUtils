@@ -128,6 +128,9 @@ class VcfRecord(object):
         """ append a VcfGenotype object to genotype list """
         self.genotypes.append(genotypeobj)
 
+    def getGenotypes(self):
+        """ return the list of VcfGenotype objects of the VcfRecord """
+        return self.genotypes
 
     def getGenotypesAlleles(self):
         """ return list of tuples with (allele1, allele2) for each VcfGenotype object in genotypes list  """
@@ -161,7 +164,7 @@ class VcfRecord(object):
                 samplecallsdict[sample]+=1
             
     def zipGenotypes(self, samplelist):
-        """ return list of tuples [ (samp1,geno1, samp2, geno2) ... ] """
+        """ return list of tuples [ (samp1,geno1, samp2, geno2) ... ] where the geno* is a VcfGenotype object """
         return zip(samplelist, self.genotypes)
 
     def toString(self):

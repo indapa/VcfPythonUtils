@@ -8,11 +8,25 @@ from VcfFile import *
 
 """ print the nuumber of each type of variant class ( e.g. snp insertion, deletion, mnp, complex in a VCF file """
 
+def TsTvRatio ( vreclist ):
+    ts=0
+    tv=0
+    
+    for vrec in vreclist:
+        if vrec.isTransition() != None:
+            if vrec.isTransition() == True:
+                ts+=1   
+            else:
+                tv +=1
+    ratio = float(ts)/float(tv)
+    return ratio
+
+
 def main():
     usage = "usage: %prog [options] arg"
     parser = OptionParser(usage)
     parser.add_option("--info", type="string", dest="infotag", help="INFO tag id that annotates what type of variant the VCF record is", default="TYPE")
-    parser.add_option("--filter", type="string", dest="filter", help="only analyze records with matching filter (default is PASS)", default="PASS")
+    parser.add_option("--filter", type="string", dest="filter", help="only analyze records with matching filter (default is None)", default=None)
 
     (options, args)=parser.parse_args()
     if options.infotag == "":
@@ -20,7 +34,7 @@ def main():
         exit(1)
 
 
-    variant_dict={}
+    variant_dict={} #key variant type value VcfRecord object
 
     vcfilename=args[0]
     vcfh=open(vcfilename,'r')
@@ -44,19 +58,29 @@ def main():
     pattern=options.infotag+'=(\w+)'
 
     for vrec in vcfobj.yieldVcfRecord(vcfh):
-        if vrec.getFilter() != options.filter: continue
+        if vrec.getFilter() != options.filter and options != None: continue
         searchresult=re.search(pattern, vrec.getInfo() )
         if re.search(pattern, vrec.getInfo() ) == None:
             continue
         else:
             value=re.search(pattern, vrec.getInfo() ).groups()[0]
             if value not in variant_dict.keys():
-                variant_dict[value]=1
+                variant_dict[value]=[]
+                variant_dict[value].append( vrec )
             else:
-                variant_dict[value]+=1
+                variant_dict[value].append( vrec )
 
+
+    
+   
     sys.stderr.write("types and count of different variant classes in " + vcfilename + "\n")
     for k in variant_dict.keys():
-        print k, variant_dict[k]
+        print k, len( variant_dict[k] )
+
+    print 
+    if 'SNP' in variant_dict.keys():
+        ts_tv_ratio =TsTvRatio(variant_dict['SNP'])
+        print "Ts/Tv ratio SNP:",   round(ts_tv_ratio,2)
+
 if __name__ == "__main__":
     main()

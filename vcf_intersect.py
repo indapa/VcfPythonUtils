@@ -68,7 +68,7 @@ def main():
     parser = OptionParser(usage)
     parser.add_option("--minCols", type="int", dest="mincols", default=1, help="mininum basepair overlap (default is one)")
     parser.add_option("--v", action="store_true", dest="reverse",  help="Print regions in first vcf  that DO NOT overlap second vcf|bed file")
-    parser.add_option("--filter", type="string", dest="filter", default=".", help="intersect records only set with filter (default .")
+    parser.add_option("--filter", type="string", dest="filter", default=None, help="intersect records only set with filter (default is None")
 
     (options, args)=parser.parse_args()
 
@@ -103,7 +103,7 @@ def main():
         fields=dataline.strip().split('\t')
         (chrom,pos,id,ref,alt,qual,filtercode,info)=fields[0:8]
         (start,end) = (int(pos)-1, int(pos))
-        if filtercode != options.filter:
+        if filtercode != options.filter and options.filter != None:
             continue
         chrom="chr"+chrom
         if chrom in bitsets and bitsets[chrom].count_range( start, end-start ) >= options.mincols:

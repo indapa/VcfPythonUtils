@@ -58,7 +58,7 @@ def main():
     pattern=options.infotag+'=(\w+)'
 
     for vrec in vcfobj.yieldVcfRecord(vcfh):
-        if vrec.getFilter() != options.filter and options != None: continue
+        if vrec.getFilter() != options.filter and options.filter != None: continue
         searchresult=re.search(pattern, vrec.getInfo() )
         if re.search(pattern, vrec.getInfo() ) == None:
             continue

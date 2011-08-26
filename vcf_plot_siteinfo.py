@@ -18,6 +18,7 @@ def main():
     parser = OptionParser(usage)
     parser.add_option("--noplot", action="store_true", dest="noplot", help="only report 5 number summary; do not make R plot of percentiles")
     parser.add_option("--boxplot", action="store_true", dest="boxplot", help="make boxplot")
+    parser.add_option("--dump", action="store_true", dest="dump", help="dump data to be plotted/summarized to file")
     parser.add_option("--info", type="string", dest="infotag", help="INFO tag attribute to get stats for", default="")
     parser.add_option("--max", type="int", dest="max", help="skip records that are greater than or equal to max (default sys.maxint)", default=sys.maxint)
 
@@ -67,8 +68,7 @@ def main():
                 infovalues.append(float(value))
 
     
-
-    
+   
 
 
     grdevices = importr('grDevices')
@@ -79,7 +79,7 @@ def main():
    
 
     x = robjects.FloatVector(infovalues)
-
+    
     summary=robjects.r['summary']
     print summary(x)
     if options.noplot==True:
@@ -100,6 +100,15 @@ def main():
 
         grdevices.dev_off()
         sys.stderr.write("see R boxplot in "+ options.infotag+".boxplot.png"+"\n")
+
+
+    if options.dump == True:
+
+        dumpfile= vcfilename + "." + options.infotag + ".dat"
+        dumpfh=open(dumpfile, 'w')
+        sys.stderr.write("dumping data to " + dumpfile + "\n")
+        for val in infovalues:
+            dumpfh.write(str(val)+"\n")
 
 if __name__ == "__main__":
     main()

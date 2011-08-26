@@ -49,13 +49,15 @@ def main():
 
     pattern=options.infotag+'=('+options.variantype+')'
 
-    for vrec in vcfobj.yieldVcfRecord(vcfh):
-        if vrec.getFilter() != options.filter and options.filter != None : continue
-        searchresult=re.search(pattern, vrec.getInfo() )
-        if re.search(pattern, vrec.getInfo() ) == None:
+    for dataline in vcfobj.yieldVcfDataLine(vcfh):
+        fields=dataline.strip().split('\t')
+        (chrom,pos,id,ref,alt,qual,filtercode,info)=fields[0:8]
+        if filtercode != options.filter and options.filter != None : continue
+
+        if re.search(pattern, info ) == None:
             continue
         else:
-            value=re.search(pattern, vrec.getInfo() ).groups()[0]
-            print vrec.toString()
+            value=re.search(pattern, info ).groups()[0]
+            print dataline
 if __name__ == "__main__":
     main()

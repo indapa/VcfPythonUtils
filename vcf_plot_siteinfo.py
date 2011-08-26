@@ -21,7 +21,7 @@ def main():
     parser.add_option("--dump", action="store_true", dest="dump", help="dump data to be plotted/summarized to file")
     parser.add_option("--info", type="string", dest="infotag", help="INFO tag attribute to get stats for", default="")
     parser.add_option("--max", type="int", dest="max", help="skip records that are greater than or equal to max (default sys.maxint)", default=sys.maxint)
-
+    parser.add_option("--filter", type="string", dest="filter", help="extract records matching filter (default is None)", default=None)
     
     (options, args)=parser.parse_args()
     if options.infotag == "": 
@@ -51,7 +51,8 @@ def main():
 
     infovalues=[]
     for vrec in vcfobj.yieldVcfRecord(vcfh):
-        
+
+        if vrec.getFilter()  != options.filter and options.filter != None : continue
 
         if options.infotag == 'QUAL':
             if float(vrec.getQual() ) >= float(options.max):

@@ -17,6 +17,7 @@ def main():
     usage = "usage: %prog [options] file.vcf \n print 5 number summary  information about --info tag ids  in records of a VCF file\n"
     parser = OptionParser(usage)
     parser.add_option("--noplot", action="store_true", dest="noplot", help="only report 5 number summary; do not make R plot of percentiles")
+    parser.add_option("--boxplot", action="store_true", dest="boxplot", help="make boxplot")
     parser.add_option("--info", type="string", dest="infotag", help="INFO tag attribute to get stats for", default="")
     parser.add_option("--max", type="int", dest="max", help="skip records that are greater than or equal to max (default sys.maxint)", default=sys.maxint)
 
@@ -89,9 +90,16 @@ def main():
     filename=vcfilename + "\n percentile plot " + options.infotag 
     sys.stderr.write("making R plot ...\n")
     r.plot(percentiles,x, xlab="percentile", ylab=options.infotag, main=filename)
+    
     grdevices.dev_off()
-
     sys.stderr.write("see R plot in "+ plotname+"\n")
+    if options.boxplot ==True:
+        boxplotname=options.infotag+".boxplot.png"
+        grdevices.png(file=boxplotname,width=512, height=512)
+        r.boxplot(x, ylab=options.infotag, main=vcfilename + "\n boxplot " + options.infotag)
+
+        grdevices.dev_off()
+        sys.stderr.write("see R boxplot in "+ options.infotag+".boxplot.png"+"\n")
 
 if __name__ == "__main__":
     main()

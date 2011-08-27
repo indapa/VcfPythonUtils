@@ -69,6 +69,9 @@ def main():
     parser.add_option("--minCols", type="int", dest="mincols", default=1, help="mininum basepair overlap (default is one)")
     parser.add_option("--v", action="store_true", dest="reverse",  help="Print regions in first vcf  that DO NOT overlap second vcf|bed file")
     parser.add_option("--filter", type="string", dest="filter", default=None, help="intersect records only set with filter (default is None")
+    parser.add_option("--info", type="string", dest="infotag", help="INFO tag id that annotates what type of variant the VCF record is", default="TYPE")
+    parser.add_option("--type", type="string", dest="variantype", help="type of variant (SNP INS DEL)", default="")
+
 
     (options, args)=parser.parse_args()
 
@@ -93,18 +96,45 @@ def main():
     #print meta INFO, FORMAT, and FILTER lines
     vcfobj.printMetaLines()
 
+
+    descriptors = vcfobj.getMetaInfoDescription()
+    infoids=[]
+    for (tag, description) in descriptors:
+        infoids.append(tag)
+
+    if options.infotag  not in infoids and options.infotag != 'QUAL' and  options.infotag != "":
+        sys.stderr.write(options.infotag + " tag not in ##INFO headers!\n")
+        exit(1)
+
+
     vcfh.seek(0)
 
     #parse the header  line #CHROM and print it
     vcfobj.parseHeaderLine(vcfh)
     vcfobj.printHeaderLine()
     
+    if options.variantype != "":
+        pattern=options.infotag+'=('+options.variantype+')'
+
+
     for dataline in vcfobj.yieldVcfDataLine(vcfh):
         fields=dataline.strip().split('\t')
         (chrom,pos,id,ref,alt,qual,filtercode,info)=fields[0:8]
         (start,end) = (int(pos)-1, int(pos))
+
+        #pass the filter code
         if filtercode != options.filter and options.filter != None:
             continue
+
+        #check to see if record is the correct variant TYPE
+        if options.variantype != "":
+            pattern=options.infotag+'=('+options.variantype+')'
+            if re.search(pattern, info ) == None:
+                continue
+            else:
+                value=re.search(pattern, info ).groups()[0]
+                pass
+
         chrom="chr"+chrom
         if chrom in bitsets and bitsets[chrom].count_range( start, end-start ) >= options.mincols:
             if not options.reverse:

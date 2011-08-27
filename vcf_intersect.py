@@ -9,7 +9,7 @@ from bx.bitset import *
 from bx.bitset_builders import *
 
 
-def binned_bitsets_from_vcffile( vcfilename, chrom_col=0, start_col=1,  upstream_pad=0, downstream_pad=0, lens={}, filtercodeoption ):
+def binned_bitsets_from_vcffile( vcfilename, chrom_col=0, start_col=1,  upstream_pad=0, downstream_pad=0, lens={}, filtercodeoption='PASS' ):
     """
     Read a vcffile into a dictionary of bitsets. The defaults arguments
 

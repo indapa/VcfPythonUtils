@@ -9,7 +9,7 @@ from bx.bitset import *
 from bx.bitset_builders import *
 
 
-def binned_bitsets_from_vcffile( vcfilename, chrom_col=0, start_col=1,  upstream_pad=0, downstream_pad=0, lens={} ):
+def binned_bitsets_from_vcffile( vcfilename, chrom_col=0, start_col=1,  upstream_pad=0, downstream_pad=0, lens={}, filtercodeoption ):
     """
     Read a vcffile into a dictionary of bitsets. The defaults arguments
 
@@ -35,12 +35,17 @@ def binned_bitsets_from_vcffile( vcfilename, chrom_col=0, start_col=1,  upstream
         filtercode = vrec.getFilter()
         chrom = vrec.getChrom()
         pos=int( vrec.getPos() )
-        
-        if filtercode != 'PASS':
-            if filtercode == '.':
-                pass
-            else:
-                continue
+
+
+        if filtercode != filtercodeoption and filtercodeoption != None:
+            continue
+
+
+        #if filtercode != 'PASS':
+        #    if filtercode == '.':
+        #        pass
+        #    else:
+        #        continue
 
 
         chrom="chr"+chrom
@@ -86,7 +91,7 @@ def main():
         bitsets = binned_bitsets_from_file( open( in2_fname ) )
 
     if ".vcf" in in2_fname:
-         bitsets = binned_bitsets_from_vcffile( in2_fname )
+         bitsets = binned_bitsets_from_vcffile( in2_fname , options.filter)
 
    
     vcfobj=VcfFile(vcf_file_one)

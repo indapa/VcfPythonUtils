@@ -50,13 +50,13 @@ vcf_intersect.py  1.diff.2.pass.snps.vcf --filter PASS  2.filtered.snps.vcf >  1
 grep -v \# 1.uniq.pass.2.filtered.vcf | wc -l
 
 echo "unique snps in $VCF1  not detetected in filtered  in $VCF2"
-vcf_intersect.py  --v  1.diff.2.pass.snps.vcf --filter PASS  2.filtered.snps.vcf   | grep -v \# | awk '{print $1 "\t" $2-1 "\t" $2}' > 1.pass.uniq.bed
+vcf_intersect.py  --v --filter PASS   1.diff.2.pass.snps.vcf   2.filtered.snps.vcf   | grep -v \# | awk '{print $1 "\t" $2-1 "\t" $2}' > 1.pass.uniq.bed
 wc -l 1.pass.uniq.bed
 
 
 echo "unique snps in $VCF2  filtered in $VCF1"
 vcf_intersect.py --filter PASS   2.diff.1.pass.snps.vcf 1.filtered.snps.vcf >  2.uniq.pass.1.filtered.vcf
-grep -v \# 1.uniq.pass.2.filtered.vcf | wc -l
+grep -v \# 2.uniq.pass.1.filtered.vcf | wc -l
 
 
 echo "unique snps in $VCF2  not detetected in filtered  in $VCF1"

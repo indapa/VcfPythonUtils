@@ -44,8 +44,6 @@ echo "extract filter snps from $VCF1 $VCF2"
 vcf_extract_variantclass.py  --info TYPE --type snp --filter . $VCF1  > 1.filtered.snps.vcf
 vcf_extract_variantclass.py  --info TYPE --type snp --filter . $VCF2  > 2.filtered.snps.vcf
 
-echo "unique snps in $genomic_original_filter not detected in $WGA_original_filter"
-vcf_intersect.py --v 1.diff.2.pass.snps.vcf --filter PASS  2.filtered.snps.vcf
 
 echo "unique snps in $VCF1  filtered in $VCF2"
 vcf_intersect.py  1.diff.2.pass.snps.vcf --filter PASS  2.filtered.snps.vcf >  1.uniq.pass.2.filtered.vcf
@@ -55,7 +53,13 @@ echo "unique snps in $VCF1  not detetected in filtered  in $VCF2"
 vcf_intersect.py  --v  1.diff.2.pass.snps.vcf --filter PASS  2.filtered.snps.vcf   | grep -v \# | awk '{print $1 "\t" $2-1 "\t" $2}' > 1.pass.uniq.bed
 wc -l 1.pass.uniq.bed
 
+
+echo "unique snps in $VCF2  filtered in $VCF1"
+vcf_intersect.py --filter PASS   2.diff.1.pass.snps.vcf 1.filtered.snps.vcf >  2.uniq.pass.1.filtered.vcf
+grep -v \# 1.uniq.pass.2.filtered.vcf | wc -l
+
+
 echo "unique snps in $VCF2  not detetected in filtered  in $VCF1"
-vcf_intersect.py  --v  2.diff.1.pass.snps.vcf --filter PASS  1.filtered.snps.vcf   | grep -v \# | awk '{print $1 "\t" $2-1 "\t" $2}' > 2.pass.uniq.bed
+vcf_intersect.py  --v --filter PASS   2.diff.1.pass.snps.vcf  1.filtered.snps.vcf   | grep -v \# | awk '{print $1 "\t" $2-1 "\t" $2}' > 2.pass.uniq.bed
 wc -l 2.pass.uniq.bed
 

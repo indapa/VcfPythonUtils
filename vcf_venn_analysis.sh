@@ -3,9 +3,10 @@
 #do venn analysis for pair of vcf files
 VCF1=$1
 VCF2=$2
-
-if [[ $VCF1 == "" ]] | [[ $VCF2 == "" ]]; then
-  echo "Usage: vcf_venn_analysis.sh file1.vcf file2.vcf"
+VCF1unique=$3
+VCF2unique=$4
+if [[ $VCF1 == "" ]] | [[ $VCF2 == "" ]] | [[ $VCF1unique == "" ]] | [[$VCF2unique == "" ]]; then
+  echo "Usage: vcf_venn_analysis.sh file1.vcf file2.vcf vcf1uniq vcf2uniq "
   exit 1
 fi
 

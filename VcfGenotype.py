@@ -6,6 +6,7 @@ class VcfGenotype(object):
     def __init__(self, formatstring, gstring ):
         """ initialize a VcfGenotype """
         """ formatstring is from the format column gstring is the genotypestring """
+       
         self.gstring=gstring
         self.formatstring=formatstring
         self.isPhased=0
@@ -39,6 +40,13 @@ class VcfGenotype(object):
         """ return list of ids for genotype format string """
         return self.gdict.keys()
 
+
+    def getFormatVal(self, key):
+        """ return a value from the format string  """
+        if key in self.gdict:
+            return self.gdict[key]
+        else:
+            return None
 
     def setAlleles(self, allele1, allele2):
         """ set the alleles for the VcfGenotype object """
@@ -79,6 +87,15 @@ class VcfGenotype(object):
     def isCalled(self):
         """ return True if genotype was called and both alleles are not '.' """
         if self.allele1 != '.' and self.allele2 != '.':
+            return True
+        return False
+
+
+    def isSegregating(self):
+        """ return true if genotype has at least one non-ref allele so 1/1 and 1/0 would return true but 0/0 returns false """
+        if self.isCalled() == False:
+            return False
+        if self.allele1 == '1' or self.allele2 == '1':
             return True
         return False
 

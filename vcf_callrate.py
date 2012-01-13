@@ -11,6 +11,8 @@ def main():
     usage = "usage: %prog [options] file.vcf"
     parser = OptionParser(usage)
     parser.add_option("--filter", type="string", dest="filter", help="analyze only those  records matching filter (default is None)", default=None)
+    parser.add_option("--info", type="string", dest="infotag", help="INFO tag id that annotates what type of variant the VCF record is", default="TYPE")
+    parser.add_option("--type", type="string", dest="variantype", help="type of variant (SNP INS DEL)", default=None)
     (options, args)=parser.parse_args()
 
 
@@ -43,7 +45,7 @@ def main():
         sitecallrate=vrec.siteCallrate()
         vrec.appendInfoString("CR="+str(sitecallrate))
         vrec.sampleCallrate(samplelist,sampleCalls)
-        print vrec.toStringwithGenotypes()
+        #print vrec.toStringwithGenotypes()
 
     for s in samplelist:
         callrate=float(sampleCalls[s])/float(totalrecords)

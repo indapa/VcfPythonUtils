@@ -10,8 +10,7 @@ from VcfFile import *
 def main():
     usage = "usage: %prog [options] file.vcf"
     parser = OptionParser(usage)
-    #parser.add_option("--name", type="string|int|boolean", dest="name", help="help string")
-
+    parser.add_option("--filter", type="string", dest="filter", help="analyze only those  records matching filter (default is None)", default=None)
     (options, args)=parser.parse_args()
 
 
@@ -39,6 +38,7 @@ def main():
 
     totalrecords=0
     for vrec in vcfobj.yieldVcfRecordwithGenotypes(vcfh ):
+        if vrec.getFilter() != options.filter and options.filter != None : continue
         totalrecords+=1
         sitecallrate=vrec.siteCallrate()
         vrec.appendInfoString("CR="+str(sitecallrate))

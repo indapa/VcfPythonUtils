@@ -80,7 +80,7 @@ def main():
         #print "share unaffected segregating ", len(shared_unaffected_segregating)
         #print "\n"
         print shared_affected_segregating
-        print unaffected_genotypes
+        print unaffected_genotypes, shared_unaffected_segregating
         #print affected_genotypes
         #now if all affects are segregating for the site
         # and all the un-affecteds are *not* segregating for the site

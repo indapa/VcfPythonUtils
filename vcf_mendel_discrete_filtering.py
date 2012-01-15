@@ -85,7 +85,7 @@ def main():
         #now if all affects are segregating for the site
         # and all the un-affecteds are *not* segregating for the site
         # it is a candidate
-        if len(shared_affected_segregating) == len(affecteds)
+        if len(shared_affected_segregating) == len(affecteds):
             if len(shared_unaffected_segregating) == len(unaffecteds):
                 #print shared_affected_segregating
                 print vrec.toStringwithGenotypes()

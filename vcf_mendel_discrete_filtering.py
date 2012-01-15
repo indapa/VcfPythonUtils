@@ -57,7 +57,7 @@ def main():
     vcfobj.parseHeaderLine(vcfh)
     vcfobj.printHeaderLine()
     samplelist=vcfobj.getSampleList()
-    print "samplelist", samplelist
+    
     
     for vrec in vcfobj.yieldVcfRecordwithGenotypes(vcfh ):
         

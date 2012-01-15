@@ -86,8 +86,8 @@ def main():
         # it is a candidate
         if len(shared_affected_segregating) == len(affecteds):
             
-            print len(shared_unaffected_segregating), len(unaffecteds)
-            print vrec.toStringwithGenotypes()
+            if  len(shared_unaffected_segregating) == len(unaffecteds):
+                print vrec.toStringwithGenotypes()
         print "\n"
 if __name__ == "__main__":
     main()

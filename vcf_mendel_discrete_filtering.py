@@ -69,9 +69,9 @@ def main():
         genotype_tuple= vrec.zipGenotypes(samplelist) # get a list of tuples [ (sample, VcfGenotype object) ... ]
         for (sample, genotype) in genotype_tuple: #iterate thru and see if they are in affected or unaffected list
             if sample in affecteds:  # if so ...
-                affected_genotypes.append( ( sample, genotype.isSegregating() )  ) # are they segregating for a non-ref allele?
+                affected_genotypes.append( ( sample, genotype.toString(),  genotype.isSegregating() )  ) # are they segregating for a non-ref allele?
             if sample in unaffecteds:
-                unaffected_genotypes.append( (sample, genotype.isSegregating() ) ) # are they segregating for a non-ref allele?
+                unaffected_genotypes.append( (sample,  genotype.toString(),  genotype.isSegregating() ) ) # are they segregating for a non-ref allele?
        
         #filter the collected samples to see if they are all have segregating genotypes
         shared_affected_segregating = filter( lambda x, segregating=True: segregating in x, affected_genotypes)
@@ -79,8 +79,9 @@ def main():
         #print "shared affected segregating ", len(shared_affected_segregating)
         #print "share unaffected segregating ", len(shared_unaffected_segregating)
         #print "\n"
-        print unaffected_genotypes
-        print affected_genotypes
+        print shared_affected_segregating
+        print shared_unaffected_segregating
+        #print affected_genotypes
         #now if all affects are segregating for the site
         # and all the un-affecteds are *not* segregating for the site
         # it is a candidate

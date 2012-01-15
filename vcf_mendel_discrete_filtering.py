@@ -34,6 +34,15 @@ def main():
         for line in unaffectedfh:
             unaffecteds.append ( line.strip() )
 
+    #check if any overlapping samples between unaffected and affected
+    if len( list( set(unaffecteds).intersection( set(affecteds) ) )  ) != 0:
+        sys.stderr.write("check list of affected and unaffecteds for overlapping samples!\n")
+        exit(1)
+
+    #    sys.stderr.write("check list of affected and unaffected for overlapping samples!\n")
+    #    exit(1)
+
+
     vcfilename=args[0]
     vcfh=open(vcfilename,'r')
 
@@ -67,9 +76,10 @@ def main():
         #filter the collected samples to see if they are all have segregating genotypes
         shared_affected_segregating = filter( lambda x, segregating=True: segregating in x, affected_genotypes)
         shared_unaffected_segregating = filter ( lambda x, segregating=False: segregating in x, unaffected_genotypes)
-        print "shared affected segregating ", len(shared_affected_segregating)
-        print "share unaffected segregating ", len(shared_unaffected_segregating)
-        print "\n"
+        #print "shared affected segregating ", len(shared_affected_segregating)
+        #print "share unaffected segregating ", len(shared_unaffected_segregating)
+        #print "\n"
+
         #now if all affects are segregating for the site
         # and all the un-affecteds are *not* segregating for the site
         # it is a candidate

@@ -72,7 +72,7 @@ def main():
                 affected_genotypes.append( ( sample, genotype.isSegregating() )  ) # are they segregating for a non-ref allele?
             if sample in unaffecteds:
                 unaffected_genotypes.append( (sample, genotype.isSegregating() ) ) # are they segregating for a non-ref allele?
-
+        print unaffected_genotypes
         #filter the collected samples to see if they are all have segregating genotypes
         shared_affected_segregating = filter( lambda x, segregating=True: segregating in x, affected_genotypes)
         shared_unaffected_segregating = filter ( lambda x, segregating=False: segregating in x, unaffected_genotypes)

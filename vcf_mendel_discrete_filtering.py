@@ -15,6 +15,7 @@ def main():
     parser = OptionParser(usage)
     parser.add_option("--model", type="string", dest="model", default = "dominant", help=" inheritance model (dominant recessive) ")
     parser.add_option("--affected", type="string", dest="affected", help="sample name of affecteds (one per line)")
+    parser.add_option("--unaffected", type="string", dest="unaffected", help="sample name of unaffecteds (one per line)")
     parser.add_option("--filter", type="string", dest="filter", help="analyze only those  records matching filter (default is None)", default=None)
     (options, args)=parser.parse_args()
     if options.affected==None:
@@ -22,9 +23,16 @@ def main():
         exit(1)
 
     affecteds=[] # list of affected samples
+    unaffecteds=[] # list of unaffected samples
+
     affectedfh=open(options.affected, 'r')
     for line in affectedfh:
         affecteds.append(line.strip() )
+
+    if options.unaffected != None:
+        unaffectedfh=open (options.unaffected, 'r')
+        for line in unaffectedfh:
+            unaffecteds.append ( line.strip() )
 
     vcfilename=args[0]
     vcfh=open(vcfilename,'r')
@@ -44,19 +52,27 @@ def main():
     
     for vrec in vcfobj.yieldVcfRecordwithGenotypes(vcfh ):
         
-        affected_genotypes=[] #list of tuples (sample, genotypeobj) with samples that are affected
+        affected_genotypes=[] #list of tuples (sample, VcfGenotype object) with samples that are affected
+        unaffected_genotypes=[] # list of tuples (sample, VcfGenotype object) with samples that are unaffected
+
         if vrec.getFilter() != options.filter and options.filter != None : continue
         genotypes = vrec.getGenotypesAlleles()
         genotype_tuple= vrec.zipGenotypes(samplelist) # get a list of tuples [ (sample, VcfGenotype object) ... ]
-        for (sample, genotype) in genotype_tuple: #iterate thru and see if they are in affected list
+        for (sample, genotype) in genotype_tuple: #iterate thru and see if they are in affected or unaffected list
             if sample in affecteds:  # if so ...
                 affected_genotypes.append( ( sample, genotype.isSegregating() )  ) # are they segregating for a non-ref allele?
+            if sample in unaffecteds:
+                unaffected_genotypes.append( (sample, genotype.isSegregating() ) ) # are they segregating for a non-ref allele?
+
         #filter the collected samples to see if they are all have segregating genotypes
         shared_affected_segregating = filter( lambda x, segregating=True: segregating in x, affected_genotypes)
-
+        shared_unaffected_segregating = filter ( lambda x, segregating=False: segregating in x, unaffected_genotypes)
+        print "shared affected segregating ", len(shared_affected_segregating)
+        print "share unaffected segregating ", len(shared_unaffected_segregating)
+        print "\n"
         #now if all affects are segregating for the site, its a candidate
-        if len(shared_affected_segregating) == len(affecteds):
-            print shared_affected_segregating
+        if len(shared_affected_segregating) == len(affecteds) and len(shared_unaffected_segregating) == len(unaffecteds):
+            #print shared_affected_segregating
             print vrec.toStringwithGenotypes()
 if __name__ == "__main__":
     main()

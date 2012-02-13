@@ -95,7 +95,7 @@ class VcfGenotype(object):
         """ return true if genotype has at least one non-ref allele so 1/1 and 1/0 would return true but 0/0 returns false """
         if self.isCalled() == False:
             return False
-        if self.allele1 == '1' or self.allele2 == '1':
+        if self.allele1 != '1' or self.allele2 != '1':
             return True
         return False
 

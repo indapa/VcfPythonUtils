@@ -7,9 +7,8 @@ from optparse import OptionParser
 
 from VcfFile import *
 
-""" extract out vcf data lines that are less than or equal to  minor allele frequency threshold """
-""" e.g. vcf_maf.py --freq .01 file.vcf will print all records that have a MAF of less than or equal to .01 """
-""" for now MAF is extracted out of the AF info tag in the infostring of a record """
+""" extract out vcf data lines that meet minor allele freq thresholds """
+""" for a MAF to be  extracted there needs to be a tag in the INFO field correpsonding to allele frequency """
 def main():
     usage = "usage: %prog [options] maf file.vcf"
     parser = OptionParser(usage)

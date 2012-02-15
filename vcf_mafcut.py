@@ -28,6 +28,9 @@ def main():
         exit(1)
     vcfilename=args[0]
     #maf=float(args[0])
+
+    freqfh=open('freq.log', 'w')
+
     vcfh=open(vcfilename,'r')
 
     #instantiate a VcfFile object
@@ -85,7 +88,8 @@ def main():
         
         if float(maf_value) <= options.leq and float(maf_value) >= options.geq:
             print dataline
-        
+            logstring="\t".join([chrom,pos,id,ref,alt,variant_type, options.maftag, maf_value])
+            freqfh.write(logstring+'\n')
         
         
 

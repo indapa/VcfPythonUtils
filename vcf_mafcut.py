@@ -85,7 +85,7 @@ def main():
         maf_value=re.search(mafpattern, info ).groups()[0]
         
         if float(maf_value) <= options.leq and float(maf_value) >= options.geq:
-            print  variant_type, maf_value
+            print dataline
         
         
         

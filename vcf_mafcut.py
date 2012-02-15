@@ -18,14 +18,17 @@ def main():
     parser.add_option("--variantag", type="string", dest="vtag", help="INFO tag that annotates the type of variant type", default="VT")
     parser.add_option("--variantype", type="string", dest="variantype", help="type of variant (SNP INS DEL)", default=None)
     parser.add_option("--filter", type="string", dest="filter", help="extract records matching filter (default is None)", default=None)
+    
+    parser.add_option("--leq", type="float", dest="leq", default=1.0, help="keep variants with AF <= (default 1)")
+    parser.add_option("--geq", type="float", dest="geq", default=0.0, help="keep variants with AF >= (default 0)")
     (options, args)=parser.parse_args()
 
 
-    if len(args)!=2:
-        sys.write(usage+"\n")
+    if len(args)!=1:
+        sys.stderr.write(usage+"\n")
         exit(1)
-    vcfilename=args[1]
-    maf=float(args[0])
+    vcfilename=args[0]
+    #maf=float(args[0])
     vcfh=open(vcfilename,'r')
 
     #instantiate a VcfFile object
@@ -38,14 +41,15 @@ def main():
     for (tag, description) in descriptors:
         infoids.append(tag)
 
-    if options.maftag  not in infoids and options.maftag != 'QUAL':
+    if options.maftag  not in infoids and options.maftag != 'QUAL'  :
         sys.stderr.write(options.infotag + " tag not in ##INFO headers!\n")
-        #exit(1)
+        exit(1)
 
-    if options.vtag  not in infoids and options.vtag != 'QUAL':
+    if options.vtag  not in infoids and options.vtag != 'QUAL' :
         sys.stderr.write(options.vtag + " tag not in ##INFO headers!\n")
-        #exit(1)
+        exit(1)
 
+   
     vcfh.seek(0)
     vcfobj.parseHeaderLine(vcfh)
     vcfobj.printHeaderLine()
@@ -57,13 +61,15 @@ def main():
         variantpattern=options.vtag+'=('+options.variantype+');'
     mafpattern=options.maftag+'=(0.\d+);'
 
-    
+    #print mafpattern, variantpattern
 
 
     for dataline in vcfobj.yieldVcfDataLine(vcfh):
+        #print dataline
         fields=dataline.strip().split('\t')
+
         (chrom,pos,id,ref,alt,qual,filtercode,info)=fields[0:8]
-        if filtercode != options.filter and options.filter != None : continue
+        #if filtercode != options.filter and options.filter != None : continue
 
         if re.search(variantpattern, info ) == None:
             #print "no variant pattern"
@@ -75,10 +81,11 @@ def main():
         if re.search(mafpattern, info ) == None:
             #print "No mafpattern!"
             continue
-
+        
         maf_value=re.search(mafpattern, info ).groups()[0]
-        if float(maf_value) <= maf:
-            print dataline
+        
+        if float(maf_value) <= options.leq and float(maf_value) >= options.geq:
+            print  variant_type, maf_value
         
         
         

@@ -59,7 +59,7 @@ def main():
         variantpattern=options.vtag+'=(\w+);'
     else:
         variantpattern=options.vtag+'=('+options.variantype+');'
-    mafpattern=options.maftag+'=(0.\d+);'
+    mafpattern=options.maftag+'=(0.\d+)?;'
 
     #print mafpattern, variantpattern
 

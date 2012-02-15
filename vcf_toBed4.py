@@ -14,6 +14,9 @@ def main():
     (options, args)=parser.parse_args()
 
     vcfilename=args[0]
+    basename, extension = os.path.splitext(vcfilename)
+    bedfile=basename+".bed"
+    bedfh=open(befile,'w')
     vcfh=open(vcfilename,'r')
     #instantiate a VcfFile object
     vcfobj=VcfFile(vcfilename)
@@ -26,6 +29,6 @@ def main():
         if filtercode != options.filter and options.filter != None : continue
         (start,end) = (int(pos)-1, int(pos))
         bedstring= "\t".join( [ chrom, str(start), str(end), id ] )
-        print bedstring
+        bedfh.write(bedstring+"\n")
 if __name__ == "__main__":
     main()

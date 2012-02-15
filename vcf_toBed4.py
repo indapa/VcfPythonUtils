@@ -16,7 +16,7 @@ def main():
     vcfilename=args[0]
     basename, extension = os.path.splitext(vcfilename)
     bedfile=basename+".bed"
-    bedfh=open(befile,'w')
+    bedfh=open(bedfile,'w')
     vcfh=open(vcfilename,'r')
     #instantiate a VcfFile object
     vcfobj=VcfFile(vcfilename)

@@ -13,9 +13,9 @@ def main():
     usage = "usage: %prog [options] file.vcf\n print records belonging to a certain type of variant class (e.g. SNP) in a VCF file\n\n"
     parser = OptionParser(usage)
     parser.add_option("--info", type="string", dest="infotag", help="INFO tag id that annotates what type of variant the VCF record is", default="TYPE")
-    parser.add_option("--type", type="string", dest="variantype", help="type of variant (SNP INS DEL)", default="")
+    parser.add_option("--type", type="string", dest="variantype", help="type of variant (SNP INS DEL)", default=None)
     parser.add_option("--filter", type="string", dest="filter", help="extract records matching filter (default is None)", default=None)
-
+    
     (options, args)=parser.parse_args()
     if options.infotag == "":
         sys.stderr.write("provide a value for --info parameter!\n")
@@ -47,17 +47,21 @@ def main():
     vcfobj.parseHeaderLine(vcfh)
     vcfobj.printHeaderLine()
 
-    pattern=options.infotag+'=('+options.variantype+')'
+    if options.variantype != None:
+        pattern=options.infotag+'=('+options.variantype+')'
 
     for dataline in vcfobj.yieldVcfDataLine(vcfh):
         fields=dataline.strip().split('\t')
         (chrom,pos,id,ref,alt,qual,filtercode,info)=fields[0:8]
         if filtercode != options.filter and options.filter != None : continue
 
-        if re.search(pattern, info ) == None:
-            continue
+        if options.variantype !=None:
+            if re.search(pattern, info ) == None:
+                continue
+            else:
+                value=re.search(pattern, info ).groups()[0]
+                print dataline
         else:
-            value=re.search(pattern, info ).groups()[0]
             print dataline
 if __name__ == "__main__":
     main()

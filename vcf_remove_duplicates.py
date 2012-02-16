@@ -26,6 +26,7 @@ def main():
     vcfobj.parseMetaLines(vcfh)
     vcfh.seek(0)
     vcfobj.parseHeaderLine(vcfh)
+    vcfobj.printMetaLines()
 
     for dataline in vcfobj.yieldVcfDataLine(vcfh):
         fields=dataline.strip().split('\t')

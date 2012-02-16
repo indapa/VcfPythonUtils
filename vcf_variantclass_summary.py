@@ -72,15 +72,13 @@ def main():
 
 
     
-   
+    sum=0
     sys.stderr.write("types and count of different variant classes in " + vcfilename + "\n")
     for k in variant_dict.keys():
         print k, len( variant_dict[k] )
-
-    print 
-    if 'SNP' in variant_dict.keys():
-        ts_tv_ratio =TsTvRatio(variant_dict['SNP'])
-        print "Ts/Tv ratio SNP:",   round(ts_tv_ratio,2)
+        sum+=len( variant_dict[k] )
+    print "TOTAL:", sum
+    
 
 if __name__ == "__main__":
     main()

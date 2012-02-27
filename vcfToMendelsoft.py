@@ -80,16 +80,16 @@ def main():
 
         gls=zip(samplelist, genotype_newstrings, genotype_quals)
 
-        #for (sample, genos, qual) in gls:
+        for (sample, genos, qual) in gls:
         #    genos=genos+' ' + qual
-        #    genotypeSampleDict[sample].append(genos)
+            genotypeSampleDict[sample].append(genos)
         #for sample in samplesNotInVcf:
         #    genotypeSampleDict[sample].append('0 0 -1')
 
         for s in genotypeSampleDict.keys():
             pedobj.addGenotypes(genotypeSampleDict[s], s)
 
-        pedobj.dumpToFile(prefh)
+        pedobj.dumpToFileNoPheno(prefh)
         print "=="
 if __name__ == "__main__":
     main()

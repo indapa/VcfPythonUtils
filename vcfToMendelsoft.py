@@ -59,6 +59,7 @@ def main():
         #genotype_strings=map(lambda x: x.getFormatVal('GT'), genotypes)
         genotype_strings=map(lambda x: x.getAlleles(), genotypes)
         isCalled=map(lambda x: x.isCalled(), genotypes)
+        print isCalled
         if False in isCalled:
             sys.stderr.write("skipped site " + str(chrom) + " " + str(pos) + "\n")
             

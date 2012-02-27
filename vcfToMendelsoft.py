@@ -58,8 +58,8 @@ def main():
         #print genotypes
         #genotype_strings=map(lambda x: x.getFormatVal('GT'), genotypes)
         genotype_strings=map(lambda x: x.getAlleles(), genotypes)
-        # pass sites with missing genotypes
-        if '.' in genotype_strings:
+        isCalled=map(lambda x: x.isCalled(), genotypes)
+        if False in isCalled:
             continue
         genotype_quals=map(lambda x: x.getFormatVal('GQ'), genotypes)
         print genotype_quals

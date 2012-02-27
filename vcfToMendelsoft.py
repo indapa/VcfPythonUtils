@@ -59,14 +59,14 @@ def main():
         #genotype_strings=map(lambda x: x.getFormatVal('GT'), genotypes)
         genotype_strings=map(lambda x: x.getAlleles(), genotypes)
         isCalled=map(lambda x: x.isCalled(), genotypes)
-        print isCalled
+        #print isCalled
         if False in isCalled:
             sys.stderr.write("skipped site " + str(chrom) + " " + str(pos) + "\n")
             continue
             
         genotype_quals=map(lambda x: x.getFormatVal('GQ'), genotypes)
-        print genotype_quals
-        print genotype_strings
+        #print genotype_quals
+        #print genotype_strings
         genotype_ints= [map(int, x) for x in genotype_strings ]
         
         genotype_newstrings=[]
@@ -80,11 +80,11 @@ def main():
 
         gls=zip(samplelist, genotype_newstrings, genotype_quals)
 
-        for (sample, genos, qual) in gls:
-            genos=genos+' ' + qual
-            genotypeSampleDict[sample].append(genos)
-        for sample in samplesNotInVcf:
-            genotypeSampleDict[sample].append('0 0 -1')
+        #for (sample, genos, qual) in gls:
+        #    genos=genos+' ' + qual
+        #    genotypeSampleDict[sample].append(genos)
+        #for sample in samplesNotInVcf:
+        #    genotypeSampleDict[sample].append('0 0 -1')
 
         for s in genotypeSampleDict.keys():
             pedobj.addGenotypes(genotypeSampleDict[s], s)

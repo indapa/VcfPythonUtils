@@ -62,9 +62,11 @@ def main():
         print isCalled
         if False in isCalled:
             sys.stderr.write("skipped site " + str(chrom) + " " + str(pos) + "\n")
+            continue
             
         genotype_quals=map(lambda x: x.getFormatVal('GQ'), genotypes)
         print genotype_quals
+        print genotype_strings
         genotype_ints= [map(int, x) for x in genotype_strings ]
         
         genotype_newstrings=[]

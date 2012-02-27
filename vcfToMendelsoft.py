@@ -83,8 +83,8 @@ def main():
         for (sample, genos, qual) in gls:
         #    genos=genos+' ' + qual
             genotypeSampleDict[sample].append(genos)
-        #for sample in samplesNotInVcf:
-        #    genotypeSampleDict[sample].append('0 0 -1')
+        for sample in samplesNotInVcf:
+           genotypeSampleDict[sample].append('0 0')
 
         for s in genotypeSampleDict.keys():
             pedobj.addGenotypes(genotypeSampleDict[s], s)

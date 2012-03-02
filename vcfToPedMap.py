@@ -8,13 +8,13 @@ from VcfFile import *
 from PedFile import *
 from common import *
 
-""" given a vcf file and a ped file print the genotypes to *.ped file with GLs for the genotypes and a corresponding map file """
+""" given a vcf file and a ped file print the genotypes to *.ped file and positions to a  corresponding map file """
 
 def main():
-    usage = "usage: %prog [options] file.vcf \n \ngenerate ped and map file from vcf and ped file with no genotypes"
+    usage = "usage: %prog [options] file.vcf \n \ngenerate ped and map file from vcf and ped file with genotypes"
     parser = OptionParser(usage)
     parser.add_option("--ped", type="string", dest="pedfile", help="help string")
-    
+    parser.add_option("--filter", type="string", dest="filter", help="only analyze records with matching filter (default is None)", default=None)
     (options, args)=parser.parse_args()
    
     pedobj=Pedigree(options.pedfile)
@@ -37,6 +37,8 @@ def main():
         genotypeSampleDict[s]=[]
     for vrec in  vcfobj.yieldVcfRecordwithGenotypes(vcfh):
         #print vrec.toString()
+        filtercode = vrec.getFilter()
+        if filtercode != options.filter and options.filter != None : continue
         chrom=int(vrec.getChrom())
         pos=int(vrec.getPos())
        

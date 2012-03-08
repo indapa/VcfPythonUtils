@@ -14,7 +14,7 @@ def main():
     usage = "usage: %prog [options] file.vcf \n \ngenerate Mendelsoft LINKAGE format input file"
     parser = OptionParser(usage)
     parser.add_option("--ped", type="string", dest="pedfile", help="help string")
-
+    parser.add_option("--chrom", type="string", dest="chrom", default=None, help="restrict to chr")
     (options, args)=parser.parse_args()
 
     pedobj=Pedigree(options.pedfile)
@@ -45,6 +45,9 @@ def main():
             genotypeSampleDict[s]=[]
 
         chrom=int(vrec.getChrom())
+        if options.chrom != None and chrom != int(options.chrom):
+            continue
+
         pos=int(vrec.getPos())
 
 

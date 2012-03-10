@@ -13,7 +13,7 @@ from VcfFile import *
 def main():
     usage = "usage: %prog [options] file.vcf"
     parser = OptionParser(usage)
-    parser.add_option("--model", type="string", dest="model", default = "dominant", help=" inheritance model (dominant recessive) ")
+    parser.add_option("--model", type="string", dest="model", default = "dominant", help=" inheritance model (dominant/recessive), default is dominant ")
     parser.add_option("--affected", type="string", dest="affected", help="sample name of affecteds (one per line)")
     parser.add_option("--unaffected", type="string", dest="unaffected", help="sample name of unaffecteds (one per line)")
     parser.add_option("--filter", type="string", dest="filter", help="analyze only those  records matching filter (default is None)", default=None)
@@ -68,26 +68,44 @@ def main():
         genotypes = vrec.getGenotypesAlleles()
         genotype_tuple= vrec.zipGenotypes(samplelist) # get a list of tuples [ (sample, VcfGenotype object) ... ]
         for (sample, genotype) in genotype_tuple: #iterate thru and see if they are in affected or unaffected list
-            if sample in affecteds:  # if so ...
-                affected_genotypes.append( ( sample, genotype.toString(),  genotype.isSegregating() )  ) # are they segregating for a non-ref allele?
-            if sample in unaffecteds:
-                unaffected_genotypes.append( (sample,  genotype.toString(),  genotype.isSegregating() ) ) # are they segregating for a non-ref allele?
-       
-        #filter the collected samples to see if they are all have segregating genotypes
-        shared_affected_segregating = filter( lambda x, segregating=True: segregating in x, affected_genotypes)
-        shared_unaffected_segregating = filter ( lambda x, segregating=False: segregating in x, unaffected_genotypes)
-        #print "shared affected segregating ", len(shared_affected_segregating)
-        #print "share unaffected segregating ", len(shared_unaffected_segregating)
-        #print "\n"
-        #print len(shared_affected_segregating), shared_affected_segregating,  unaffected_genotypes, shared_unaffected_segregating
-        #print affected_genotypes
-        #now if all affects are segregating for the site
-        # and all the un-affecteds are *not* segregating for the site
-        # it is a candidate
-        if len(shared_affected_segregating) == len(affecteds):
-            
-            if  len(shared_unaffected_segregating) == len(unaffecteds):
-                print vrec.toStringwithGenotypes()
+            if options.model == 'dominant':
+                if sample in affecteds:  # if so ...
+                    affected_genotypes.append( ( sample, genotype.toString(),  genotype.isSegregating() )  ) # are they segregating for a non-ref allele?
+                if sample in unaffecteds:
+                    unaffected_genotypes.append( (sample,  genotype.toString(),  genotype.isSegregating() ) ) # are they segregating for a non-ref allele?
+            elif options.model == 'recessive':
+                if sample in affecteds:
+                    affected_genotypes.append( ( sample, genotype.toString(),  genotype.isNonRefHomz() )  ) # are they segregating for a non-ref homoz?
+                if sample in unaffecteds:
+                    unaffected_genotypes.append( (sample,  genotype.toString(),  genotype.isNonRefHomz() ) ) # are they segregating for a non-ref non-refhomoz?
+            else:
+                sys.stderr.write(options.model + " not supported for genotype discrete filtering ...\n")
+
+
+        if options.model == 'dominant':
+            #filter the collected samples to see if they are all have segregating genotypes
+            shared_affected_segregating = filter( lambda x, segregating=True: segregating in x, affected_genotypes)
+            shared_unaffected_segregating = filter ( lambda x, segregating=False: segregating in x, unaffected_genotypes)
+        
+            #now if all affects are segregating for the site
+            # and all the un-affecteds are *not* segregating for the site
+            # it is a candidate
+            if len(shared_affected_segregating) == len(affecteds):
+                if  len(shared_unaffected_segregating) == len(unaffecteds):
+                    print vrec.toStringwithGenotypes()
+        elif options.model == 'recessive':
+            shared_affected_homoz = filter( lambda x, homoz=True: homoz in x, affected_genotypes)
+            shared_unaffected_homoz = filter ( lambda x, homoz=False: homoz in x, unaffected_genotypes)
+
+            #now if all affects are homoz for the site
+            # and all the un-affecteds are *not* homoz for the site
+            # it is a candidate
+            if len(shared_affected_homoz) == len(affecteds):
+                if  len(shared_unaffected_homoz) == len(unaffecteds):
+                    print vrec.toStringwithGenotypes()
+        else:
+            sys.stderr.write(options.model + " not supported for genotype discrete filtering ...\n")
+
         #print "\n"
 if __name__ == "__main__":
     main()

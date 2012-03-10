@@ -99,6 +99,16 @@ class VcfGenotype(object):
             return True
         return False
 
+    def isNonRefHomz(self):
+        """ return true if genotype is non-ref homozygote """
+        if self.isCalled() == False:
+            return False
+        if self.allele1 !='0' and self.allele2 != '0':
+            return True
+        return False
+
+
+
     def isHet(self):
         """ return True if gentoype is het and both alleles are called"""
         

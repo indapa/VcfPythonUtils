@@ -4,6 +4,8 @@ import os
 import string
 import re
 from optparse import OptionParser
+from VcfFile import *
+""" get presence/absence of ancestral allele (AA) from VCF file """
 
 def main():
     usage = "usage: %prog [options] arg"

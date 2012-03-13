@@ -86,7 +86,7 @@ def main():
             if ref_is_ancestral == 1:
                gzip.append( (a1,a2))
             else:
-                gzip.append( str(int(a1)-1),str(int(a2)-1) )
+                gzip.append( ( str(int(a1)-1),str(int(a2)-1) ) )
         print zip(samples, gzip)
 
 

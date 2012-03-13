@@ -33,6 +33,7 @@ def main():
     vcfobj.parseMetaLines(vcfh)
     vcfobj.printMetaLines()
     descriptors = vcfobj.getMetaInfoDescription()
+    samples=vcfobj.getSampleList()
     infoids=[]
     for (tag, description) in descriptors:
         infoids.append(tag)
@@ -48,6 +49,7 @@ def main():
 
     aa_pattern='\tAA=([ACGTacgt])\t'
 
+    ref_is_ancestral=0
     aa_pattern='(AA=([ACGTacgt]))'
     for dataline in vcfobj.yieldVcfDataLine(vcfh):
         fields=dataline.strip().split('\t')
@@ -60,13 +62,34 @@ def main():
         #check if its a SNP
         if re.search(pattern, info ) == None:
             continue
-        else:
-            if re.search(aa_pattern, info )== None:
-                continue
+        
+        if re.search(aa_pattern, info )== None:
+            continue
 
-            aa_allele=re.search(aa_pattern,info ).groups()[1]
-            aa_allele=aa_allele.upper()
-            print chrom, pos, aa_allele
+        #if it gets here, record has an AA snp
+        aa_allele=re.search(aa_pattern,info ).groups()[1]
+        aa_allele=aa_allele.upper()
+        print chrom, pos, aa_allele
+        if aa_allele == ref:
+            ref_is_ancestral = 1
+        genotypes=[]
+        genostrings=fields[9::]
+        for gstring in genostrings:
+            (gt, gq, gl)=gstring.split(':')
+            genotypes.append(gt)
+        #skip if not sites are called
+        if '.' in genotypes:
+            continue
+        gzip=[]
+        for g in genotypes:
+            (a1,a2)=g.split('|')
+            if ref_is_ancestral == 1:
+               gzip.append( (a1,a2))
+            else:
+                gzip.append( str(int(a1)-1),str(int(a2)-1) )
+        print zip(samples, gzip)
+
+
 
 
 if __name__ == "__main__":

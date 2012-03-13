@@ -69,7 +69,7 @@ def main():
         #if it gets here, record has an AA snp
         aa_allele=re.search(aa_pattern,info ).groups()[1]
         aa_allele=aa_allele.upper()
-        print chrom, pos, aa_allele
+        print chrom, pos, ref,aa_allele
         if aa_allele == ref:
             ref_is_ancestral = 1
         genotypes=[]

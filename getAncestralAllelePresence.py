@@ -46,7 +46,7 @@ def main():
     if options.variantype != None:
         pattern=options.infotag+'=('+options.variantype+')'
 
-    aa_pattern='AA=([ACGTacgt])'
+    aa_pattern='\tAA=([ACGTacgt])\t'
 
     for dataline in vcfobj.yieldVcfDataLine(vcfh):
         fields=dataline.strip().split('\t')

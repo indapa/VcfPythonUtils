@@ -48,19 +48,26 @@ def main():
 
     aa_pattern='\tAA=([ACGTacgt])\t'
 
+    aa_pattern='(AA=([ACGTacgt]))'
     for dataline in vcfobj.yieldVcfDataLine(vcfh):
         fields=dataline.strip().split('\t')
         (chrom,pos,id,ref,alt,qual,filtercode,info)=fields[0:8]
-        #check if its PASS filter
+            #check if its PASS filter
         if filtercode != options.filter and options.filter != None : continue
 
+        ref_is_ancestral=0
 
         #check if its a SNP
         if re.search(pattern, info ) == None:
             continue
         else:
-            AA=re.search(aa_pattern, info ).groups()[0]
-            print chrom,pos,AA
+            if re.search(aa_pattern, info )== None:
+                continue
+
+            aa_allele=re.search(aa_pattern,info ).groups()[1]
+            aa_allele=aa_allele.upper()
+            print chrom, pos, aa_allele
+
 
 if __name__ == "__main__":
     main()

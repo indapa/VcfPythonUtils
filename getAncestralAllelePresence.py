@@ -29,11 +29,23 @@ def main():
 
     #instantiate a VcfFile object
     vcfobj=VcfFile(vcfilename)
+    
+    
     #parse its metainfo lines (ones that begin with ##)
     vcfobj.parseMetaLines(vcfh)
-    vcfobj.printMetaLines()
+    vcfh.seek(0)
+
+
+    #vcfobj.printMetaLines()
+    vcfobj.parseHeaderLine(vcfh)
+    #vcfobj.printHeaderLine()
+    samplelist=vcfobj.getSampleList()
+    newsamplestring='CHROM\tPOS\t'
+    for s in samplelist:
+        newsamplestring+= s+".1"+"\t"+s+".2\t"
+    print newsamplestring
     descriptors = vcfobj.getMetaInfoDescription()
-    samples=vcfobj.getSampleList()
+    
     infoids=[]
     for (tag, description) in descriptors:
         infoids.append(tag)
@@ -43,7 +55,7 @@ def main():
         exit(1)
 
     vcfh.seek(0)
-
+    
     if options.variantype != None:
         pattern=options.infotag+'=('+options.variantype+')'
 
@@ -51,6 +63,8 @@ def main():
 
     ref_is_ancestral=0
     aa_pattern='(AA=([ACGTacgt]))'
+    
+  
     for dataline in vcfobj.yieldVcfDataLine(vcfh):
         fields=dataline.strip().split('\t')
         (chrom,pos,id,ref,alt,qual,filtercode,info)=fields[0:8]
@@ -69,7 +83,7 @@ def main():
         #if it gets here, record has an AA snp
         aa_allele=re.search(aa_pattern,info ).groups()[1]
         aa_allele=aa_allele.upper()
-        print chrom, pos, ref,aa_allele
+        #print chrom, pos, ref,aa_allele
         if aa_allele == ref:
             ref_is_ancestral = 1
         genotypes=[]
@@ -86,9 +100,13 @@ def main():
             if ref_is_ancestral == 1:
                gzip.append( (a1,a2))
             else:
-                gzip.append( ( str(int(a1)-1),str(int(a2)-1) ) )
-        print zip(samples, gzip)
-
+                gzip.append( ('0','0') )
+        #print zip(samplelist, gzip)
+        outstring=[chrom, pos]
+        for ( sample, alleletuple ) in zip(samplelist, gzip):
+            allestr="\t".join( list(alleletuple ))
+            outstring.append(allestr)
+        print "\t".join(outstring)
 
 
 

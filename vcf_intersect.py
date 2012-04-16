@@ -76,7 +76,7 @@ def main():
     parser.add_option("--filter", type="string", dest="filter", default=None, help="intersect records only set with filter (default is None")
     parser.add_option("--info", type="string", dest="infotag", help="INFO tag id that annotates what type of variant the VCF record is", default="TYPE")
     parser.add_option("--type", type="string", dest="variantype", help="type of variant (SNP INS DEL)", default="")
-
+    parser.add_option("--noheader", action="store_true", dest="noheader", help="VCF file one  has no header line", default=False)
 
     (options, args)=parser.parse_args()
 
@@ -96,10 +96,13 @@ def main():
    
     vcfobj=VcfFile(vcf_file_one)
     vcfh=open(vcf_file_one,'r')
-    vcfobj.parseMetaLines(vcfh)
 
-    #print meta INFO, FORMAT, and FILTER lines
-    vcfobj.printMetaLines()
+    if options.noheader == False:
+        vcfobj.parseMetaLines(vcfh)
+        vcfobj.printMetaLines()
+    
+
+
 
 
     descriptors = vcfobj.getMetaInfoDescription()
@@ -107,16 +110,17 @@ def main():
     for (tag, description) in descriptors:
         infoids.append(tag)
 
-    if options.infotag  not in infoids and options.infotag != 'QUAL' and  options.infotag != "":
+    if options.infotag  not in infoids and options.infotag != 'QUAL' and  options.infotag != "" and options.noheader == False:
         sys.stderr.write(options.infotag + " tag not in ##INFO headers!\n")
         exit(1)
 
 
-    vcfh.seek(0)
+    #vcfh.seek(0)
 
     #parse the header  line #CHROM and print it
-    vcfobj.parseHeaderLine(vcfh)
-    vcfobj.printHeaderLine()
+    if options.noheader==False:
+        vcfobj.parseHeaderLine(vcfh)
+        vcfobj.printHeaderLine()
     
     if options.variantype != "":
         pattern=options.infotag+'=('+options.variantype+')'
@@ -140,7 +144,7 @@ def main():
                 value=re.search(pattern, info ).groups()[0]
                 pass
 
-        chrom="chr"+chrom
+        #chrom="chr"+chrom
         if chrom in bitsets and bitsets[chrom].count_range( start, end-start ) >= options.mincols:
             if not options.reverse:
                 print dataline

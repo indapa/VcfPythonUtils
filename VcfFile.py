@@ -17,7 +17,9 @@ class VcfFile(object):
 
     def parseMetaLines(self, fh):
         """ parse the meta lines that begin with ## in a VCF file """
+        
         for line in fh:
+            #print "foo "+ line.strip()
             if '##fileformat' in line.strip():
                 self.metaline.setFileFormat(line)
             elif '##INFO' in line.strip():
@@ -28,7 +30,10 @@ class VcfFile(object):
                 self.metaline.parseMetaFormat(line)
             elif '#CHROM' in line.strip():
                 break
-        
+            elif '##reference' in line.strip():
+                break
+            else:
+                pass
 
     def hasFormatHeader(self,headerline):
         """ check if header line has FORMAT column """
@@ -36,8 +41,11 @@ class VcfFile(object):
 
 
     def parseHeaderLine(self,fh):
+        
         for line in fh:
-            if '#CHROM' not in line: continue
+            #print line.strip()
+            if '#CHROM' not in line:
+                break
            
             self.headerline.add_format_column(line.strip() )
             self.headerline.append_samplelist( line.strip() )
@@ -121,6 +129,7 @@ class VcfFile(object):
     def yieldVcfRecord(self,fh):
         """ yield VcfRecord object from reading a dataline in a VCF file """
         for line in fh:
+            print line.strip()
             if '#' in line: continue
             fields=line.strip().split('\t')
             (chrom,pos,id,ref,alt,qual,filter,info)=fields[0:8]

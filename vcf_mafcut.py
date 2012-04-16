@@ -74,14 +74,14 @@ def main():
         #if filtercode != options.filter and options.filter != None : continue
 
         if re.search(variantpattern, info ) == None:
-            #print "no variant pattern"
+            sys.stderr.write("no variant pattern\n")
             continue
         
         variant_type=re.search(variantpattern, info ).groups()[0]
         
         
         if re.search(mafpattern, info ) == None:
-            #print "No mafpattern!"
+            sys.stderr.write("No mafpattern!\n")
             continue
         
         maf_value=re.search(mafpattern, info ).groups()[0]

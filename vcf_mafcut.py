@@ -18,6 +18,7 @@ def main():
     parser.add_option("--variantype", type="string", dest="variantype", help="type of variant (SNP INS DEL)", default=None)
     parser.add_option("--filter", type="string", dest="filter", help="extract records matching filter (default is None)", default=None)
     parser.add_option("--noheader", action="store_true", dest="noheader", help="VCF file  has no header file", default=False)
+    parser.add_option("--quiet", action="store_true", dest="quiet", help="don't print vcf output to stdout", default=False)
     parser.add_option("--leq", type="float", dest="leq", default=1.0, help="keep variants with AF <= (default 1)")
     parser.add_option("--geq", type="float", dest="geq", default=0.0, help="keep variants with AF >= (default 0)")
     (options, args)=parser.parse_args()
@@ -93,7 +94,8 @@ def main():
         
         if float(maf_value) <= options.leq and float(maf_value) >= options.geq:
 
-            print dataline
+            if options.quiet == False:
+                print dataline
             logstring="\t".join([chrom,pos,id,ref,alt,variant_type, options.maftag, maf_value])
             freqfh.write(logstring+'\n')
         

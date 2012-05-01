@@ -18,22 +18,24 @@ class VcfFile(object):
     def parseMetaAndHeaderLines(self, fh):
         """ parse meta lines that begin with ## and header line that begins with # """
         for line in fh:
+            
             if '##fileformat' in line.strip():
                 self.metaline.setFileFormat(line)
             elif '##INFO' in line.strip():
+                
                 self.metaline.parseMetaInfo(line)
             elif '##FILTER' in line.strip():
+              
                 self.metaline.parseMetaFilter(line)
             elif '##FORMAT' in line.strip():
+                
                 self.metaline.parseMetaFormat(line)
             elif '#CHROM' in line.strip():
                 self.headerline.add_format_column(line.strip() )
                 self.headerline.append_samplelist( line.strip() )
                 break
-            elif '##reference' in line.strip():
-                break
             else:
-                pass
+                print line.strip()
 
     def parseMetaLines(self, fh):
         """ parse the meta lines that begin with ## in a VCF file """

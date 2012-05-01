@@ -17,14 +17,17 @@ def main():
     parser.add_option("--printmetalines", action="store_true", dest="metalines", default=False, help="print metalines beginning with ##")
     (options, args)=parser.parse_args()
     commandline=" ".join(sys.argv)
-    print "##commandLine " + commandline
+    
    
 
     firstfile=options.vcf_list.pop(0)
     vcfh=open(firstfile, 'r')
     vcfobj=VcfFile(firstfile)
     vcfobj.parseMetaAndHeaderLines(vcfh)
-    vcfobj.printMetaInfoLines()
+    #print "##commandLine " + commandline
+    
+    vcfobj.printMetaLines()
+    vcfobj.printHeaderLine()
     for line in vcfobj.yieldVcfDataLine(vcfh):
         print line
 

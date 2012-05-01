@@ -19,15 +19,19 @@ def main():
     commandline=" ".join(sys.argv)
     print "##commandLine " + commandline
    
-    printedmeta=0
-    
+
+    firstfile=options.vcf_list.pop(0)
+    vcfh=open(file, 'r')
+    vcfobj=VcfFile(file)
+    vcfobj.parseMetaAndHeaderLines(vcfh)
+    vcfobj.printMetaInfoLines()
+    for line in vcfobj.yieldVcfDataLine(vcfh):
+        print line
+
     for file in options.vcf_list:
         vcfh=open(file, 'r')
         vcfobj=VcfFile(file)
-        if printedmeta==0:
-            vcfobj.printMetaInfoLines()
-            printedmeta=1
-        
+      
         #parse its metainfo lines (ones that begin with ##)
         vcfobj.parseMetaAndHeaderLines(vcfh)
         

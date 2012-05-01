@@ -24,7 +24,7 @@ def main():
     for file in options.vcf_list:
         vcfh=open(file, 'r')
         vcfobj=VcfFile(file)
-        if printedmeta==0
+        if printedmeta==0:
             vcfobj.printMetaInfoLines()
             printedmeta=1
         

@@ -21,7 +21,7 @@ def main():
    
 
     firstfile=options.vcf_list.pop(0)
-    vcfh=open(file, 'r')
+    vcfh=open(firstfile, 'r')
     vcfobj=VcfFile(file)
     vcfobj.parseMetaAndHeaderLines(vcfh)
     vcfobj.printMetaInfoLines()

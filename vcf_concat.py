@@ -22,7 +22,7 @@ def main():
 
     firstfile=options.vcf_list.pop(0)
     vcfh=open(firstfile, 'r')
-    vcfobj=VcfFile(file)
+    vcfobj=VcfFile(firstfile)
     vcfobj.parseMetaAndHeaderLines(vcfh)
     vcfobj.printMetaInfoLines()
     for line in vcfobj.yieldVcfDataLine(vcfh):

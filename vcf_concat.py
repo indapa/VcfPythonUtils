@@ -14,17 +14,20 @@ def main():
     usage = "usage: %prog  --in file.vcf --in file2.vcf [ ... ] "
     parser = OptionParser(usage)
     parser.add_option("--in", action="append", dest="vcf_list", help="file to concatenate")
-    parser.add_option("--filelist", type="string", dest="filelist", help="file with list of vcf files to concat", default=None)
     parser.add_option("--printmetalines", action="store_true", dest="metalines", default=False, help="print metalines beginning with ##")
     (options, args)=parser.parse_args()
     commandline=" ".join(sys.argv)
     print "##commandLine " + commandline
    
-
+    printedmeta=0
     
     for file in options.vcf_list:
         vcfh=open(file, 'r')
         vcfobj=VcfFile(file)
+        if printedmeta==0
+            vcfobj.printMetaInfoLines()
+            printedmeta=1
+        
         #parse its metainfo lines (ones that begin with ##)
         vcfobj.parseMetaAndHeaderLines(vcfh)
         

@@ -42,28 +42,31 @@ def main():
     #instantiate a VcfFile object
     vcfobj=VcfFile(vcfilename)
     #parse its metainfo lines (ones that begin with ##)
-    vcfobj.parseMetaLines(vcfh)
+    vcfobj.parseMetaAndHeaderLines(vcfh)
+    
     descriptors = vcfobj.getMetaInfoDescription()
     infoids=[]
     for (tag, description) in descriptors:
+        tag
         infoids.append(tag)
 
     if options.infotag  not in infoids and options.infotag != 'QUAL':
         sys.stderr.write(options.infotag + " tag not in ##INFO headers!\n")
         exit(1)
 
-    vcfh.seek(0)
-    vcfobj.parseHeaderLine(vcfh)
+    
 
     pattern=options.infotag+'=(\w+)'
-
+    
     for vrec in vcfobj.yieldVcfRecord(vcfh):
         if vrec.getFilter() != options.filter and options.filter != None: continue
+        
         searchresult=re.search(pattern, vrec.getInfo() )
         if re.search(pattern, vrec.getInfo() ) == None:
             continue
         else:
             value=re.search(pattern, vrec.getInfo() ).groups()[0]
+            #rint value
             if value not in variant_dict.keys():
                 variant_dict[value]=[]
                 variant_dict[value].append( vrec )

@@ -35,7 +35,8 @@ class VcfFile(object):
                 self.headerline.append_samplelist( line.strip() )
                 break
             else:
-                print line.strip()
+                pass
+                
 
     def parseMetaLines(self, fh):
         """ parse the meta lines that begin with ## in a VCF file """

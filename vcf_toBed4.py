@@ -11,7 +11,7 @@ def main():
     usage = "usage: %prog [options] arg"
     parser = OptionParser(usage)
     parser.add_option("--filter", type="string", dest="filter", help="extract records matching filter (default is None)", default=None)
-    parser.add_option("--addchr", action="store_true", dest="addchr",  help="pre-pend 'chr' to output ")
+    parser.add_option("--addchr", action="store_true", dest="addchr",  help="pre-pend 'chr' to chrom column ", default=False)
     (options, args)=parser.parse_args()
 
     vcfilename=args[0]
@@ -22,7 +22,7 @@ def main():
     #instantiate a VcfFile object
     vcfobj=VcfFile(vcfilename)
     #parse its metainfo lines (ones that begin with ##)
-    vcfobj.parseMetaLines(vcfh)
+    vcfobj.parseMetaAndHeaderLines(vcfh)
 
     for dataline in vcfobj.yieldVcfDataLine(vcfh):
         fields=dataline.strip().split('\t')

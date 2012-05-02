@@ -77,7 +77,8 @@ def main():
     parser.add_option("--info", type="string", dest="infotag", help="INFO tag id that annotates what type of variant the VCF record is", default="TYPE")
     parser.add_option("--type", type="string", dest="variantype", help="type of variant (SNP INS DEL)", default="")
     parser.add_option("--noheader", action="store_true", dest="noheader", help="VCF file one  has no header line", default=False)
-
+    parser.add_option("--chrprefix", action="store_false", dest="chrprefix", help="does the bed have chr prefix?", default=True)
+    
     (options, args)=parser.parse_args()
 
     sys.stderr.write("intersecting two files ...\n")
@@ -98,32 +99,16 @@ def main():
     vcfh=open(vcf_file_one,'r')
 
     if options.noheader == False:
-        vcfobj.parseMetaLines(vcfh)
-        vcfobj.printMetaLines()
+        vcfobj.parseMetaAndHeaderLines(vcfh)
     
+        descriptors = vcfobj.getMetaInfoDescription()
+        infoids=[]
+        for (tag, description) in descriptors:
+            infoids.append(tag)
 
-
-
-
-    descriptors = vcfobj.getMetaInfoDescription()
-    infoids=[]
-    for (tag, description) in descriptors:
-        infoids.append(tag)
-
-    if options.infotag  not in infoids and options.infotag != 'QUAL' and  options.infotag != "" and options.noheader == False:
-        sys.stderr.write(options.infotag + " tag not in ##INFO headers!\n")
-        exit(1)
-
-
-    #vcfh.seek(0)
-
-    #parse the header  line #CHROM and print it
-    if options.noheader==False:
-        vcfobj.parseHeaderLine(vcfh)
-        vcfobj.printHeaderLine()
-    
-    if options.variantype != "":
-        pattern=options.infotag+'=('+options.variantype+')'
+        if options.infotag  not in infoids and options.infotag != 'QUAL' and  options.infotag != "" and options.noheader == False:
+            sys.stderr.write(options.infotag + " tag not in ##INFO headers!\n")
+            exit(1)
 
 
     for dataline in vcfobj.yieldVcfDataLine(vcfh):
@@ -143,8 +128,9 @@ def main():
             else:
                 value=re.search(pattern, info ).groups()[0]
                 pass
-
-        #chrom="chr"+chrom
+        if options.chrprefix == True:
+            chrom="chr"+chrom
+            
         if chrom in bitsets and bitsets[chrom].count_range( start, end-start ) >= options.mincols:
             if not options.reverse:
                 print dataline

@@ -86,12 +86,13 @@ def main():
     vcf_file_one=args[0]
     in2_fname=args[1]
 
-    
-
-    if ".bed" in in2_fname:
+    in2_fname_ext= os.path.splitext(in2_fname)[1][1:]
+   
+    if "bed" == in2_fname_ext:
+       
         bitsets = binned_bitsets_from_file( open( in2_fname ) )
 
-    if ".vcf" in in2_fname:
+    if "vcf" ==  in2_fname_ext:
          bitsets = binned_bitsets_from_vcffile( in2_fname , options.filter)
 
    

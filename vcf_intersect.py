@@ -77,7 +77,7 @@ def main():
     parser.add_option("--info", type="string", dest="infotag", help="INFO tag id that annotates what type of variant the VCF record is", default="TYPE")
     parser.add_option("--type", type="string", dest="variantype", help="type of variant (SNP INS DEL)", default="")
     parser.add_option("--noheader", action="store_true", dest="noheader", help="VCF file one  has no header line", default=False)
-    parser.add_option("--chrprefix", action="store_false", dest="chrprefix", help="does the bed have chr prefix?", default=True)
+    parser.add_option("--chrprefix", action="store_false", dest="chrprefix", help="does the bed have chr prefix in chrom column?", default=True)
     
     (options, args)=parser.parse_args()
 
@@ -109,7 +109,7 @@ def main():
         if options.infotag  not in infoids and options.infotag != 'QUAL' and  options.infotag != "" and options.noheader == False:
             sys.stderr.write(options.infotag + " tag not in ##INFO headers!\n")
             exit(1)
-
+        vcfobj.printMetaAndHeaderLines()
 
     for dataline in vcfobj.yieldVcfDataLine(vcfh):
         fields=dataline.strip().split('\t')

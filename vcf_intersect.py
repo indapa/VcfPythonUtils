@@ -75,7 +75,7 @@ def main():
     parser.add_option("--v", action="store_true", dest="reverse",  help="Print regions in first vcf  that DO NOT overlap second vcf|bed file")
     parser.add_option("--filter", type="string", dest="filter", default=None, help="intersect records only set with filter (default is None")
     parser.add_option("--info", type="string", dest="infotag", help="INFO tag id that annotates what type of variant the VCF record is", default="TYPE")
-    parser.add_option("--type", type="string", dest="variantype", help="type of variant (SNP INS DEL)", default="")
+    parser.add_option("--type", type="string", dest="variantype", help="type of variant (SNP INS DEL)", default=None)
     parser.add_option("--noheader", action="store_true", dest="noheader", help="VCF file one  has no header line", default=False)
     parser.add_option("--chrprefix", action="store_false", dest="chrprefix", help="does the bed have chr prefix in chrom column?", default=True)
     
@@ -121,13 +121,13 @@ def main():
             continue
 
         #check to see if record is the correct variant TYPE
-        if options.variantype != "":
+        if options.variantype != None:
             pattern=options.infotag+'=('+options.variantype+')'
             if re.search(pattern, info ) == None:
                 continue
-            else:
-                value=re.search(pattern, info ).groups()[0]
-                pass
+           
+
+
         if options.chrprefix == True:
             chrom="chr"+chrom
             

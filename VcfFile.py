@@ -147,6 +147,11 @@ class VcfFile(object):
         self.printMetaFormatLines()
         self.printMetaFilterLines()
 
+    def printMetaAndHeaderLines(self):
+        self.printMetaInfoLines()
+        self.printMetaFormatLines()
+        self.printMetaFilterLines()
+        self.printHeaderLine()
     
 
     def yieldVcfRecord(self,fh):

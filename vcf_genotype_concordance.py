@@ -160,6 +160,10 @@ def compare_genotypes(g1, g2):
 def main():
     usage = "usage: %prog [options] file1.vcf file2.vcf"
     parser = OptionParser(usage)
+    parser.add_option("--filter", type="string", dest="filter", default=None, help="analyze records only set with filter (default is None")
+    parser.add_option("--info", type="string", dest="infotag", help="INFO tag id that annotates what type of variant the VCF record is", default="TYPE")
+    parser.add_option("--type", type="string", dest="variantype", help="type of variant (SNP INS DEL)", default=None)
+
     (options, args)=parser.parse_args()
 
     sitefh = open('site.nrd.nrs.txt', 'w')
@@ -182,7 +186,7 @@ def main():
 
 
     samples_fileone=vcfobj1.getSampleList()
-    samples_filetwo=vcfobj1.getSampleList()
+    samples_filetwo=vcfobj2.getSampleList()
     print samples_fileone, samples_filetwo
     common_samples=set(samples_fileone).intersection( set(samples_filetwo) )
     N=len(common_samples)
@@ -235,6 +239,18 @@ def main():
             if vrec1.getAlt() != vrec2.getAlt():
                 sys.stderr.write("Vcf records don't match in alt allele!\n")
                 continue
+
+            vrec1info=vrec1.getInfo()
+            vrec2info=vrec2.getInfo()
+
+            #check to see if records are the correct variant TYPE
+            if options.variantype != None:
+                pattern=options.infotag+'=('+options.variantype+')'
+                if re.search(pattern, vrec1info ) == None:
+                    continue
+                if re.search(pattern, vrec2info) == None:
+                    continue
+                    
 
             """ list of tuples [ (sample, genotype object), .... ] """
             vrec1_ziptuple=vrec1.zipGenotypes(samples_fileone)

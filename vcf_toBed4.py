@@ -32,6 +32,6 @@ def main():
         if filtercode != options.filter and options.filter != None : continue
         (start,end) = (int(pos)-1, int(pos))
         bedstring= "\t".join( [ chrom, str(start), str(end), id ] )
-        sys.out.write(bedstring+"\n")
+        print bedstring
 if __name__ == "__main__":
     main()

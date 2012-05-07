@@ -228,16 +228,24 @@ def main():
 
             if vrec1.getRef() != vrec2.getRef():
                 sys.stderr.write("Vcf records don't match in chrom!\n")
+                outstring="\t".join([ vrec1.getChrom(), vrec1.getPos(), vrec2.getChrom(), vrec2.getPos() ])
+                sys.stderr.write(outstring+"\n")
                 continue
             if vrec1.getPos() != vrec2.getPos():
                 sys.stderr.write("Vcf records don't match in positions!\n")
+                outstring="\t".join([ vrec1.getChrom(), vrec1.getPos(), vrec2.getChrom(), vrec2.getPos() ])
+                sys.stderr.write(outstring+"\n")
                 continue
 
             if vrec1.getRef() != vrec2.getRef():
                 sys.stderr.write("Vcf records don't match in reference allele!\n")
+                outstring="\t".join([ vrec1.getChrom(), vrec1.getPos(), vrec1.getRef(), vrec1.getAlt(),  vrec2.getChrom(), vrec2.getPos(), vrec2.getRef(), vrec2.getAlt()  ])
+                sys.stderr.write(outstring+"\n")
                 continue
             if vrec1.getAlt() != vrec2.getAlt():
                 sys.stderr.write("Vcf records don't match in alt allele!\n")
+                outstring="\t".join([ vrec1.getChrom(), vrec1.getPos(), vrec1.getRef(), vrec1.getAlt(),  vrec2.getChrom(), vrec2.getPos(), vrec2.getRef(), vrec2.getAlt()  ])
+                sys.stderr.write(outstring+"\n")
                 continue
 
             vrec1info=vrec1.getInfo()

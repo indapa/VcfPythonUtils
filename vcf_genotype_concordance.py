@@ -268,7 +268,7 @@ def main():
                    sys.stderr.write("Vcf records don't match in variant type!\n")
                    outstring="\t".join([ vrec1.getChrom(), vrec1.getPos(),vrec1type, vrec2.getChrom(), vrec2.getPos(), vrec2type ])
                    sys.stderr.write(outstring+"\n")
-                print vrec1type, vrec2type
+                #print vrec1type, vrec2type
             else:
                 pattern=options.infotag+'=(\w+)'
                 vrec1type=re.search(pattern, vrec1info ).groups()[0]

@@ -251,14 +251,29 @@ def main():
             vrec1info=vrec1.getInfo()
             vrec2info=vrec2.getInfo()
 
-            #check to see if records are the correct variant TYPE
+            """ check to see vrecs are the correct variant type
+                and to see that vrec1 is of same variant type as vrec2
+                so we compare apples to apples                    """
             if options.variantype != None:
                 pattern=options.infotag+'=('+options.variantype+')'
-                if re.search(pattern, vrec1info ) == None:
+                if re.search(pattern, vrec1info ) == None or re.search(pattern, vrec2info) == None:
                     continue
-                if re.search(pattern, vrec2info) == None:
-                    continue
-                    
+                vrec1type=re.search(pattern, vrec1info ).groups()[0]
+                vrec2type=re.search(pattern, vrec2info ).groups()[0]
+                if vrec1type != vrec2type:
+                   sys.stderr.write("Vcf records don't match in variant type!\n")
+                   outstring="\t".join([ vrec1.getChrom(), vrec1.getPos(),vrec1type, vrec2.getChrom(), vrec2.getPos(), vrec2type ])
+                   sys.stderr.write(outstring+"\n")
+                print vrec1type, vrec2type
+            else:
+                pattern=options.infotag+'=(\w+)'
+                vrec1type=re.search(pattern, vrec1info ).groups()[0]
+                vrec2type=re.search(pattern, vrec2info ).groups()[0]
+                if vrec1type != vrec2type:
+                    sys.stderr.write("Vcf records don't match in variant type!\n")
+                    outstring="\t".join([ vrec1.getChrom(), vrec1.getPos(),vrec1type, vrec2.getChrom(), vrec2.getPos(), vrec2type ])
+                    sys.stderr.write(outstring+"\n")
+                print vrec1type, vrec2type
 
             """ list of tuples [ (sample, genotype object), .... ] """
             vrec1_ziptuple=vrec1.zipGenotypes(samples_fileone)
@@ -280,6 +295,8 @@ def main():
             comparison_results=compare_genotypes(filtered_vrec1, filtered__vrec2)
             #print comparison_results
 
+            #this is where we increment the counts in the 
+            # GenoTypeMatrix (gtm) gets updated here for the site and sample level
             for (g1, g2, sample) in comparison_results: #iterate thru the compariosn results
                 discordance_dict[sample][g1,g2]+=1      #incrment the per-sample counts of genotype compariosns results
                 site_discordance[g1,g2]+=1             #incrment the per-site counts of genotype compariosns results

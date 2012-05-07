@@ -42,6 +42,10 @@ def calMaf (g):
             alt_count +=2
         else:
             pass
+
+    if float(2*total) == 0:
+        return (round(-1,3))
+    
     maf = float(alt_count) / float(2*total)
     #print float(2*total)
     #print p1, p2, sample, maf, alt_count, total
@@ -187,7 +191,7 @@ def main():
 
     samples_fileone=vcfobj1.getSampleList()
     samples_filetwo=vcfobj2.getSampleList()
-    print samples_fileone, samples_filetwo
+    sys.stderr.write("common samples between  files:\n" + "file one \t".join(samples_fileone) + "\nfile two\n" + "\t".join(samples_filetwo) + "\n")
     common_samples=set(samples_fileone).intersection( set(samples_filetwo) )
     N=len(common_samples)
 
@@ -221,7 +225,7 @@ def main():
     vcf_gen2=vcfobj1.yieldVcfRecordwithGenotypes(vcfh2)
 
     
-
+    sys.stderr.write("computing non-ref discrepancy and non-refernce sensititvity\n")
     for vrec1, vrec2 in itertools.izip(vcf_gen1, vcf_gen2):
             #print vrec1.toStringwithGenotypes()
             #print vrec2.toStringwithGenotypes()
@@ -230,23 +234,23 @@ def main():
                 sys.stderr.write("Vcf records don't match in chrom!\n")
                 outstring="\t".join([ vrec1.getChrom(), vrec1.getPos(), vrec2.getChrom(), vrec2.getPos() ])
                 sys.stderr.write(outstring+"\n")
-                continue
+                #continue
             if vrec1.getPos() != vrec2.getPos():
                 sys.stderr.write("Vcf records don't match in positions!\n")
                 outstring="\t".join([ vrec1.getChrom(), vrec1.getPos(), vrec2.getChrom(), vrec2.getPos() ])
                 sys.stderr.write(outstring+"\n")
-                continue
+                #continue
 
             if vrec1.getRef() != vrec2.getRef():
                 sys.stderr.write("Vcf records don't match in reference allele!\n")
                 outstring="\t".join([ vrec1.getChrom(), vrec1.getPos(), vrec1.getRef(), vrec1.getAlt(),  vrec2.getChrom(), vrec2.getPos(), vrec2.getRef(), vrec2.getAlt()  ])
                 sys.stderr.write(outstring+"\n")
-                continue
+                #continue
             if vrec1.getAlt() != vrec2.getAlt():
                 sys.stderr.write("Vcf records don't match in alt allele!\n")
                 outstring="\t".join([ vrec1.getChrom(), vrec1.getPos(), vrec1.getRef(), vrec1.getAlt(),  vrec2.getChrom(), vrec2.getPos(), vrec2.getRef(), vrec2.getAlt()  ])
                 sys.stderr.write(outstring+"\n")
-                continue
+                #continue
 
             vrec1info=vrec1.getInfo()
             vrec2info=vrec2.getInfo()
@@ -273,7 +277,7 @@ def main():
                     sys.stderr.write("Vcf records don't match in variant type!\n")
                     outstring="\t".join([ vrec1.getChrom(), vrec1.getPos(),vrec1type, vrec2.getChrom(), vrec2.getPos(), vrec2type ])
                     sys.stderr.write(outstring+"\n")
-                print vrec1type, vrec2type
+                #print vrec1type, vrec2type
 
             """ list of tuples [ (sample, genotype object), .... ] """
             vrec1_ziptuple=vrec1.zipGenotypes(samples_fileone)
@@ -288,7 +292,7 @@ def main():
             """the genotype comparison matrix for the VCF site
             reset everytime a new site is analyzed"""
             site_discordance=np.matrix( [ [ 0,0,0,0 ], [ 0,0,0,0 ], [ 0,0,0,0 ], [ 0,0,0,0 ] ] )
-
+            #print site_discordance
             """ the following returns a list of tuples in the following way:
                 [(vrec1_alleletype,vrec2_alleletype, sample)]
                 allele_type is a number between 0-3 where 0:homozref 1:het 2:homozref"""
@@ -300,7 +304,7 @@ def main():
             for (g1, g2, sample) in comparison_results: #iterate thru the compariosn results
                 discordance_dict[sample][g1,g2]+=1      #incrment the per-sample counts of genotype compariosns results
                 site_discordance[g1,g2]+=1             #incrment the per-site counts of genotype compariosns results
-
+            
             site_nrs=computeNRS( site_discordance )
             site_nrd=computeNRD ( site_discordance )
             (site_nrd_homoz_ref, site_nrd_het, site_nrd_homoz_nonref, aa, ab, bb )=computeNRD_class( site_discordance)
@@ -312,6 +316,10 @@ def main():
 
             sitetotalBB+=bb[0]
             sitetotalBB_discord+=bb[1]
+
+            #print site_discordance
+            #print site_nrs
+            #print site_nrd
 
             vrec1_nocalls = site_discordance[3,0] + site_discordance[3,1] + site_discordance[3,2] + site_discordance[3,3]
             vrec2_nocalls = site_discordance[0,3] + site_discordance[1,3] + site_discordance[2,3] + site_discordance[3,3]
@@ -336,7 +344,10 @@ def main():
             sitefh.write( str(site_nrd_het) + '\t')
             sitefh.write( str(site_nrd_homoz_nonref) + '\n')
 
+            #break
+
     sitefh.close()
+    #print "---"
     """broke out of the for vrec1, vrec2 in itertools.izip(vcf_gen1, vcf_gen2) loop
      so we finished comparing the two vcf files
      now collect and write per sample nrd and nrs results """
@@ -351,6 +362,8 @@ def main():
 
         nrc=computeNRS( discordance_dict[sample] )
         nrd=computeNRD(  discordance_dict[sample]  )
+        #print nrc
+        #print nrd
         gtm= discordance_dict[sample]
         eval_nocalls = gtm[3,0] + gtm[3,1] + gtm[3,2] + gtm[3,3]
         comparison_nocalls = gtm[0,3] + gtm[1,3] + gtm[2,3] + gtm[3,3]

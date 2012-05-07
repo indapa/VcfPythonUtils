@@ -223,6 +223,13 @@ def main():
             #print vrec2.toStringwithGenotypes()
 
             if vrec1.getRef() != vrec2.getRef():
+                sys.stderr.write("Vcf records don't match in chrom!\n")
+                continue
+            if vrec1.getPos() != vrec2.getPos():
+                sys.stderr.write("Vcf records don't match in positions!\n")
+                continue
+
+            if vrec1.getRef() != vrec2.getRef():
                 sys.stderr.write("Vcf records don't match in reference allele!\n")
                 continue
             if vrec1.getAlt() != vrec2.getAlt():

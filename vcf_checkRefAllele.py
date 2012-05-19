@@ -55,6 +55,6 @@ def main():
             vrec.setAlt( vrec.getRef() )
             vrec.setRef(sequence)
             logfh.write(vrec.getId() +"\n")
-    print vrec.toStringwithGenotypes()
+        print vrec.toStringwithGenotypes()
 if __name__ == "__main__":
     main()

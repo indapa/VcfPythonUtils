@@ -44,7 +44,7 @@ def main():
             if strand == '-':
                 refComp=reversecomplement( vrec.getRef() )
                 altComp=reversecomplement( vrec.getAlt() )
-                logstring = "\t".join(rsid, vrec.getRef(), vrec.getAlt(), 'refComp',refComp, 'altComp',altComp)
+                logstring = "\t".join([rsid, vrec.getRef(), vrec.getAlt(), 'refComp',refComp, 'altComp',altComp])
                 vrec.setRef(refComp)
                 vrec.setAlt(altComp)
                 logfh.write(logstring +"\n")

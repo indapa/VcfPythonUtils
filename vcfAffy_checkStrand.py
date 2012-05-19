@@ -21,6 +21,7 @@ def main():
 
     (options, args)=parser.parse_args()
 
+    logfh=open('checkstrand.log', 'r')
     con = mdb.connect(options.server, options.user, options.passwd, options.db)
 
     vcfile=args[0]
@@ -43,10 +44,11 @@ def main():
             if strand == '-':
                 refComp=reversecomplement( vrec.getRef() )
                 altComp=reversecomplement( vrec.getAlt() )
-                #print rsid, vrec.getRef(), vrec.getAlt(), refComp, altComp
-                #vrec.setRef(refComp)
-                #vrec.setAlt(altComp)
-                print vrec.toStringwithGenotypes()
+                logstring = "\t".join(rsid, vrec.getRef(), vrec.getAlt(), 'refComp',refComp, 'altComp',altComp)
+                vrec.setRef(refComp)
+                vrec.setAlt(altComp)
+                logfh.write(logstring +"\n")
+        print vrec.toStringwithGenotypes()
 
 if __name__ == "__main__":
     main()

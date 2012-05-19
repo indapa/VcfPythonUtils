@@ -21,7 +21,7 @@ def main():
 
     (options, args)=parser.parse_args()
 
-    logfh=open('checkstrand.log', 'r')
+    logfh=open('checkstrand.log', 'w')
     con = mdb.connect(options.server, options.user, options.passwd, options.db)
 
     vcfile=args[0]

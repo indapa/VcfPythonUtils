@@ -17,7 +17,8 @@ def main():
     parser.add_option("--type", type="string", dest="variantype", help="type of variant (SNP INS DEL)", default='snp')
 
     (options, args)=parser.parse_args()
-
+    
+    logfh=open('ref.log', 'w')
     
     try:
         sys.stderr.write("opening twobitfile...\n")
@@ -53,7 +54,7 @@ def main():
         if sequence != vrec.getRef() and sequence == vrec.getAlt():
             vrec.setAlt( vrec.getRef() )
             vrec.setRef(sequence)
-
+            logfh.write(vrec.getId() +"\n")
     print vrec.toStringwithGenotypes()
 if __name__ == "__main__":
     main()

@@ -32,7 +32,7 @@ def main():
 
     for vrec in vcfobj.yieldVcfRecordwithGenotypes(vcfh):
         if options.chrom != None and vrec.getChrom() != options.chrom:
-            pass
+            continue
         rsid=vrec.getId()
     
 

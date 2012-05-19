@@ -18,7 +18,7 @@ def main():
     parser.add_option("--server", type="string", dest="server", default="genome-mysql.cse.ucsc.edu")
     parser.add_option("--user", type="string", dest="user", default="genomep")
     parser.add_option("--passwd", type="string", dest="passwd", default="password")
-
+    parser.add_option("--chr", type="string", dest="chrom", default=None)
     (options, args)=parser.parse_args()
 
     logfh=open('checkstrand.log', 'w')
@@ -31,8 +31,11 @@ def main():
     #print vcfobj.printMetaLines()
 
     for vrec in vcfobj.yieldVcfRecordwithGenotypes(vcfh):
+        if options.chrom != None and vrec.getChrom() != options.chrom:
+            pass
         rsid=vrec.getId()
     
+
         #rsid="rs3748597"
         with con:
             cur = con.cursor()

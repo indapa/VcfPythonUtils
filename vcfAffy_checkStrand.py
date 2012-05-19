@@ -21,8 +21,8 @@ def main():
     parser.add_option("--chr", type="string", dest="chrom", default=None)
     (options, args)=parser.parse_args()
 
-    if options.chr != None:
-        logfh=open(options.chr+'.checkstrand.log', 'w')
+    if options.chrom != None:
+        logfh=open(options.chrom+'.checkstrand.log', 'w')
     else:
         logfh=open('checkstrand.log', 'w')
     con = mdb.connect(options.server, options.user, options.passwd, options.db)

@@ -171,12 +171,15 @@ def main():
     (options, args)=parser.parse_args()
 
     sitefh = open('site.nrd.nrs.txt', 'w')
-    headerline="\t".join(['#chrom', 'pos', 'ref','alt', 'total_samples_vcf1', 'total_called_genotypes_vcf1',
-                               '#chromosomes','AC_vcf1','noCalls_vcf1','AC_vcf2','noCalls_vcf2','maf_vcf2',
-                                'site_NRS','site_NRD', 'site_nrd_homoz_ref','site_nrd_het', 'site_nrd_homoz_nonref'])
-    sitefh.write(headerline+"\n")
+   
     vcfileone=args[0]
     vcfiletwo=args[1]
+
+    headerline="\t".join(['#chrom', 'pos', 'ref','alt', 'total_samples_vcf1', 'total_called_genotypes_vcf1',
+                               '#chromosomes','AC_'+vcfileone,'noCalls_'+vcfileone,'AC_'+vcfiletwo,'noCalls_'+vcfiletwo,'maf_'+vcfiletwo,
+                                'site_NRS','site_NRD', 'site_nrd_homoz_ref','site_nrd_het', 'site_nrd_homoz_nonref'])
+    sitefh.write(headerline+"\n")
+
 
     vcfh1=open(vcfileone, 'r')
     vcfh2=open(vcfiletwo, 'r')

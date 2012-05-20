@@ -15,7 +15,8 @@ def main():
     parser.add_option("--info", type="string", dest="infotag", help="INFO tag id that annotates what type of variant the VCF record is", default="TYPE")
     parser.add_option("--type", type="string", dest="variantype", help="type of variant (SNP INS DEL)", default=None)
     parser.add_option("--filter", type="string", dest="filter", help="extract records matching filter (default is None)", default=None)
-    
+    parser.add_option("--noheader", action="store_true", dest="noheader", help="VCF file  has no header file")
+
     (options, args)=parser.parse_args()
     if options.infotag == "":
         sys.stderr.write("provide a value for --info parameter!\n")
@@ -32,8 +33,9 @@ def main():
     #instantiate a VcfFile object
     vcfobj=VcfFile(vcfilename)
     #parse its metainfo lines (ones that begin with ##)
-    vcfobj.parseMetaLines(vcfh)
-    vcfobj.printMetaLines()
+    vcfobj.parseMetaAndHeaderLines(vcfh)
+    vcfobj.printMetaAndHeaderLines()
+
     descriptors = vcfobj.getMetaInfoDescription()
     infoids=[]
     for (tag, description) in descriptors:
@@ -43,9 +45,6 @@ def main():
         sys.stderr.write(options.infotag + " tag not in ##INFO headers!\n")
         exit(1)
 
-    vcfh.seek(0)
-    vcfobj.parseHeaderLine(vcfh)
-    vcfobj.printHeaderLine()
 
     if options.variantype != None:
         pattern=options.infotag+'=('+options.variantype+')'

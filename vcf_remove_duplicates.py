@@ -23,11 +23,8 @@ def main():
     #instantiate a VcfFile object
     vcfobj=VcfFile(vcfilename)
     #parse its metainfo lines (ones that begin with ##)
-    vcfobj.parseMetaLines(vcfh)
-    vcfh.seek(0)
-    vcfobj.parseHeaderLine(vcfh)
-    vcfobj.printMetaLines()
-    vcfobj.printHeaderLine()
+    vcfobj.parseMetaAndHeaderLines(vcfh)
+    vcfobj.printMetaAndHeaderLines()
 
     for dataline in vcfobj.yieldVcfDataLine(vcfh):
         fields=dataline.strip().split('\t')

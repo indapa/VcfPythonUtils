@@ -20,7 +20,8 @@ class VcfFile(object):
         for line in fh:
             
             if '##fileformat' in line.strip():
-                self.metaline.setFileFormat(line)
+                
+                self.metaline.setFileFormat(line.strip())
             elif '##INFO' in line.strip():
                 
                 self.metaline.parseMetaInfo(line)
@@ -52,6 +53,9 @@ class VcfFile(object):
             elif '##FORMAT' in line.strip():
                 self.metaline.parseMetaFormat(line)
             elif '#CHROM' in line.strip():
+                self.headerline.add_format_column(line.strip() )
+                self.headerline.append_samplelist( line.strip() )
+                self.printHeaderLine()
                 break
             elif '##reference' in line.strip():
                 break
@@ -148,6 +152,7 @@ class VcfFile(object):
         self.printMetaFilterLines()
 
     def printMetaAndHeaderLines(self):
+        print self.metaline.getFileFormat()
         self.printMetaInfoLines()
         self.printMetaFormatLines()
         self.printMetaFilterLines()

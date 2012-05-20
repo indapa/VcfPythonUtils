@@ -187,6 +187,9 @@ class MetaLines(object):
         """ formatline is ##fileformat=VCFv4.1 """
         self.fileFormat=formatline
 
+    def getFileFormat(self):
+        return self.fileFormat
+
     def parseMetaInfo(self, line):
         """ parse an ##INFO line field """
         """ ##INFO<ID=ID,Number=number,Type=type,Description=description> """
@@ -307,10 +310,10 @@ class HeaderLines(object):
         """ check to see if vcf has sample columns and if so append th list samplelist """
         
         fields=headerline.split('\t')
-       
-        if len(fields) >9:
+        
+        if len(fields) > 9:
             self.samplelist=fields[9::]
-            
+        
             
     def getSampleList(self):
         return self.samplelist

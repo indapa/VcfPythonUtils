@@ -70,12 +70,14 @@ def main():
         vrec_ziptuple=vrec.zipGenotypes(samples)
         genotype_typecounts=get_genotype_counts(vrec_ziptuple)
         for (g, sample) in genotype_typecounts:
+            #print g,sample
             if g == None: continue
             genotype_dict[sample][g]+=1
-    #sample homoz_ref het homoz_nonref nocall
+    print "#sample homoz_ref het homoz_nonref nocall"
     for sample in genotype_dict.keys():
-        print sample
-        outstring = "\t".join( map(str,genotype_dict[sample]) )
+        
+        outstring = " ".join( map(str,genotype_dict[sample]) )
+        print sample, outstring 
 
 
 if __name__ == "__main__":

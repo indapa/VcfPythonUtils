@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from optparse import OptionParser
+from datetime import datetime
 def returnIntervals(bedfh):
     regions=[]
     region_size=10000000
@@ -27,8 +28,10 @@ def main():
     #freebayes.20120429
     usage = "usage: %prog [options] intervals.bed"
     parser = OptionParser(usage)
-    parser.add_option("--prefix", type="string", dest="prefix", help="prefix of vcf files", default="freebayes.20120429")
-    parser.add_option("--suffix", type="string", dest="suffix", help="suffix of vcf files", default=".vcf")
+    datestring = str(datetime.now()).split( ' ' )[0]
+    datestring=datestring.replace('-','')
+    parser.add_option("--prefix", type="string", dest="prefix", help="prefix of vcf files", default="freebayes."+datestring)
+    parser.add_option("--suffix", type="string", dest="suffix", help="suffix of vcf files", default="vcf")
 
     (options, args)=parser.parse_args()
     outfile=options.prefix+"."+options.suffix

@@ -272,7 +272,7 @@ def main():
                    outstring="\t".join([ vrec1.getChrom(), vrec1.getPos(),vrec1type, vrec2.getChrom(), vrec2.getPos(), vrec2type ])
                    sys.stderr.write(outstring+"\n")
                 #print vrec1type, vrec2type
-            else:
+            elif options.infotag != "":
                 pattern=options.infotag+'=(\w+)'
                 vrec1type=re.search(pattern, vrec1info ).groups()[0]
                 vrec2type=re.search(pattern, vrec2info ).groups()[0]
@@ -281,7 +281,8 @@ def main():
                     outstring="\t".join([ vrec1.getChrom(), vrec1.getPos(),vrec1type, vrec2.getChrom(), vrec2.getPos(), vrec2type ])
                     sys.stderr.write(outstring+"\n")
                 #print vrec1type, vrec2type
-
+            else:
+                pass
             """ list of tuples [ (sample, genotype object), .... ] """
             vrec1_ziptuple=vrec1.zipGenotypes(samples_fileone)
             vrec2_ziptuple=vrec2.zipGenotypes(samples_filetwo)

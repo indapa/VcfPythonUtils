@@ -27,10 +27,8 @@ def main():
     pedfh=open(pedfilename, 'w')
     vcfh=open(vcfilename,'r')
     vcfobj=VcfFile(vcfilename)
-    vcfobj.parseMetaLines(vcfh)
-    vcfh.seek(0)
+    vcfobj.parseMetaAndHeaderLines(vcfh)
     
-    vcfobj.parseHeaderLine(vcfh)
     genotypeSampleDict={}
     samplelist=vcfobj.getSampleList()
     for s in samplelist:

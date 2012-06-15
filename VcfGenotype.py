@@ -12,7 +12,7 @@ class VcfGenotype(object):
         self.isPhased=0
         self.allele1=''
         self.allele2=''
-
+        
         #keys are format key value is from gstring
         self.gdict={}
         formatids=self.formatstring.split(':')
@@ -22,13 +22,13 @@ class VcfGenotype(object):
             self.parseAlleles(gstringvals[0])
         else:
             self.parseAlleles(self.gstring)
-
-        if gstring != '.':
+        
+        #if gstringvals[0] != './.' or gstringvals[0]  != '.':
+        if './.' not in gstringvals[0] and  gstring != '.':
             if len(formatids) != len(gstringvals):
-                sys.stderr.write("error mismatch btwn format and genotype string in VcfGenotype init!\n")
-                print len(formatids)
-                print len(gstringvals)
-                exit(1)
+                sys.stderr.write("\t".join(['error mismatch btwn format and genotype string in VcfGenotype init!',self.formatstring, gstring,"\n" ]))
+                sys.exit(1)
+                
 
             for i in range(0, len(formatids) ):
                 self.gdict[ formatids[i] ] = gstringvals[i]

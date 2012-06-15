@@ -63,7 +63,7 @@ def main():
     variant_count_evaluation= concordancetable[1,1]+ concordancetable[1,2]+ concordancetable[2,1]+ concordancetable[2,2]
     variant_count_comparison= concordancetable[0,1]+concordancetable[0,2]+concordancetable[1,1]+concordancetable[1,2]+concordancetable[2,1]+concordancetable[2,2]+concordancetable[3,1]+concordancetable[3,2]
     nrs=round( float(variant_count_evaluation)/float(variant_count_comparison) * 100 , 2)
-    
+    print concordancetable
     print "NRD: ", str(nrd)
     print "NRS ", str(nrs)
 # <codecell>

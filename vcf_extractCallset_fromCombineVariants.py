@@ -14,6 +14,7 @@ def main():
     parser.add_option("--extract", type="string", dest="extract", help="set to extract", default=None)
 
     (options, args)=parser.parse_args()
+    vcfile=args[0]
     if options.extract != None:
         pattern='set=('+options.extract+')'
     else:
@@ -21,8 +22,8 @@ def main():
     
     callsetCounter=Counter()
 
-    vcfobj=VcfFile('gatkuf.20120527.sample3_4.wga.genomic.merge.vcf')
-    vcfh=open('gatkuf.20120527.sample3_4.wga.genomic.merge.vcf','r')
+    vcfobj=VcfFile(vcfile)
+    vcfh=open(vcfile,'r')
 
     vcfobj.parseMetaAndHeaderLines(vcfh)
     if options.extract != None:

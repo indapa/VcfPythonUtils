@@ -34,13 +34,18 @@ def main():
     vcfilename=args[0]
 #row is veal column is comparison
     concordancetable= np.matrix( [ [ 0,0,0,0 ], [ 0,0,0,0 ], [ 0,0,0,0 ], [ 0,0,0,0 ] ] )
-
+    #log file of sites that contribute to NRS penalty; hom-ref and no-calls at variant sites in comparison set
+    nrsfh=open('nrs.log', 'w')
 
 
     vcfobj=VcfFile(vcfilename)
     vcfh=open(vcfilename,'r')
 
     vcfobj.parseMetaAndHeaderLines(vcfh)
+    headers=vcfobj.printMetaAndHeaderLines();
+    print headers
+
+
     samples=vcfobj.getSampleList()
     for vrec in vcfobj.yieldVcfRecordwithGenotypes(vcfh):
         if len(vrec.getAlt()) > 1: continue
@@ -54,13 +59,18 @@ def main():
             eval_alleletype=typeofGenotype(eval_allele1, eval_allele2)
             comp_alleletype=typeofGenotype(comp_allele1, comp_allele2)
             concordancetable[eval_alleletype, comp_alleletype]+=1
-       
+            if eval_alleletype == 3:
+                if comp_alleletype == 1 or comp_alleletype==2:
+                    outstring=vrec.toStringwithGenotypes() + "\n"
+                    nrsfh.write( outstring)
 
     discordance=concordancetable[0,1]+concordancetable[0,2]+concordancetable[1,0]+concordancetable[1,2]+concordancetable[2,0]+concordancetable[2,1]
     total=concordancetable[0,1]+concordancetable[0,2]+concordancetable[1,0]+concordancetable[1,1]+ concordancetable[1,2]+concordancetable[2,0]+concordancetable[2,1] +concordancetable[2,2]
 
     nrd=round( (float(discordance)/float(total)) * 100, 2)
+
     variant_count_evaluation= concordancetable[1,1]+ concordancetable[1,2]+ concordancetable[2,1]+ concordancetable[2,2]
+
     variant_count_comparison= concordancetable[0,1]+concordancetable[0,2]+concordancetable[1,1]+concordancetable[1,2]+concordancetable[2,1]+concordancetable[2,2]+concordancetable[3,1]+concordancetable[3,2]
     nrs=round( float(variant_count_evaluation)/float(variant_count_comparison) * 100 , 2)
     print concordancetable

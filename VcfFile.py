@@ -151,13 +151,29 @@ class VcfFile(object):
         self.printMetaFormatLines()
         self.printMetaFilterLines()
 
-    def printMetaAndHeaderLines(self):
-        print self.metaline.getFileFormat()
-        self.printMetaInfoLines()
-        self.printMetaFormatLines()
-        self.printMetaFilterLines()
-        self.printHeaderLine()
     
+    """ collect all the lines that start with ## and #CHROM and rturn a string """
+    def returnHeader(self):
+
+        headerlines=[]
+        fileformat=self.metaline.getFileFormat()
+        headerlines.append(fileformat)
+        for str in self.yieldMetaInfoLines():
+            headerlines.append(str)
+
+        for str in self.metaline.yieldPrintMetaFormatLines():
+            headerlines.append(str)
+
+        for str in self.yieldMetaFilterLines():
+            headerlines.append(str)
+
+        headerlines.append( self.headerline.toString() )
+        outstr="\n".join(headerlines)
+
+        return outstr
+    
+    def printMetaAndHeaderLines(self):
+        print  self.returnHeader()
 
     def yieldVcfRecord(self,fh):
         """ yield VcfRecord object from reading a dataline in a VCF file """
@@ -180,6 +196,7 @@ class VcfFile(object):
         """ yield a VcfRecord with its genotypes list populated """
         for line in fh:
             fields=line.strip().split('\t')
+            
             (chrom,pos,id,ref,alt,qual,filter,info)=fields[0:8]
             vrec=VcfRecord(chrom,pos,id,ref,alt,qual,filter,info)
     

@@ -42,16 +42,13 @@ def main():
     vcfh=open(vcfilename,'r')
 
     vcfobj.parseMetaAndHeaderLines(vcfh)
-    headers=vcfobj.printMetaAndHeaderLines();
-    print headers
-
 
     samples=vcfobj.getSampleList()
     for vrec in vcfobj.yieldVcfRecordwithGenotypes(vcfh):
         if len(vrec.getAlt()) > 1: continue
         if 'filterIn' in vrec.getInfo(): 
-        #print vrec.toString()
             continue
+        if 'FilteredInAll' in vrec.getInfo(): continue
         vrec_ziptuple=vrec.zipGenotypes(samples)
         for (compare, eval) in grouper(2,vrec_ziptuple):
             (comp_allele1, comp_allele2)=compare[1].getAlleles()
@@ -66,11 +63,11 @@ def main():
 
     discordance=concordancetable[0,1]+concordancetable[0,2]+concordancetable[1,0]+concordancetable[1,2]+concordancetable[2,0]+concordancetable[2,1]
     total=concordancetable[0,1]+concordancetable[0,2]+concordancetable[1,0]+concordancetable[1,1]+ concordancetable[1,2]+concordancetable[2,0]+concordancetable[2,1] +concordancetable[2,2]
-
+    
     nrd=round( (float(discordance)/float(total)) * 100, 2)
-
+    
     variant_count_evaluation= concordancetable[1,1]+ concordancetable[1,2]+ concordancetable[2,1]+ concordancetable[2,2]
-
+    
     variant_count_comparison= concordancetable[0,1]+concordancetable[0,2]+concordancetable[1,1]+concordancetable[1,2]+concordancetable[2,1]+concordancetable[2,2]+concordancetable[3,1]+concordancetable[3,2]
     nrs=round( float(variant_count_evaluation)/float(variant_count_comparison) * 100 , 2)
     print concordancetable

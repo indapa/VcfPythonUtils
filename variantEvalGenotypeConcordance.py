@@ -28,7 +28,7 @@ def grouper(n, iterable, fillvalue=None):
 
 
 def main():
-    usage = "usage: %prog [options] file.vcf"
+    usage = "usage: %prog [options] file.vcf \n calcuate NRS and NRD on a vcf generated from CombineVariants --genotypemergeoption UNIQUIFY\n"
     parser = OptionParser(usage)
     (options, args)=parser.parse_args()
     vcfilename=args[0]
@@ -36,13 +36,15 @@ def main():
     concordancetable= np.matrix( [ [ 0,0,0,0 ], [ 0,0,0,0 ], [ 0,0,0,0 ], [ 0,0,0,0 ] ] )
     #log file of sites that contribute to NRS penalty; hom-ref and no-calls at variant sites in comparison set
     nrsfh=open('nrs.log', 'w')
-
+    nrdfh=open('nrd.log', 'w')
 
     vcfobj=VcfFile(vcfilename)
     vcfh=open(vcfilename,'r')
 
     vcfobj.parseMetaAndHeaderLines(vcfh)
-
+    header=vcfobj.returnHeader() +"\n"
+    nrsfh.write(header)
+    nrdfh.write(header)
     samples=vcfobj.getSampleList()
     for vrec in vcfobj.yieldVcfRecordwithGenotypes(vcfh):
         if len(vrec.getAlt()) > 1: continue
@@ -56,10 +58,32 @@ def main():
             eval_alleletype=typeofGenotype(eval_allele1, eval_allele2)
             comp_alleletype=typeofGenotype(comp_allele1, comp_allele2)
             concordancetable[eval_alleletype, comp_alleletype]+=1
+
+            #print records that contirubut the NRS penalty
             if eval_alleletype == 3:
                 if comp_alleletype == 1 or comp_alleletype==2:
                     outstring=vrec.toStringwithGenotypes() + "\n"
                     nrsfh.write( outstring)
+            if eval_alleletype==0:
+                if comp_alleletype == 1 or comp_alleletype == 2:
+                    outstring=vrec.toStringwithGenotypes() + "\n"
+                    nrsfh.write( outstring )
+    
+        
+            #print records that contribute to NRD penalty
+            if eval_alleletype==0:
+                if comp_alleletype == 1 or comp_alleletype == 2:
+                    outstring=vrec.toStringwithGenotypes() + "\n"
+                    nrdfh.write( outstring )
+            if eval_alleletype == 1:
+                if comp_alleletype == 0 or comp_alleletype == 2:
+                    outstring=vrec.toStringwithGenotypes() + "\n"
+                    nrdfh.write( outstring )
+            if eval_alleletype == 2:
+                if comp_alleletype == 0 or comp_alleletype ==1:
+                    outstring=vrec.toStringwithGenotypes() + "\n"
+                    nrdfh.write( outstring )
+
 
     discordance=concordancetable[0,1]+concordancetable[0,2]+concordancetable[1,0]+concordancetable[1,2]+concordancetable[2,0]+concordancetable[2,1]
     total=concordancetable[0,1]+concordancetable[0,2]+concordancetable[1,0]+concordancetable[1,1]+ concordancetable[1,2]+concordancetable[2,0]+concordancetable[2,1] +concordancetable[2,2]
@@ -70,7 +94,18 @@ def main():
     
     variant_count_comparison= concordancetable[0,1]+concordancetable[0,2]+concordancetable[1,1]+concordancetable[1,2]+concordancetable[2,1]+concordancetable[2,2]+concordancetable[3,1]+concordancetable[3,2]
     nrs=round( float(variant_count_evaluation)/float(variant_count_comparison) * 100 , 2)
-    print concordancetable
+    print "rows are eval genotypes columns comparison genotypes"
+    print "\n"
+    print "\t".join(['','AA','AB','BB', './.'  ])
+   
+    rownames=[0,'AA', 1,'AB', 2,'BB', 3,'./.']
+    for (i, gt) in grouper(2,rownames):
+        row=concordancetable[i,:].tolist()
+        for r in row:
+            outstr="\t".join(map(str,r))
+            print gt,"\t", outstr
+            
+    print "\n"
     print "NRD: ", str(nrd)
     print "NRS ", str(nrs)
 # <codecell>

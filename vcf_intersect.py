@@ -77,7 +77,7 @@ def main():
     parser.add_option("--info", type="string", dest="infotag", help="INFO tag id that annotates what type of variant the VCF record is", default="TYPE")
     parser.add_option("--type", type="string", dest="variantype", help="type of variant (SNP INS DEL)", default=None)
     parser.add_option("--noheader", action="store_true", dest="noheader", help="VCF file one  has no header line", default=False)
-    parser.add_option("--nochrprefix", action="store_false", dest="chrprefix", help="use if the doesn't  have chr prefix in chrom column", default=True)
+    parser.add_option("--nochrprefix", action="store_false", dest="chrprefix", help="use if the bed  doesn't  have chr prefix in chrom column", default=True)
     
     (options, args)=parser.parse_args()
 

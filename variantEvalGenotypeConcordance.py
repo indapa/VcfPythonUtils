@@ -9,15 +9,24 @@ def typeofGenotype(allele1, allele2):
     """ I really should be a python version of a typedef here, but dont know how
         hom_ref =0 het =1 hom_nonref=2 no_call=3                              """
 
-    if allele1 == '0' and allele2 == '0': return 0
+    #print allele1, allele2
 
-    if allele1 == '0' and allele2== '1': return 1
-    if allele1 =='1' and allele2 == '0': return 1
-
-    if allele1== '1' and allele2== '1': return 2
-
+    
     if allele1== '.' or allele2 == '.': return 3
     if allele1 == '.' and allele2 == '.': return 3
+    
+    if allele1 == '0' and allele2 == '0': return 0
+
+    if allele1 == '0' and allele2 != '0': return 1
+    if allele1 != '0' and allele2 == '0': return 1
+
+
+    #if allele1 == '0' and allele2== '1': return 1
+    #if allele1 =='1' and allele2 == '0': return 1
+
+    if allele1 != '0' and allele2 != '0': return 2
+
+    
 
 """ iterate through an utterable n values at a time
      http://stackoverflow.com/a/2990151         """
@@ -38,6 +47,8 @@ def main():
     nrsfh=open('nrs.log', 'w')
     nrdfh=open('nrd.log', 'w')
     filteredfh=open('filtered.log', 'w')
+    multifh=open('multiallelic.log', 'w')
+
     vcfobj=VcfFile(vcfilename)
     vcfh=open(vcfilename,'r')
 
@@ -46,9 +57,14 @@ def main():
     nrsfh.write(header)
     nrdfh.write(header)
     filteredfh.write(header)
+    #multifh.write(header)
+
     samples=vcfobj.getSampleList()
     for vrec in vcfobj.yieldVcfRecordwithGenotypes(vcfh):
-        if len(vrec.getAlt()) > 1: continue
+        if ',' in vrec.getAlt() > 1:
+            outstring=vrec.toStringwithGenotypes() + "\n"
+            multifh.write(outstring)
+            #continue
         if 'filterIn' in vrec.getInfo(): 
             outstring=vrec.toStringwithGenotypes() + "\n"
             filteredfh.write(outstring)
@@ -61,8 +77,10 @@ def main():
         for (compare, eval) in grouper(2,vrec_ziptuple):
             (comp_allele1, comp_allele2)=compare[1].getAlleles()
             (eval_allele1, eval_allele2)=eval[1].getAlleles()
+
             eval_alleletype=typeofGenotype(eval_allele1, eval_allele2)
             comp_alleletype=typeofGenotype(comp_allele1, comp_allele2)
+
             concordancetable[eval_alleletype, comp_alleletype]+=1
 
             #print records that contirubut the NRS penalty

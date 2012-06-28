@@ -37,7 +37,7 @@ def main():
     #log file of sites that contribute to NRS penalty; hom-ref and no-calls at variant sites in comparison set
     nrsfh=open('nrs.log', 'w')
     nrdfh=open('nrd.log', 'w')
-
+    skippedfh=open('filtered.log', 'w')
     vcfobj=VcfFile(vcfilename)
     vcfh=open(vcfilename,'r')
 
@@ -49,8 +49,13 @@ def main():
     for vrec in vcfobj.yieldVcfRecordwithGenotypes(vcfh):
         if len(vrec.getAlt()) > 1: continue
         if 'filterIn' in vrec.getInfo(): 
+            outstring=vrec.toStringwithGenotypes() + "\n"
+            skippedfh.write(outstring)
             continue
-        if 'FilteredInAll' in vrec.getInfo(): continue
+        if 'FilteredInAll' in vrec.getInfo():
+            outstring=vrec.toStringwithGenotypes() + "\n"
+            skippedfh.write(outstring)
+            continue
         vrec_ziptuple=vrec.zipGenotypes(samples)
         for (compare, eval) in grouper(2,vrec_ziptuple):
             (comp_allele1, comp_allele2)=compare[1].getAlleles()

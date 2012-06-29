@@ -1,5 +1,6 @@
 import sys
 import re
+import itertools
 class VcfGenotype(object):
     """ represents a VCF genotype  """
 
@@ -17,24 +18,27 @@ class VcfGenotype(object):
         self.gdict={}
         formatids=self.formatstring.split(':')
         gstringvals=self.gstring.split(':')
-        if ':' in self.gstring:
-            gstringvals=self.gstring.split(':')
-            self.parseAlleles(gstringvals[0])
-        else:
-            self.parseAlleles(self.gstring)
         
+        self.parseAlleles(gstringvals[0]) # the first format is always the GT (genotype)
+       
+        zipiter=itertools.izip_longest(formatids,gstringvals,fillvalue='.')
+
+        for (format,gstringval) in zipiter:
+            self.gdict[format]=gstringval
+
+        #print self.gdict
         #if gstringvals[0] != './.' or gstringvals[0]  != '.':
-        if './.' not in gstringvals[0] and  gstring != '.':
-            if len(formatids) != len(gstringvals):
-                sys.stderr.write("\t".join(['error mismatch btwn format and genotype string in VcfGenotype init!',self.formatstring, gstring,"\n" ]))
-                sys.exit(1)
+        #if './.' not in gstringvals[0] and  gstring != '.':
+        #    if len(formatids) != len(gstringvals):
+        #        sys.stderr.write("\t".join(['error mismatch btwn format and genotype string in VcfGenotype init!',self.formatstring, gstring,"\n" ]))
+        #        sys.exit(1)
                 
 
-            for i in range(0, len(formatids) ):
-                self.gdict[ formatids[i] ] = gstringvals[i]
-        else:
-            for i in range(0, len(formatids) ):
-                self.gdict[ formatids[i] ] = '.'
+         #   for i in range(0, len(formatids) ):
+         #       self.gdict[ formatids[i] ] = gstringvals[i]
+        #else:
+        #    for i in range(0, len(formatids) ):
+        #        self.gdict[ formatids[i] ] = '.'
 
     def getGenotypeFormatFields(self):
         """ return list of ids for genotype format string """

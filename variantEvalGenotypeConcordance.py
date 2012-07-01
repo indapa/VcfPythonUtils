@@ -13,7 +13,6 @@ def typeofGenotype(allele1, allele2):
 
     
     if allele1== '.' or allele2 == '.': return 3
-    if allele1 == '.' and allele2 == '.': return 3
     
     if allele1 == '0' and allele2 == '0': return 0
 
@@ -65,7 +64,11 @@ def main():
             outstring=vrec.toStringwithGenotypes() + "\n"
             multifh.write(outstring)
             #continue
-        if 'filterIn' in vrec.getInfo(): 
+
+        if 'ReferenceInAll' in vrec.getInfo():
+            continue
+
+        if 'filterIn' in vrec.getInfo():
             outstring=vrec.toStringwithGenotypes() + "\n"
             filteredfh.write(outstring)
             continue
@@ -109,15 +112,6 @@ def main():
                     nrdfh.write( outstring )
 
 
-    discordance=concordancetable[0,1]+concordancetable[0,2]+concordancetable[1,0]+concordancetable[1,2]+concordancetable[2,0]+concordancetable[2,1]
-    total=concordancetable[0,1]+concordancetable[0,2]+concordancetable[1,0]+concordancetable[1,1]+ concordancetable[1,2]+concordancetable[2,0]+concordancetable[2,1] +concordancetable[2,2]
-    
-    nrd=round( (float(discordance)/float(total)) * 100, 2)
-    
-    variant_count_evaluation= concordancetable[1,1]+ concordancetable[1,2]+ concordancetable[2,1]+ concordancetable[2,2]
-    
-    variant_count_comparison= concordancetable[0,1]+concordancetable[0,2]+concordancetable[1,1]+concordancetable[1,2]+concordancetable[2,1]+concordancetable[2,2]+concordancetable[3,1]+concordancetable[3,2]
-    nrs=round( float(variant_count_evaluation)/float(variant_count_comparison) * 100 , 2)
     print "rows are eval genotypes columns comparison genotypes"
     print "\n"
     print "\t".join(['','AA','AB','BB', './.'  ])
@@ -128,8 +122,25 @@ def main():
         for r in row:
             outstr="\t".join(map(str,r))
             print gt,"\t", outstr
-            
+
+    print "matrix sum: "
+    sum=np.sum(concordancetable)
+    print str(sum)
     print "\n"
+
+
+
+
+    discordance=concordancetable[0,1]+concordancetable[0,2]+concordancetable[1,0]+concordancetable[1,2]+concordancetable[2,0]+concordancetable[2,1]
+    total=concordancetable[0,1]+concordancetable[0,2]+concordancetable[1,0]+concordancetable[1,1]+ concordancetable[1,2]+concordancetable[2,0]+concordancetable[2,1] +concordancetable[2,2]
+    
+    nrd=round( (float(discordance)/float(total)) * 100, 2)
+    
+    variant_count_evaluation= concordancetable[1,1]+ concordancetable[1,2]+ concordancetable[2,1]+ concordancetable[2,2]
+    
+    variant_count_comparison= concordancetable[0,1]+concordancetable[0,2]+concordancetable[1,1]+concordancetable[1,2]+concordancetable[2,1]+concordancetable[2,2]+concordancetable[3,1]+concordancetable[3,2]
+    nrs=round( float(variant_count_evaluation)/float(variant_count_comparison) * 100 , 2)
+    
     print "NRD: ", str(nrd)
     print "NRS ", str(nrs)
 # <codecell>

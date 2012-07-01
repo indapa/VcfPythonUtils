@@ -16,7 +16,7 @@ def main():
     (options, args)=parser.parse_args()
     vcfile=args[0]
     if options.extract != None:
-        pattern='set=('+options.extract+')'
+        pattern='set=('+options.extract+'$)'
     
     else:
         pattern='set=(.+)'

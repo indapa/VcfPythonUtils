@@ -100,17 +100,18 @@ def main():
     vcfh=open(vcf_file_one,'r')
 
     if options.noheader == False:
-        header=vcfobj.returnHeader()
+        header=vcfobj.returnHeader(vcfh)
+        #print header
         #vcfobj.parseMetaAndHeaderLines(vcfh)
     
-        descriptors = vcfobj.getMetaInfoDescription()
-        infoids=[]
-        for (tag, description) in descriptors:
-            infoids.append(tag)
+        #descriptors = vcfobj.getMetaInfoDescription()
+        #infoids=[]
+        #for (tag, description) in descriptors:
+        #    infoids.append(tag)
 
-        if options.infotag  not in infoids and options.infotag != 'QUAL'  and  options.infotag != "" and options.noheader == False:
-            sys.stderr.write(options.infotag + " tag not in ##INFO headers!\n")
-            exit(1)
+        #if options.infotag  not in infoids and options.infotag != 'QUAL'  and  options.infotag != "" and options.noheader == False:
+        #    sys.stderr.write(options.infotag + " tag not in ##INFO headers!\n")
+        #    exit(1)
         print header
 
     for dataline in vcfobj.yieldVcfDataLine(vcfh):

@@ -153,30 +153,26 @@ class VcfFile(object):
 
     
     """ collect all the lines that start with ## and #CHROM and rturn a string """
-    def returnHeader(self, fh):
+    def returnHeader(self):
 
 
         headerlines=[]
 
-        for line in fh:
-            if '#' not in line:
-                break
-            else:
-                headerlines.append( line.strip() )
+     
 
         
-        #fileformat=self.metaline.getFileFormat()
-        #headerlines.append(fileformat)
-        #for str in self.yieldMetaInfoLines():
-        #    headerlines.append(str)
+        fileformat=self.metaline.getFileFormat()
+        headerlines.append(fileformat)
+        for str in self.yieldMetaInfoLines():
+            headerlines.append(str)
 
-        #for str in self.metaline.yieldPrintMetaFormatLines():
-        #    headerlines.append(str)
+        for str in self.metaline.yieldPrintMetaFormatLines():
+            headerlines.append(str)
 
-        #for str in self.yieldMetaFilterLines():
-        #    headerlines.append(str)
+        for str in self.yieldMetaFilterLines():
+            headerlines.append(str)
 
-        #headerlines.append( self.headerline.toString() )
+        headerlines.append( self.headerline.toString() )
         outstr="\n".join(headerlines)
 
         return outstr

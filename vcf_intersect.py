@@ -100,7 +100,8 @@ def main():
     vcfh=open(vcf_file_one,'r')
 
     if options.noheader == False:
-        header=vcfobj.returnHeader(vcfh)
+        vcfobj.parseMetaAndHeaderLines(vcfh)
+        header=vcfobj.returnHeader()
         #print header
         #vcfobj.parseMetaAndHeaderLines(vcfh)
     

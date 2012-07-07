@@ -67,7 +67,8 @@ def main():
             else:
                 TsTv_counter['transversion']+=1
             refalt_string=" ".join( [ ref, alt])
-            RefAlt_counter[ refalt_string ]+=1
+            if len(alt) ==1 and len(ref) ==1:
+                RefAlt_counter[ refalt_string ]+=1
         #    sys.stderr.write("need to add code to accomodate non-biallelic sites... skipping record\n")
         #    continue
         vrec_ziptuple=vrec.zipGenotypes(samples)

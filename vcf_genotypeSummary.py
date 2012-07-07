@@ -37,7 +37,7 @@ def main():
     vcfobj.parseMetaAndHeaderLines(vcfh)
 
     TsTv_counter=collections.Counter()
-
+    RefAlt_counter=collections.Counter()
    
 
     
@@ -66,7 +66,8 @@ def main():
                 TsTv_counter['transition']+=1
             else:
                 TsTv_counter['transversion']+=1
-
+            refalt_string=" ".join( [ ref, alt])
+            RefAlt_counter[ refalt_string ]+=1
         #    sys.stderr.write("need to add code to accomodate non-biallelic sites... skipping record\n")
         #    continue
         vrec_ziptuple=vrec.zipGenotypes(samples)
@@ -84,6 +85,9 @@ def main():
     print
 
     for (type,count) in TsTv_counter.items():
+        print type, count
+
+    for (type, count) in RefAlt_counter.items():
         print type, count
 
 

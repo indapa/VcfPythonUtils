@@ -38,6 +38,7 @@ def grouper(n, iterable, fillvalue=None):
 def main():
     usage = "usage: %prog [options] file.vcf \n calcuate NRS and NRD on a vcf generated from CombineVariants --genotypemergeoption UNIQUIFY\n"
     parser = OptionParser(usage)
+    parser.add_option("--matrixonly", action="store_true", dest="matrixonly", help="only print concordance matrixe", default=False)
     (options, args)=parser.parse_args()
     vcfilename=args[0]
 #row is veal column is comparison
@@ -130,19 +131,19 @@ def main():
 
 
 
-
-    discordance=concordancetable[0,1]+concordancetable[0,2]+concordancetable[1,0]+concordancetable[1,2]+concordancetable[2,0]+concordancetable[2,1]
-    total=concordancetable[0,1]+concordancetable[0,2]+concordancetable[1,0]+concordancetable[1,1]+ concordancetable[1,2]+concordancetable[2,0]+concordancetable[2,1] +concordancetable[2,2]
+    if options.matrixonly == False:
+        discordance=concordancetable[0,1]+concordancetable[0,2]+concordancetable[1,0]+concordancetable[1,2]+concordancetable[2,0]+concordancetable[2,1]
+        total=concordancetable[0,1]+concordancetable[0,2]+concordancetable[1,0]+concordancetable[1,1]+ concordancetable[1,2]+concordancetable[2,0]+concordancetable[2,1] +concordancetable[2,2]
     
-    nrd=round( (float(discordance)/float(total)) * 100, 2)
+        nrd=round( (float(discordance)/float(total)) * 100, 2)
     
-    variant_count_evaluation= concordancetable[1,1]+ concordancetable[1,2]+ concordancetable[2,1]+ concordancetable[2,2]
+        variant_count_evaluation= concordancetable[1,1]+ concordancetable[1,2]+ concordancetable[2,1]+ concordancetable[2,2]
     
-    variant_count_comparison= concordancetable[0,1]+concordancetable[0,2]+concordancetable[1,1]+concordancetable[1,2]+concordancetable[2,1]+concordancetable[2,2]+concordancetable[3,1]+concordancetable[3,2]
-    nrs=round( float(variant_count_evaluation)/float(variant_count_comparison) * 100 , 2)
+        variant_count_comparison= concordancetable[0,1]+concordancetable[0,2]+concordancetable[1,1]+concordancetable[1,2]+concordancetable[2,1]+concordancetable[2,2]+concordancetable[3,1]+concordancetable[3,2]
+        nrs=round( float(variant_count_evaluation)/float(variant_count_comparison) * 100 , 2)
     
-    print "NRD: ", str(nrd)
-    print "NRS ", str(nrs)
+        print "NRD: ", str(nrd)
+        print "NRS ", str(nrs)
 # <codecell>
 
 if __name__ == "__main__":

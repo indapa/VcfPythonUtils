@@ -77,6 +77,7 @@ def main():
             #print g,sample
             if g == None: continue
             genotype_dict[sample][g]+=1
+    print 
     print "#sample homoz_ref het homoz_nonref nocall"
     for sample in genotype_dict.keys():
         
@@ -87,10 +88,10 @@ def main():
 
     for (type,count) in TsTv_counter.items():
         print type, count
-
+    print sum(TsTv_counter.values())
+    print
     for (type, count) in RefAlt_counter.items():
         print type, count
-
-
+    print sum(RefAlt_counter.values())
 if __name__ == "__main__":
     main()

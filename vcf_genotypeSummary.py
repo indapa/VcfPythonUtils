@@ -4,28 +4,12 @@ import os
 import string
 import re
 from optparse import OptionParser
-
+import collections
 from VcfFile import *
+
 import numpy as np
+from common import *
 
-def typeofGenotype(allele1, allele2):
-    """ I really should be a python version of a typedef here, but dont know how
-        hom_ref =0 het =1 hom_nonref=2 no_call=3 """
-
-    if allele1 == '0' and allele2 == '0':
-        return 0
-    elif allele1 == '0' and allele2== '1':
-        return 1
-    elif allele1 =='1' and allele2 == '0':
-        return 1
-    elif allele1== '1' and allele2== '1':
-        return 2
-    elif allele1== '.' or allele2 == '.':
-        return 3
-    elif allele1 == '.' and allele2 == '.':
-        return 3
-    else:
-        return None
 
 
 def get_genotype_counts(g):
@@ -52,6 +36,14 @@ def main():
     #parse its metainfo lines (ones that begin with ##)
     vcfobj.parseMetaAndHeaderLines(vcfh)
 
+    TsTv_counter=collections.Counter()
+
+   
+
+    
+
+
+
     samples=vcfobj.getSampleList()
 
 
@@ -61,12 +53,22 @@ def main():
 
     for vrec in vcfobj.yieldVcfRecordwithGenotypes(vcfh):
         if vrec.getFilter() != options.filter and options.filter != None:
+            
             continue
         #print vrec.toString()
+
+
+        ref=vrec.getRef()
         numAlleles=vrec.getAlt().split(',')
-        if len(numAlleles) > 1:
-            sys.stderr.write("need to add code to accomodate non-biallelic sites... skipping record\n")
-            continue
+       
+        for alt in numAlleles:
+            if isTransition(ref,alt) == True:
+                TsTv_counter['transition']+=1
+            else:
+                TsTv_counter['transversion']+=1
+
+        #    sys.stderr.write("need to add code to accomodate non-biallelic sites... skipping record\n")
+        #    continue
         vrec_ziptuple=vrec.zipGenotypes(samples)
         genotype_typecounts=get_genotype_counts(vrec_ziptuple)
         for (g, sample) in genotype_typecounts:
@@ -78,6 +80,11 @@ def main():
         
         outstring = " ".join( map(str,genotype_dict[sample]) )
         print sample, outstring 
+
+    print
+
+    for (type,count) in TsTv_counter.items():
+        print type, count
 
 
 if __name__ == "__main__":

@@ -9,7 +9,7 @@ from VcfFile import *
 
 import numpy as np
 from common import *
-
+from itertools import *
 
 
 def get_genotype_counts(g):
@@ -89,9 +89,17 @@ def main():
     for (type,count) in TsTv_counter.items():
         print type, count
     print sum(TsTv_counter.values())
-    print
-    for (type, count) in RefAlt_counter.items():
-        print type, count
+    
+
+
+    for a1,a2  in combinations('ACGT',2):
+        count1 = RefAlt_counter[ ' '.join ( [ a1, a2] ) ]
+        count2 = RefAlt_counter[ ' '.join ( [ a2, a1] ) ]
+        total=count1 + count2
+        print ' '.join ( [ a1, a2] ), str(total)
+
+    #for (type, count) in RefAlt_counter.items():
+    #    print type, count
     print sum(RefAlt_counter.values())
 if __name__ == "__main__":
     main()

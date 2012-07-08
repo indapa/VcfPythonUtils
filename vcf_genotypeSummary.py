@@ -60,7 +60,7 @@ def main():
 
         ref=vrec.getRef()
         numAlleles=vrec.getAlt().split(',')
-       
+        if  len(numAlleles) > 1: continue
         for alt in numAlleles:
             if isTransition(ref,alt) == True:
                 TsTv_counter['transition']+=1
@@ -91,15 +91,16 @@ def main():
     print sum(TsTv_counter.values())
     
 
-
+    totalpercent=0
     for a1,a2  in combinations('ACGT',2):
         count1 = RefAlt_counter[ ' '.join ( [ a1, a2] ) ]
         count2 = RefAlt_counter[ ' '.join ( [ a2, a1] ) ]
         total=count1 + count2
-        print ' '.join ( [ a1, a2] ), str(total)
-
+        percent= round ( float(total) / float(sum(RefAlt_counter.values()) ), 2)
+        print ' '.join ( [ a1, a2] ), str(total), str(percent)
+        totalpercent+=percent
     #for (type, count) in RefAlt_counter.items():
     #    print type, count
-    print sum(RefAlt_counter.values())
+    print sum(RefAlt_counter.values()), str(totalpercent)
 if __name__ == "__main__":
     main()

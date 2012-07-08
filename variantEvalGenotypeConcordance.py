@@ -39,7 +39,11 @@ def main():
     usage = "usage: %prog [options] file.vcf \n calcuate NRS and NRD on a vcf generated from CombineVariants --genotypemergeoption UNIQUIFY\n"
     parser = OptionParser(usage)
     parser.add_option("--matrixonly", action="store_true", dest="matrixonly", help="only print concordance matrixe", default=False)
+    
+
     (options, args)=parser.parse_args()
+
+
     vcfilename=args[0]
 #row is veal column is comparison
     concordancetable= np.matrix( [ [ 0,0,0,0 ], [ 0,0,0,0 ], [ 0,0,0,0 ], [ 0,0,0,0 ] ] )
@@ -65,6 +69,8 @@ def main():
             outstring=vrec.toStringwithGenotypes() + "\n"
             multifh.write(outstring)
             #continue
+
+      
 
         if 'ReferenceInAll' in vrec.getInfo():
             continue
@@ -144,6 +150,8 @@ def main():
     
         print "NRD: ", str(nrd)
         print "NRS ", str(nrs)
+
+   
 # <codecell>
 
 if __name__ == "__main__":

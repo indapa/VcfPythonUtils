@@ -13,6 +13,7 @@ def main():
     parser.add_option("--filter", type="string", dest="filter", help="extract records matching filter (default is None)", default=None)
     parser.add_option("--addchr", action="store_true", dest="addchr",  help="pre-pend 'chr' to chrom column ", default=False)
     parser.add_option("--dump", action="store_true", dest="dump", help="dump everything after teh ID column in the 4th bed column")
+    parser.add_option("--chr", type="string", dest="chr", default=None, help="restrct to chromosome number specified by --chr")
     (options, args)=parser.parse_args()
 
     vcfilename=args[0]
@@ -27,15 +28,15 @@ def main():
 
     for dataline in vcfobj.yieldVcfDataLine(vcfh):
         fields=dataline.strip().split('\t')
-        (chrom,pos,id,ref,alt,qual,filtercode,info)=fields[0:8]
-        
+        (chrom,pos,id,ref,alt,qual,filtercode,info,format)=fields[0:9]
+        if options.chr != None and chrom != options.chr: continue
         if options.addchr ==True:
             chrom='chr'+chrom
         if filtercode != options.filter and options.filter != None : continue
         (start,end) = (int(pos)-1, int(pos))
         if options.dump == True:
-            gstrings=",".join(fields[8::])
-            dumpstring=";".join([ref,alt,qual,filtercode,info,gstrings])
+            gstrings=",".join(fields[9::])
+            dumpstring="".join([ref,alt,qual,filtercode,info,gstrings])
             bedstring= "\t".join( [ chrom, str(start), str(end), id ,dumpstring] )
         else:
             bedstring= "\t".join( [ chrom, str(start), str(end), id] )

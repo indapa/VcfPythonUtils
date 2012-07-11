@@ -30,7 +30,7 @@ def main():
     for dataline in vcfobj.yieldVcfDataLine(vcfh):
         fields=dataline.strip().split('\t')
         if options.siteinfo == True:
-            (chrom,pos,id,ref,alt,qual,filtercode,info,format)=fields[0:8]
+            (chrom,pos,id,ref,alt,qual,filtercode,info)=fields[0:8]
         else:
             (chrom,pos,id,ref,alt,qual,filtercode,info,format)=fields[0:9]
         if options.chr != None and chrom != options.chr: continue

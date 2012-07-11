@@ -39,7 +39,7 @@ def main():
     usage = "usage: %prog [options] file.vcf \n calcuate NRS and NRD on a vcf generated from CombineVariants --genotypemergeoption UNIQUIFY\n"
     parser = OptionParser(usage)
     parser.add_option("--matrixonly", action="store_true", dest="matrixonly", help="only print concordance matrixe", default=False)
-    
+    parser.add_option("--includeRef", action="store_true", dest="includeRef", help="include sites in the set ReferenceInAll", default=False)
 
     (options, args)=parser.parse_args()
 
@@ -73,7 +73,7 @@ def main():
 
       
 
-        if 'ReferenceInAll' in vrec.getInfo():
+        if 'ReferenceInAll' in vrec.getInfo() and options.includeRef == False:
             continue
 
         if 'filterIn' in vrec.getInfo():
@@ -91,7 +91,7 @@ def main():
 
             eval_alleletype=typeofGenotype(eval_allele1, eval_allele2)
             comp_alleletype=typeofGenotype(comp_allele1, comp_allele2)
-
+           
             concordancetable[eval_alleletype, comp_alleletype]+=1
 
             #print records that contirubut the NRS penalty

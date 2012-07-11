@@ -152,6 +152,9 @@ def main():
         for r in row:
             outstr="\t".join(map(str,r))
             print gt,"\t", outstr
+    print "matrix sum: "
+    sum=np.sum(calledtable)
+    print str(sum)
     print "\n"
 
 

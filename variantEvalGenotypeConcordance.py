@@ -29,7 +29,7 @@ def typeofGenotype(allele1, allele2):
 
 """ iterate through an utterable n values at a time
      http://stackoverflow.com/a/2990151         """
-def grouper(n, iterable, fillvalue=None):
+def grouper(n, iterable, fillvalue='x'):
     "grouper(3, 'ABCDEFG', 'x') --> ABC DEF Gxx"
     args = [iter(iterable)] * n
     return izip_longest(fillvalue=fillvalue, *args)
@@ -47,6 +47,7 @@ def main():
     vcfilename=args[0]
 #row is veal column is comparison
     concordancetable= np.matrix( [ [ 0,0,0,0 ], [ 0,0,0,0 ], [ 0,0,0,0 ], [ 0,0,0,0 ] ] )
+    calledtable = np.matrix ( [ [0 ,0] , [0,0] ] )
     #log file of sites that contribute to NRS penalty; hom-ref and no-calls at variant sites in comparison set
     nrsfh=open('nrs.log', 'w')
     nrdfh=open('nrd.log', 'w')
@@ -133,6 +134,24 @@ def main():
     print "matrix sum: "
     sum=np.sum(concordancetable)
     print str(sum)
+    print "\n"
+
+    #now we figure out how many sites were called or not called
+    calledtable[0,0]=concordancetable[0:3,0:3].sum()
+    calledtable[0,1]=concordancetable[0:3,3].sum()
+    calledtable[1,0]=concordancetable[3,0:3].sum()
+    calledtable[1,1]=concordancetable[3,3]
+
+    rownames=[ 0,'called', 1,'./.' ]
+    print "rows are called eval genotypes columns are called comparison genotypes"
+    print "\n"
+    print "\t".join(['','called','./.' ])
+    
+    for (i, gt) in grouper(2,rownames):
+        row=calledtable[i,:].tolist()
+        for r in row:
+            outstr="\t".join(map(str,r))
+            print gt,"\t", outstr
     print "\n"
 
 

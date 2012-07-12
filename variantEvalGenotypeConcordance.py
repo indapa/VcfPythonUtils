@@ -53,7 +53,7 @@ def main():
     nrdfh=open('nrd.log', 'w')
     filteredfh=open('filtered.log', 'w')
     multifh=open('multiallelic.log', 'w')
-
+    concordancefh=open('concordance.log', 'w')
     vcfobj=VcfFile(vcfilename)
     vcfh=open(vcfilename,'r')
 
@@ -62,6 +62,7 @@ def main():
     nrsfh.write(header)
     nrdfh.write(header)
     filteredfh.write(header)
+    concordancefh.write(header)
     #multifh.write(header)
 
     samples=vcfobj.getSampleList()
@@ -110,14 +111,23 @@ def main():
                 if comp_alleletype == 1 or comp_alleletype == 2:
                     outstring=vrec.toStringwithGenotypes() + "\n"
                     nrdfh.write( outstring )
+                if comp_alleletype == 0:
+                    outstring=vrec.toStringwithGenotypes() + "\n"
+                    concordancefh.write( outstring )
             if eval_alleletype == 1:
                 if comp_alleletype == 0 or comp_alleletype == 2:
                     outstring=vrec.toStringwithGenotypes() + "\n"
                     nrdfh.write( outstring )
+                if comp_alleletype == 1:
+                    outstring=vrec.toStringwithGenotypes() + "\n"
+                    concordancefh.write( outstring )
             if eval_alleletype == 2:
                 if comp_alleletype == 0 or comp_alleletype ==1:
                     outstring=vrec.toStringwithGenotypes() + "\n"
                     nrdfh.write( outstring )
+                if comp_alleletype == 2:
+                    outstring=vrec.toStringwithGenotypes() + "\n"
+                    concordancefh.write( outstring )
 
 
     print "rows are eval genotypes columns comparison genotypes"

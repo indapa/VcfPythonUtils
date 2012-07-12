@@ -40,9 +40,6 @@ def main():
     RefAlt_counter=collections.Counter()
    
 
-    
-
-
 
     samples=vcfobj.getSampleList()
 
@@ -50,45 +47,56 @@ def main():
     genotype_dict={}
     for s in samples:
         genotype_dict[s]=[0,0,0,0]
-
+    counter=0
     for vrec in vcfobj.yieldVcfRecordwithGenotypes(vcfh):
         if vrec.getFilter() != options.filter and options.filter != None:
-            
+            sys.stderr.write("skipped filter..\n")
             continue
         #print vrec.toString()
-
+        counter+=1
+        
 
         ref=vrec.getRef()
         numAlleles=vrec.getAlt().split(',')
-        if  len(numAlleles) > 1: continue
+        
+        if len(numAlleles) > 1:
+            sys.stderr.write("multi alleleic record\n")
+         
+       
         for alt in numAlleles:
-            if isTransition(ref,alt) == True:
-                TsTv_counter['transition']+=1
-            else:
-                TsTv_counter['transversion']+=1
-            refalt_string=" ".join( [ ref, alt])
             if len(alt) ==1 and len(ref) ==1:
+                if isTransition(ref,alt) == True:
+                    TsTv_counter['transition']+=1
+                else:
+                    TsTv_counter['transversion']+=1
+                refalt_string=" ".join( [ ref, alt])
+            #since the number of alleles on indels is unbounded, we only keep track of single nucleotide substitutions
                 RefAlt_counter[ refalt_string ]+=1
-        #    sys.stderr.write("need to add code to accomodate non-biallelic sites... skipping record\n")
-        #    continue
+                
+        
         vrec_ziptuple=vrec.zipGenotypes(samples)
         genotype_typecounts=get_genotype_counts(vrec_ziptuple)
         for (g, sample) in genotype_typecounts:
             #print g,sample
-            if g == None: continue
+            if g == None:
+                sys.stderr.write("skipped genotype\n")
+                continue
             genotype_dict[sample][g]+=1
-    print 
-    print "#sample homoz_ref het homoz_nonref nocall"
+
+    
+    print
+    print " ".join( ['sample', 'homoz_ref', 'het', 'homoz_nonref', 'nocall', 'total'])
     for sample in genotype_dict.keys():
+        tota=reduce(lambda x, y: x+y,genotype_dict[sample])
         
         outstring = " ".join( map(str,genotype_dict[sample]) )
-        print sample, outstring 
+        print " ".join ( [sample, outstring,str(tota)])
 
     print
 
     for (type,count) in TsTv_counter.items():
         print type, count
-    print sum(TsTv_counter.values())
+    
     
 
     totalpercent=0
@@ -96,11 +104,17 @@ def main():
         count1 = RefAlt_counter[ ' '.join ( [ a1, a2] ) ]
         count2 = RefAlt_counter[ ' '.join ( [ a2, a1] ) ]
         total=count1 + count2
-        percent= round ( float(total) / float(sum(RefAlt_counter.values()) ), 2)
-        print ' '.join ( [ a1, a2] ), str(total), str(percent)
-        totalpercent+=percent
+        try:
+            percent= round ( float(total) / float(sum(RefAlt_counter.values()) ), 4)
+            print ' '.join ( [ a1, a2] ), str(total), str(percent)
+            totalpercent+=percent
+        except ZeroDivisionError:
+            sys.stderr.write( " integer division or modulo by zero\n")
     #for (type, count) in RefAlt_counter.items():
     #    print type, count
     print sum(RefAlt_counter.values()), str(totalpercent)
+
+
+    print "Total vcf records: " + str(counter) + "\n"
 if __name__ == "__main__":
     main()

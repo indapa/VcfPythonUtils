@@ -235,7 +235,7 @@ class MetaLines(object):
         else:
             filterfields=filterstring.split(',')
             for elem in filterfields:
-                (key, val)=elem.split('=')
+                (key, val)=elem.split('=',1)
                 if key=='ID': filterobject.setId(val)
                 elif key=='Description': filterobject.setDescription(val)
                 else: pass

@@ -21,7 +21,7 @@ def main():
 
     for vrec in vcfobj.yieldVcfRecordwithGenotypes(vcfh):
         if vrec.getAlt() == ".":
-            print vrec.toStringWithGenotypes()
+            print vrec.toStringwithGenotypes()
         
 
 

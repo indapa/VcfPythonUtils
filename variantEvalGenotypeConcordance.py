@@ -2,7 +2,7 @@
 from itertools import *
 from VcfFile import *
 import numpy as np
-
+import re
 from optparse import OptionParser
 
 def typeofGenotype(allele1, allele2):
@@ -54,6 +54,8 @@ def main():
     filteredfh=open('filtered.log', 'w')
     multifh=open('multiallelic.log', 'w')
     concordancefh=open('concordance.log', 'w')
+    fieldsfh=open('fields.log', 'w')
+    fieldsfh.write('set'+"\n")
     vcfobj=VcfFile(vcfilename)
     vcfh=open(vcfilename,'r')
 
@@ -66,14 +68,16 @@ def main():
     #multifh.write(header)
 
     samples=vcfobj.getSampleList()
+
+    pattern=';set=(.+)'
     for vrec in vcfobj.yieldVcfRecordwithGenotypes(vcfh):
         if ',' in vrec.getAlt() > 1:
             outstring=vrec.toStringwithGenotypes() + "\n"
             multifh.write(outstring)
             #continue
 
-      
 
+        
         if 'ReferenceInAll' in vrec.getInfo() and options.includeRef == False:
             continue
 
@@ -86,7 +90,13 @@ def main():
             filteredfh.write(outstring)
             continue
         vrec_ziptuple=vrec.zipGenotypes(samples)
+
+        field=re.search(pattern, vrec.getInfo()).groups()[0]
+        fieldsfh.write(field+"\n")
+
         for (compare, eval) in grouper(2,vrec_ziptuple):
+
+           
             (comp_allele1, comp_allele2)=compare[1].getAlleles()
             (eval_allele1, eval_allele2)=eval[1].getAlleles()
 

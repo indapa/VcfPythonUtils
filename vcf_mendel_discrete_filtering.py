@@ -5,11 +5,11 @@ from optparse import OptionParser
 from VcfFile import *
 from VcfPed import Ped
 
-""" Given a list of affected and unaffected samples
+""" Given a ped file with affected and unaffected status in the 6th column
     and a given inheritance model ( dominant|recessive)
     filter genotypes in a VCF to produce a sites as
-    possibel candidates for causative mutation for
-    a Mendelian trait"""
+    possible candidates for causative mutation for
+    a Mendelian trait. For more on the pedfile fomrat see this: http://pngu.mgh.harvard.edu/~purcell/plink/data.shtml#ped"""
 
 
 def main():
@@ -17,8 +17,6 @@ def main():
     parser = OptionParser(usage)
     parser.add_option("--model", type="string", dest="model", default = "dominant", help=" inheritance model [dominant|recessive], default is dominant ")
     parser.add_option("--ped", type="string", dest="pedfile", default=None, help="ped file of samples with phenotype (disease) status")
-    #parser.add_option("--affected", type="string", dest="affected", help="filename with names of affecteds (one per line)")
-    #parser.add_option("--unaffected", type="string", dest="unaffected", help="filename with names of unaffecteds (one per line)")
     parser.add_option("--filter", type="string", dest="filter", help="analyze only those  records matching filter (default is PASS)", default='PASS')
 
     (options, args)=parser.parse_args()

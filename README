@@ -1,6 +1,8 @@
 VcfPythonUtils contains utilities to work with Variant Call Format (VCF) files. 
 It consists of a set of python classes and programs based off those classes to analyze and manipulate VCF files.
 
+I'm working on proper documentation to describe the analysis programs and python classes used to represent a VCF. 
+If you have any questions, please email me. 
 
 Amit Indap
 indapa@gmail.com

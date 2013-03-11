@@ -3,6 +3,7 @@ import sys
 from optparse import OptionParser
 
 from VcfFile import *
+from VcfPed import Ped
 
 """ Given a list of affected and unaffected samples
     and a given inheritance model ( dominant|recessive)
@@ -15,25 +16,35 @@ def main():
     usage = "usage: %prog [options] file.vcf"
     parser = OptionParser(usage)
     parser.add_option("--model", type="string", dest="model", default = "dominant", help=" inheritance model [dominant|recessive], default is dominant ")
-    parser.add_option("--affected", type="string", dest="affected", help="sample name of affecteds (one per line)")
-    parser.add_option("--unaffected", type="string", dest="unaffected", help="sample name of unaffecteds (one per line)")
-    parser.add_option("--filter", type="string", dest="filter", help="analyze only those  records matching filter (default is None)", default=None)
+    parser.add_option("--ped", type="string", dest="pedfile", default=None, help="ped file of samples with phenotype (disease) status")
+    #parser.add_option("--affected", type="string", dest="affected", help="filename with names of affecteds (one per line)")
+    #parser.add_option("--unaffected", type="string", dest="unaffected", help="filename with names of unaffecteds (one per line)")
+    parser.add_option("--filter", type="string", dest="filter", help="analyze only those  records matching filter (default is PASS)", default='PASS')
+
     (options, args)=parser.parse_args()
-    if options.affected==None:
-        sys.stderr.write("please provide a value to --affected parameter!\n")
+    if options.pedfile==None:
+        sys.stderr.write("please provide a value to --ped parameter!\n")
         exit(1)
+
 
     affecteds=[] # list of affected samples
     unaffecteds=[] # list of unaffected samples
+    
+    pedobjects=[] #list of pedobjects, represents lines in a pedfile
+    pedfh=open(options.pedfile, 'r')
+    for line in pedfh:
+        fields=line.strip().split('\t')
+        (fid,iid,pid,mid,sex,phenotype)=fields[0:6]
+        phenotype=int(phenotype)
+        pedobjects.append( Ped(fid,iid,pid,mid,sex,phenotype) )
 
-    affectedfh=open(options.affected, 'r')
-    for line in affectedfh:
-        affecteds.append(line.strip() )
+    #the phenotype status is set to 2 if the sample is affected: http://pngu.mgh.harvard.edu/~purcell/plink/data.shtml#ped
+    affecteds=[ pedobj.getid() for pedobj in pedobjects if pedobj.getpheno() == 2  ]
+    unaffecteds=[ pedobj.getid() for pedobj in pedobjects if pedobj.getpheno() == 1  ]
 
-    if options.unaffected != None:
-        unaffectedfh=open (options.unaffected, 'r')
-        for line in unaffectedfh:
-            unaffecteds.append ( line.strip() )
+
+
+    
 
     #check if any overlapping samples between unaffected and affected
     if len( list( set(unaffecteds).intersection( set(affecteds) ) )  ) != 0:

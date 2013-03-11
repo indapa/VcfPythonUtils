@@ -4,19 +4,11 @@
    contain the root `toctree` directive.
 
 Welcome to VcfPythonUtils's documentation!
+This document contains information about the scripts I wrote with my VcfPythonUtils library to analyze and manipulate VCF files.
 ==========================================
 
-Contents:
-
-.. toctree::
-   :maxdepth: 2
 
 
 
-Indices and tables
-==================
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
 

@@ -60,7 +60,7 @@ def main():
 
     tpedfh=open(tpedfile,'r')
     printvcfHeader(options.tbf, tpedfile)
-    print "\t".join(["#CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER",  "INFO ",  "FORMAT", samplestring])
+    print "\t".join(["#CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER",  "INFO",  "FORMAT", samplestring])
     for line in  tpedfh:
         fields=line.strip().split(' ')
         (chrom, snpid,cM,pos)=fields[0:4]

@@ -171,6 +171,10 @@ class VcfRecord(object):
         outstring="\t".join([self.chrom,self.pos,self.id,self.ref,self.alt,self.qual,self.filter,self.info])
         return outstring
 
+    def __str__(self):
+        return "\t".join([self.chrom,self.pos,self.id,self.ref,self.alt,self.qual,self.filter,self.info])
+        
+
     def toStringwithGenotypes(self):
         outstring=self.toString()
         formatstring=self.genotypes[0].getFormatString()

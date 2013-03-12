@@ -4,35 +4,12 @@ from VcfFile import *
 import numpy as np
 import re
 from optparse import OptionParser
-
-def typeofGenotype(allele1, allele2):
-    """ I really should be a python version of a typedef here, but dont know how
-        hom_ref =0 het =1 hom_nonref=2 no_call=3                              """
-
-    #print allele1, allele2
-
-    
-    if allele1== '.' or allele2 == '.': return 3
-    
-    if allele1 == '0' and allele2 == '0': return 0
-
-    if allele1 == '0' and allele2 != '0': return 1
-    if allele1 != '0' and allele2 == '0': return 1
-
-
-    #if allele1 == '0' and allele2== '1': return 1
-    #if allele1 =='1' and allele2 == '0': return 1
-
-    if allele1 != '0' and allele2 != '0': return 2
+from common import grouper
+from common import typeofGenotype
 
     
 
-""" iterate through an utterable n values at a time
-     http://stackoverflow.com/a/2990151         """
-def grouper(n, iterable, fillvalue='x'):
-    "grouper(3, 'ABCDEFG', 'x') --> ABC DEF Gxx"
-    args = [iter(iterable)] * n
-    return izip_longest(fillvalue=fillvalue, *args)
+
 
 
 def main():

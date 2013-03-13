@@ -130,5 +130,6 @@ class VcfGenotype(object):
 
 
 
-    def toString(self):
+    def __str__(self):
         return self.gstring
+

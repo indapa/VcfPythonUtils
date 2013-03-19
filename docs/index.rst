@@ -9,14 +9,8 @@ Welcome to VcfPythonUtils's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth:	1
+   :numbered:
 
    overview
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
 

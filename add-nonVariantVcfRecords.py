@@ -44,7 +44,6 @@ def main():
     formatstring="GT"
     print header
     for (chrom,start,end) in yield_bedcoordinate(bedfh):
-        print start, end
         start=int(start)
         end=int(end)
         for i in range(start,end):

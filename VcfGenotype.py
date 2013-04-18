@@ -128,7 +128,8 @@ class VcfGenotype(object):
                 sys.stderr.write(elem + " is not in FORMAT column!\n ")
                 exit(1)
 
-
+    def toString(self):
+        return self.gstring
 
     def __str__(self):
         return self.gstring

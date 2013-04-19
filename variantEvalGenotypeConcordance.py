@@ -6,11 +6,7 @@ import re
 from optparse import OptionParser
 from common import grouper
 from common import typeofGenotype
-
-    
-
-
-
+import os
 
 def main():
     usage = "usage: %prog [options] file.vcf \n calcuate NRS and NRD on a vcf generated from CombineVariants --genotypemergeoption UNIQUIFY\n"
@@ -22,16 +18,23 @@ def main():
 
 
     vcfilename=args[0]
+    basename=os.path.splitext(vcfilename)[0]
 #row is veal column is comparison
     concordancetable= np.matrix( [ [ 0,0,0,0 ], [ 0,0,0,0 ], [ 0,0,0,0 ], [ 0,0,0,0 ] ] )
     calledtable = np.matrix ( [ [0 ,0] , [0,0] ] )
     #log file of sites that contribute to NRS penalty; hom-ref and no-calls at variant sites in comparison set
-    nrsfh=open('nrs.log', 'w')
-    nrdfh=open('nrd.log', 'w')
-    filteredfh=open('filtered.log', 'w')
-    multifh=open('multiallelic.log', 'w')
-    concordancefh=open('concordance.log', 'w')
-    fieldsfh=open('fields.log', 'w')
+    nrslog=".".join([basename, 'nrs','log'])
+    nrdlog=".".join([basename, 'nrd','log'])
+    filterlog=".".join([basename, 'filtered','log'])
+    multialleliclog=".".join([basename, 'multiallelic','log'])
+    concordancelog=".".join([basename, 'concordance','log'])
+    fieldslog=".".join([basename, 'fields', 'log'])
+    nrsfh=open(nrslog, 'w')
+    nrdfh=open(nrdlog, 'w')
+    filteredfh=open(filterlog, 'w')
+    multifh=open(multialleliclog, 'w')
+    concordancefh=open(concordancelog, 'w')
+    fieldsfh=open(fieldslog, 'w')
     fieldsfh.write('set'+"\n")
     vcfobj=VcfFile(vcfilename)
     vcfh=open(vcfilename,'r')

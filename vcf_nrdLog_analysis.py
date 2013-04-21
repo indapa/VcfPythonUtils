@@ -6,6 +6,9 @@ import re, os
 from optparse import OptionParser
 from common import grouper, typeofGenotype, melt_lol
 
+""" do some data massaging to figure out patterns in sites that have
+discrepant genotypes. Input file is the vcf logfile of sites that contribute
+to NRD in the input file to variantEval """
 
 def main():
     usage = "usage: %prog [options]  nrd.log.vcf\n" 
@@ -19,7 +22,9 @@ def main():
     
     vcfobj=VcfFile(vcfilename)
     vcfh=open(vcfilename,'r')
-
+    nrdallfh=open(basename+".allgenos.nrd.txt", 'w')
+    nrdtwofh=open(basename+".twogenos.nrd.txt", 'w')
+    nrdonefh=open(basename+".onegenos.nrd.txt", 'w')
     vcfobj.parseMetaAndHeaderLines(vcfh)
     samples=vcfobj.getSampleList()
     #print samples
@@ -33,6 +38,10 @@ def main():
         
         vrec_ziptuple=vrec.zipGenotypes(samples)
         #print vrec_ziptuple
+        """ Since I'm testing against trio, NRD count can be 1 2 or 3
+            We keep track of the nrd count and print those records to the appropriate file:
+            nrdallfh, nrdtwofh, nrdonefh  """
+        nrd_count=0
         for (compare, eval) in grouper(2,vrec_ziptuple):
             (comp_allele1, comp_allele2)=compare[1].getAlleles()
             (eval_allele1, eval_allele2)=eval[1].getAlleles()
@@ -41,9 +50,19 @@ def main():
             if eval_alleletype == comp_alleletype:
                 continue
             outputline.append(   [ eval[0], str(eval_alleletype), compare[0], str(comp_alleletype) ] )
+            nrd_count+=1
         
-        
-        print "\t".join (  melt_lol(outputline) )
+        output= "\t".join (  melt_lol(outputline) )
+        """ depending on the nrd count, print the records to appropirate file(s) """
+        if nrd_count == 3:
+            nrdallfh.write(output+"\n")
+        if nrd_count== 2:
+            nrdtwofh.write(output+"\n")
+        if nrd_count==1:
+            nrdonefh.write(output+"\n")
+            
+            
+       
             
         
         

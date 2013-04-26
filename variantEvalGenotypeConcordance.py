@@ -13,7 +13,8 @@ def main():
     parser = OptionParser(usage)
     parser.add_option("--matrixonly", action="store_true", dest="matrixonly", help="only print concordance matrixe", default=False)
     parser.add_option("--includeRef", action="store_true", dest="includeRef", help="include sites in the set ReferenceInAll", default=False)
-
+    parser.add_option("--includeFilter", action="store_true", dest="includeFilter", help="include site filtered or not!", default=False)
+    
     (options, args)=parser.parse_args()
 
 
@@ -63,7 +64,7 @@ def main():
         if 'ReferenceInAll' in vrec.getInfo() and options.includeRef == False:
             continue
 
-        if 'filterIn' in vrec.getInfo():
+        if 'filterIn' in vrec.getInfo() and options.includeFilter == False:
             outstring=vrec.toStringwithGenotypes() + "\n"
             filteredfh.write(outstring)
             continue

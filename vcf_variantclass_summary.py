@@ -56,7 +56,7 @@ def main():
 
     
 
-    pattern=options.infotag+'=(\w+)'
+    pattern=options.infotag+'=(\S+)'
     
     for vrec in vcfobj.yieldVcfRecord(vcfh):
         if vrec.getFilter() != options.filter and options.filter != None: continue

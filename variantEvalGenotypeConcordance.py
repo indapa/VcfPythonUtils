@@ -23,6 +23,10 @@ def main():
 #row is veal column is comparison
     concordancetable= np.matrix( [ [ 0,0,0,0 ], [ 0,0,0,0 ], [ 0,0,0,0 ], [ 0,0,0,0 ] ] )
     calledtable = np.matrix ( [ [0 ,0] , [0,0] ] )
+    
+    #outputfile is the the basename of the VCF to be analyzed replaced with a variantEval.txt suffix
+    outputfile=".".join([basename, 'variantEval','txt'])
+    outputfh=open(outputfile, 'w')
     #log file of sites that contribute to NRS penalty; hom-ref and no-calls at variant sites in comparison set
     nrslog=".".join([basename, 'nrs','log'])
     nrdlog=".".join([basename, 'nrd','log'])
@@ -46,13 +50,15 @@ def main():
     nrdfh.write(header)
     filteredfh.write(header)
     concordancefh.write(header)
+    multifh.write(header)
+    #outputfh.write(header)
     #multifh.write(header)
 
     samples=vcfobj.getSampleList()
 
     totalrecords=0
 
-    pattern=';set=(.+)'
+    pattern=';set=(\S+)'
     for vrec in vcfobj.yieldVcfRecordwithGenotypes(vcfh):
         if ',' in vrec.getAlt() > 1:
             outstring=vrec.toStringwithGenotypes() + "\n"
@@ -126,45 +132,44 @@ def main():
                     concordancefh.write( outstring )
 
 
-    print "total records analyzed: " + str(totalrecords) + "\n"
+    outputfh.write("total records analyzed: " + str(totalrecords) + "\n" )
 
-    print "rows are eval genotypes columns comparison genotypes"
-    print "\n"
-    print "\t".join(['','AA','AB','BB', './.'  ])
+    outputfh.write( "rows are eval genotypes columns comparison genotypes\n")
+    
+    outputfh.write("\t".join(['','AA','AB','BB', './.'  ])  +"\n")
    
     rownames=[0,'AA', 1,'AB', 2,'BB', 3,'./.']
     for (i, gt) in grouper(2,rownames):
         row=concordancetable[i,:].tolist()
         for r in row:
             outstr="\t".join(map(str,r))
-            print gt,"\t", outstr
+            outputfh.write( gt +"\t"+outstr+"\n")
 
-    print "matrix sum: "
+    outputfh.write( "matrix sum: \n")
     sum=np.sum(concordancetable)
-    print str(sum)
-    print "\n"
+    outputfh.write( str(sum) +"\n")
 
     #now we figure out how many sites were called or not called
     calledtable[0,0]=concordancetable[0:3,0:3].sum()
     calledtable[0,1]=concordancetable[0:3,3].sum()
     calledtable[1,0]=concordancetable[3,0:3].sum()
     calledtable[1,1]=concordancetable[3,3]
-
+    outputfh.write("\n")
     rownames=[ 0,'called', 1,'./.' ]
-    print "rows are called eval genotypes columns are called comparison genotypes"
-    print "\n"
-    print "\t".join(['','called','./.' ])
+    outputfh.write( "rows are eval genotypes columns comparison genotypes\n")
+    
+    outputfh.write(  "\t".join(['','called','./.' ]) +"\n" )
     
     for (i, gt) in grouper(2,rownames):
         row=calledtable[i,:].tolist()
         for r in row:
             outstr="\t".join(map(str,r))
-            print gt,"\t", outstr
-    print "matrix sum: "
+            outputfh.write( gt +"\t"+outstr+"\n")
+    outputfh.write( "matrix sum: \n")
     sum=np.sum(calledtable)
-    print str(sum)
-    print "\n"
-
+    outputfh.write( str(sum) +"\n")
+   
+    outputfh.write("\n")
 
 
     if options.matrixonly == False:
@@ -178,8 +183,8 @@ def main():
         variant_count_comparison= concordancetable[0,1]+concordancetable[0,2]+concordancetable[1,1]+concordancetable[1,2]+concordancetable[2,1]+concordancetable[2,2]+concordancetable[3,1]+concordancetable[3,2]
         nrs=round( float(variant_count_evaluation)/float(variant_count_comparison) * 100 , 2)
     
-        print "NRD: ", str(nrd)
-        print "NRS ", str(nrs)
+        outputfh.write( "NRD: " + str(nrd) +" \n")
+        outputfh.write( "NRS " + str(nrs) +" \n")
 
    
 # <codecell>

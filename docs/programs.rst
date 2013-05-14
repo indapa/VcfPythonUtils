@@ -24,7 +24,7 @@ The list of Python programs in VcfPythonUtils
 We evaluate a callset by comparing it to another 'gold standard' comparison  callset. The gold comparison calls can be Sanger  or Affymetrix
 array derived genotypes. Or if you are comparing variant discovery methods, the comparison calls can be with a different algorithm
 from the evaluation calls. Prior to running this program merge the evaluation and comparison VCF files into a single VCF file using
-the GATK program `CombineVariants  http://www.broadinstitute.org/gatk/gatkdocs/org_broadinstitute_sting_gatk_walkers_variantutils_CombineVariants.html`_
+the GATK program `CombineVariants  <http://www.broadinstitute.org/gatk/gatkdocs/org_broadinstitute_sting_gatk_walkers_variantutils_CombineVariants.html>`_
 variantEvalGenotypeConcordance.py expects the same samples were examined in the evaluation and comparison callsets and in the resulting merged 
 VCF file, the odd  sample columns are the evaluation genotype and the even sample columns are the comparison genotype. 
 

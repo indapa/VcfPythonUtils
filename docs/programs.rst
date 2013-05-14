@@ -17,18 +17,8 @@ The list of Python programs in VcfPythonUtils
 
 **variantEvalGenotypeConcordance.py**
 
-*Calculate Non Reference Sensitivity  and Non Reference Discrepancy  on a merged callset VCF*::
+*Calculate Non Reference Sensitivity (NRS)  and Non Reference Discrepancy (NRD) on a merged callset VCF*::
 
-	  variantEvalGenotypeConcordance.py [options] file.vcf
+	  variantEvalGenotypeConcordance.py file.vcf
 
-+------------+------------+-----------+-----------+
-| Header 1   | Header 2   | Header 3  |  Header 3 |
-+============+============+===========+===========+
-| body row 1 | column 2   | column 3  | column 3  |
-+------------+------------+-----------+-----------+
-| body row 2 | Cells may span columns.foooo bary  |
-+------------+------------+-----------+-----------+
-| body row 3 | Cells may  | - Cells   |  -cells   |
-+------------+------------|-----------+-----------+
-| body row 4 |            | - blocks. |  -contain |
-+------------+------------+-----------+-----------+
+

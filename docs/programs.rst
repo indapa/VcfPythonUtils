@@ -17,7 +17,7 @@ The list of Python programs in VcfPythonUtils
 
 **variantEvalGenotypeConcordance.py**
 
-*Calculate Non Reference Sensitivity  and Non Reference Discrepancy  on a vcf file  generated from GATK program CombineVariants run with the --genotypemergeoption UNIQUIFY*
+*Calculate Non Reference Sensitivity  and Non Reference Discrepancy  on a merged callset VCF*
 	  variantEvalGenotypeConcordance.py [options] file.vcf
 	  -matrixonly  only print concordance matrix
 	  --includeRef  include sites in the set ReferenceInAll

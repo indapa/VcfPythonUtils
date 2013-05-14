@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>2. Programs &mdash; VcfPythonUtils 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="VcfPythonUtils 0.1 documentation" href="index.html" />
+    <link rel="prev" title="1. Overview" href="overview.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="overview.html" title="1. Overview"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">VcfPythonUtils 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="programs">
+<h1>2. Programs<a class="headerlink" href="#programs" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2>2.1. Programs<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>The list of Python programs in VcfPythonUtils</p>
+<p><strong>vcf_mendel_discrete_filtering.py</strong></p>
+<p><em>Filter genotypes according to a Mendelian inheritance pattern</em>:</p>
+<div class="highlight-python"><pre>vcf_mendel_discrete_filtering.py --model [dominant|recessive] --ped [file.ped] --filter PASS file.vcf</pre>
+</div>
+<p><strong>variantEvalGenotypeConcordance.py</strong></p>
+<dl class="docutils">
+<dt><em>Calculate Non Reference Sensitivity  and Non Reference Discrepancy  on a vcf file  generated from GATK program CombineVariants run with the &#8211;genotypemergeoption UNIQUIFY</em></dt>
+<dd>variantEvalGenotypeConcordance.py [options] file.vcf
+-matrixonly  only print concordance matrix
+&#8211;includeRef  include sites in the set ReferenceInAll</dd>
+</dl>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">2. Programs</a><ul>
+<li><a class="reference internal" href="#id1">2.1. Programs</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="overview.html"
+                        title="previous chapter">1. Overview</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/programs.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="overview.html" title="1. Overview"
+             >previous</a> |</li>
+        <li><a href="index.html">VcfPythonUtils 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Amit Indap.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

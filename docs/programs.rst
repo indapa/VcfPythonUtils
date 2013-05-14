@@ -14,3 +14,10 @@ The list of Python programs in VcfPythonUtils
 
 	vcf_mendel_discrete_filtering.py --model [dominant|recessive] --ped [file.ped] --filter PASS file.vcf
 
+
+**variantEvalGenotypeConcordance.py**
+
+*Calculate Non Reference Sensitivity  and Non Reference Discrepancy  on a vcf file  generated from GATK program CombineVariants run with the --genotypemergeoption UNIQUIFY*
+	  variantEvalGenotypeConcordance.py [options] file.vcf
+	  -matrixonly  only print concordance matrix
+	  --includeRef  include sites in the set ReferenceInAll

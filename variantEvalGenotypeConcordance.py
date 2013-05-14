@@ -8,6 +8,9 @@ from common import grouper
 from common import typeofGenotype
 import os
 
+""" See the documentation here: https://vcfpythonutils.readthedocs.org/en/latest/programs.html for what this program does
+   Briefly, it calculates genotype concordance metrics of an evaluation callset to a comparison callset in a merged VCF file of the two """
+
 def main():
     usage = "usage: %prog [options] file.vcf \n calcuate NRS and NRD on a vcf generated from CombineVariants --genotypemergeoption UNIQUIFY\n"
     parser = OptionParser(usage)
@@ -20,7 +23,9 @@ def main():
 
     vcfilename=args[0]
     basename=os.path.splitext(vcfilename)[0]
-#row is veal column is comparison
+    """ row is eval, column is comparison 
+        make a numpy matrix to represent genotype concordance matrix """
+    
     concordancetable= np.matrix( [ [ 0,0,0,0 ], [ 0,0,0,0 ], [ 0,0,0,0 ], [ 0,0,0,0 ] ] )
     calledtable = np.matrix ( [ [0 ,0] , [0,0] ] )
     
@@ -66,10 +71,11 @@ def main():
             #continue
 
 
-        
+        """ skip homoz reference calls unless you want to include them!  """
         if 'ReferenceInAll' in vrec.getInfo() and options.includeRef == False:
             continue
 
+        """ if variant is filtered, skip it! """
         if 'filterIn' in vrec.getInfo() and options.includeFilter == False:
             outstring=vrec.toStringwithGenotypes() + "\n"
             filteredfh.write(outstring)
@@ -84,6 +90,7 @@ def main():
         field=re.search(pattern, vrec.getInfo()).groups()[0]
         fieldsfh.write(field+"\n")
         totalrecords+=1
+        """ we take records two at a time, assuming the first is the comparison genotype the second is the evaluation genotype  """
         for (compare, eval) in grouper(2,vrec_ziptuple):
 
            
@@ -93,10 +100,11 @@ def main():
             eval_alleletype=typeofGenotype(eval_allele1, eval_allele2)
             comp_alleletype=typeofGenotype(comp_allele1, comp_allele2)
            
+            """ increment the cell count  """
             concordancetable[eval_alleletype, comp_alleletype]+=1
 
 
-
+            """write gentoype record to log appropriate log file """
             #print records that contirubut the NRS penalty
             if eval_alleletype == 3:
                 if comp_alleletype == 1 or comp_alleletype==2:

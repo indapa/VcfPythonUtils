@@ -21,11 +21,11 @@ The list of Python programs in VcfPythonUtils
 
 	  variantEvalGenotypeConcordance.py [options] file.vcf
 
-+------------+------------+-----------+
-| Header 1   | Header 2   | Header 3  |
-+============+============+===========+
-| body row 1 | column 2   | column 3  |
-+------------+------------+-----------+
++------------+------------+-----------+-----------+-----------+
+| Header 1   |     AA	  |    AB     |	    BB    | no call   |	
++============+============+===========+===========+===========+
+| body row 1 | column 2   | column 3  | column 3  | column 3  |
++------------+------------+-----------++----------+-----------+
 | body row 2 | Cells may span columns.|
 +------------+------------+-----------+
 | body row 3 | Cells may  | - Cells   |

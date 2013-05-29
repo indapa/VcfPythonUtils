@@ -36,7 +36,10 @@ genotypes.
 
 **Per_sample_variantEvalGenotypeConcordance.py**
 
-*Calculate the per-sample Non-reference sensitivity and Non-reference discrepancy in a merge evaluation/comparsion callset*
+
+*Calculate the per-sample Non-reference sensitivity and Non-reference discrepancy in a merge evaluation/comparsion callset*::
+
+	   variantEvalGenotypeConcordance.py file.vcf
 
 This program is very similiar to variantEvalGenotypeConcordance.py. This difference is that it calculates the NRS and NRD 
 metrics on a per sample basis and prints ouput and log files for each sample, in addition to the overall NRS and NRD

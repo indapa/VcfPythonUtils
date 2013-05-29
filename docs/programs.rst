@@ -17,7 +17,7 @@ The list of Python programs in VcfPythonUtils
 
 **variantEvalGenotypeConcordance.py**
 
-*Calculate Non Reference Sensitivity (NRS)  and Non Reference Discrepancy (NRD) on a merged callset VCF*::
+*Calculate overall Non Reference Sensitivity (NRS)  and Non Reference Discrepancy (NRD) on a merged evaluation/comparison callset VCF*::
 
 	  variantEvalGenotypeConcordance.py file.vcf
 
@@ -32,3 +32,12 @@ The program proceeeds by building a genotype comparison matrix where the rows ar
 Iterating through the file it will tally the cell counts in the matrix and then print out the NRS and NRD values to file.variantEval.txt, where
 file is the prefix to the input VCF file. It will also write out log files in VCF format of the sites that contribute to NRS, NRD, and concordant
 genotypes.
+
+
+**Per_sample_variantEvalGenotypeConcordance.py**
+
+*Calculate the per-sample Non-reference sensitivity and Non-reference discrepancy in a merge evaluation/comparsion callset*
+
+This program is very similiar to variantEvalGenotypeConcordance.py. This difference is that it calculates the NRS and NRD 
+metrics on a per sample basis and prints ouput and log files for each sample, in addition to the overall NRS and NRD
+values. 

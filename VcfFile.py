@@ -115,6 +115,11 @@ class VcfFile(object):
     def getMetaFormatNames(self):
         """  return the Ids of the FORMAT metalines"""
         return self.metaline.getMetaFormatNames()
+    
+    def addMetaFormatHeader(self, formatObj):
+        """ add a ##FORMAT header  """
+        self.metaline.addMetaFormat(formatObj)
+        
 
     def getMetaFormatDescription(self):
         """ return a list of tuples (id,descripton) for FORMAt metalines """

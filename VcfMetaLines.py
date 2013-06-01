@@ -144,6 +144,17 @@ class MetaLines(object):
         else:
             newfilterobject=FilterLine(id, description)
             self.metaFilterDict [ newfilterobject.getId() ] = newfilterobject
+            
+    
+    def addMetaFormat(self, formatObj):
+        """ add a ##FORMAT header  """
+        if formatObj.getId() in self.metaFormatDict.keys():
+            sys.stderr.write(id + "##FORMAT id already being used!\n")
+            return
+        else:
+            self.metaFormatDict [ formatObj.getId() ]  = formatObj
+            
+    
 
 
 

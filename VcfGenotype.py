@@ -1,6 +1,7 @@
 import sys
 import re
 import itertools
+from collections import OrderedDict
 class VcfGenotype(object):
     """ represents a VCF genotype  """
 
@@ -15,7 +16,7 @@ class VcfGenotype(object):
         self.allele2=''
         
         #keys are format key value is from gstring
-        self.gdict={}
+        self.gdict=OrderedDict()
         formatids=self.formatstring.split(':')
         gstringvals=self.gstring.split(':')
         
@@ -41,11 +42,14 @@ class VcfGenotype(object):
             return None
         
     def addFormatVal(self, key, value):
-        """ add a new format key/value to the genotype format string """
-        if key in self.gdict:
-            self.gdict[value]
-        else:
-            self.gdict[key]=value
+        """ add a new format key/value to the genotype format string;
+            we then implicitly update the gstring and formatstring  """
+       
+        self.gdict[key]=value
+        self.gstring=":".join( [ self.gdict[k] for k in self.gdict.keys() ] )
+        self.formatstring=":".join(self.gdict.keys())
+        
+        
         
 
     def setAlleles(self, allele1, allele2):

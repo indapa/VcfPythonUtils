@@ -1,9 +1,6 @@
 #!/usr/bin/env python
-from itertools import *
 from VcfFile import *
-from VcfSampleEval import *
-import numpy as np
-import re
+from VcfMetaLines import FormatLine
 from optparse import OptionParser
 import os
 import pysam
@@ -29,32 +26,43 @@ def main():
     basename=os.path.splitext(vcfilename)[0]
     bamfilename=options.bam
     
+    ra_formatline=FormatLine("RA", number='1', type='Integer', description='number of reference alleles observed')
+    aa_formatline=FormatLine("AA", number='1', type='Integer', description='number of alternate alleles observed')
+    
     if os.path.exists(bamfilename+".bai") == False:
         sys.stderr.write("please check for existence of bam index file (*.bai)\n")
         exit(1)
         
     vcfobj=VcfFile(vcfilename)
+    
     vcfh=open(vcfilename,'r')
 
     vcfobj.parseMetaAndHeaderLines(vcfh)
-    header=vcfobj.returnHeader() +"\n"
+    vcfobj.addMetaFormatHeader(ra_formatline)
+    vcfobj.addMetaFormatHeader(aa_formatline)
+    vcfobj.addMetaInfoHeader("RA", "Integer", "1","total number of reference alleles observed" )
+    vcfobj.addMetaInfoHeader("AA", "Integer", "1","total number of alternate alleles observed" )
+    header=vcfobj.returnHeader()
+    
+    print header
         
     pybamfile = pysam.Samfile(bamfilename, "rb" )
     
     samples=vcfobj.getSampleList()
     
-    print samples
+    #print samples
     
-    for vrec in vcfobj.yieldVcfRecord(vcfh):
+    for vrec in vcfobj.yieldVcfRecordwithGenotypes(vcfh):
         (chrom, start, end)=vrec.getChrom(), int( vrec.getPos() )-1, int(vrec.getPos() )
-        print chrom, str(start), str(end)
-        print vrec.getRef()
+        #print chrom, str(start), str(end)
+        #print vrec.getRef()
+        #print vrec.toStringwithGenotypes()
         
         for pileupcolumn in pybamfile.pileup( chrom, start, end):
             if pileupcolumn.pos != end:
                 continue
-            sys.stdout.write('chr'+chrom+ " " + str(start) +  " " + str(end) + " " + str(pileupcolumn.pos) + " ")
-            print 'coverage at base %s = %s' % (pileupcolumn.pos , pileupcolumn.n)
+            #sys.stdout.write('chr'+chrom+ " " + str(start) +  " " + str(end) + " " + str(pileupcolumn.pos) + " ")
+            #print 'coverage at base %s = %s' % (pileupcolumn.pos , pileupcolumn.n)
             
             seqdict={}
             for (base,count) in ( ('A',0), ('C',0), ('G',0), ('T',0), ('N',0) ):
@@ -67,11 +75,14 @@ def main():
                 if  ( ord ( pileupread.alignment.qual[ pileupread.qpos -1 ] )  - 33 ) < options.bq: continue
                 seqdict[ pileupread.alignment.seq[pileupread.qpos-1] ] +=1
                 #print pileupread.alignment.seq, len(pileupread.alignment.seq), pileupread.qpos
-            print vrec.getRef(), seqdict[vrec.getRef()]
-            print vrec.getAlt(),seqdict[vrec.getAlt()]
-            for nt in ('A', 'C', 'G', 'T', 'N'):
-                sys.stdout.write( str(seqdict[nt]) + " ")
-            sys.stdout.write("\n")
+            #print vrec.getRef(), seqdict[vrec.getRef()]
+            #print vrec.getAlt(),seqdict[vrec.getAlt()]
+            vrec.addInfo("RA="+str(seqdict[vrec.getRef()]))
+            vrec.addInfo("AA="+str(seqdict[vrec.getAlt()]))
+            #for nt in ('A', 'C', 'G', 'T', 'N'):
+            #    sys.stdout.write( str(seqdict[nt]) + " ")
+            #sys.stdout.write("\n")
+            print vrec.toStringwithGenotypes()
             
     pybamfile.close()
         

@@ -44,7 +44,11 @@ class VcfRecord(object):
 
     def setInfo(self,info):
         self.info=info
-
+        
+    def addInfo(self,info):
+        """ add more information to the infostring of the vcf record """
+        infostring=";".join([self.info, info])
+        self.info=infostring
     def isTransition(self):
         """ C <->T or A <->G is Transition; everything else is Transversion """
         if self.ref == 'A':
@@ -93,7 +97,13 @@ class VcfRecord(object):
 
     def getInfo(self):
         return self.info
-
+    
+    def returnInfoDict(self):
+        """ return a dictionary made from the the info field
+            Splitting a semicolon-separated string to a dictionary, in Python 
+            http://stackoverflow.com/a/186873 """
+        
+        return dict(item.split("=") for item in self.info.split(";"))
 
     def check_genotypeFormat(self, formatlist):
         """ check the ids in the FORMAT column are contained in the list of FORMAT ids (formatlist) """

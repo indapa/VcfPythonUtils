@@ -2,6 +2,7 @@
 from VcfFile import *
 from VcfMetaLines import FormatLine
 from optparse import OptionParser
+from collections import Counter
 import os
 import pysam
 
@@ -45,8 +46,12 @@ def main():
     header=vcfobj.returnHeader()
     
     print header
-        
+    readgroupdict={}    
     pybamfile = pysam.Samfile(bamfilename, "rb" )
+    rgdictlist=pybamfile.header['RG']
+    for dictionary in rgdictlist:
+        readgroupdict[ dictionary['ID'] ]= dictionary['SM']
+    #print readgroupdict
     
     samples=vcfobj.getSampleList()
     
@@ -65,20 +70,44 @@ def main():
             #print 'coverage at base %s = %s' % (pileupcolumn.pos , pileupcolumn.n)
             
             seqdict={}
+            sampledict={}
+            for s in samples: sampledict[s]=[]
+            #print sampledict
             for (base,count) in ( ('A',0), ('C',0), ('G',0), ('T',0), ('N',0) ):
                 seqdict[base]=count
             
             for pileupread in pileupcolumn.pileups:
                 
+               
                 if pileupread.alignment.is_duplicate == True and options.duplicate == False: continue
                 if pileupread.alignment.mapq < options.mapq: continue
                 if  ( ord ( pileupread.alignment.qual[ pileupread.qpos -1 ] )  - 33 ) < options.bq: continue
                 seqdict[ pileupread.alignment.seq[pileupread.qpos-1] ] +=1
+                readgroup=dict( pileupread.alignment.tags )['RG']
+                
+                sample=readgroupdict[readgroup]
+                #print readgroup,sample, pileupread.alignment.seq[pileupread.qpos-1]
+                sampledict[sample].append(pileupread.alignment.seq[pileupread.qpos-1])
                 #print pileupread.alignment.seq, len(pileupread.alignment.seq), pileupread.qpos
-            #print vrec.getRef(), seqdict[vrec.getRef()]
-            #print vrec.getAlt(),seqdict[vrec.getAlt()]
+            
             vrec.addInfo("RA="+str(seqdict[vrec.getRef()]))
             vrec.addInfo("AA="+str(seqdict[vrec.getAlt()]))
+            zip_genos=vrec.zipGenotypes(samples)
+            for (sample, vcfgenobj) in zip_genos:
+                if len(sampledict[sample]) == 0:
+                    
+                    continue
+                else:
+                    ra=0
+                    aa=0
+                    c=dict(Counter(sampledict[sample]))
+                    if vrec.getRef() in c.keys():
+                        ra=c[vrec.getRef()]
+                    if vrec.getAlt() in c.keys():
+                        aa=c[vrec.getAlt()]
+                    vcfgenobj.addFormatVal('RA', str(ra))
+                    vcfgenobj.addFormatVal("AA", str(aa))
+            
             #for nt in ('A', 'C', 'G', 'T', 'N'):
             #    sys.stdout.write( str(seqdict[nt]) + " ")
             #sys.stdout.write("\n")

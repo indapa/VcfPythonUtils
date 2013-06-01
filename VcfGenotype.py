@@ -26,19 +26,7 @@ class VcfGenotype(object):
         for (format,gstringval) in zipiter:
             self.gdict[format]=gstringval
 
-        #print self.gdict
-        #if gstringvals[0] != './.' or gstringvals[0]  != '.':
-        #if './.' not in gstringvals[0] and  gstring != '.':
-        #    if len(formatids) != len(gstringvals):
-        #        sys.stderr.write("\t".join(['error mismatch btwn format and genotype string in VcfGenotype init!',self.formatstring, gstring,"\n" ]))
-        #        sys.exit(1)
-                
-
-         #   for i in range(0, len(formatids) ):
-         #       self.gdict[ formatids[i] ] = gstringvals[i]
-        #else:
-        #    for i in range(0, len(formatids) ):
-        #        self.gdict[ formatids[i] ] = '.'
+       
 
     def getGenotypeFormatFields(self):
         """ return list of ids for genotype format string """
@@ -51,6 +39,14 @@ class VcfGenotype(object):
             return self.gdict[key]
         else:
             return None
+        
+    def addFormatVal(self, key, value):
+        """ add a new format key/value to the genotype format string """
+        if key in self.gdict:
+            self.gdict[value]
+        else:
+            self.gdict[key]=value
+        
 
     def setAlleles(self, allele1, allele2):
         """ set the alleles for the VcfGenotype object """

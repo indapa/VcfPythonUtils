@@ -39,7 +39,7 @@ class VcfGenotype(object):
         if key in self.gdict:
             return self.gdict[key]
         else:
-            return None
+            return "."
         
     def addFormatVal(self, key, value):
         """ add a new format key/value to the genotype format string;

@@ -54,6 +54,9 @@ of the input VCF. Results are written to STDOUT with a new VCF*::
        vcf_pysam_allele_pileup.py --bam file.bam [options] file.vcf
 
 This program is meant add information about the total number of reference and alt allele observations to a VCF that doesn't 
-include it already.
+include it already. Also, this program relies on the `pysam  <http://www.cgat.org/~andreas/documentation/pysam/contents.html>`_
+Python samtools interface. At the time of writing, I was using v0.7.3
+
+
 
    

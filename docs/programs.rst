@@ -44,3 +44,16 @@ genotypes.
 This program is very similiar to variantEvalGenotypeConcordance.py. This difference is that it calculates the NRS and NRD 
 metrics on a per sample basis and prints ouput and log files for each sample, in addition to the overall NRS and NRD
 values. 
+
+**vcf_pysam_allele_piluep.py**
+
+*Given a VCF file and a BAM file containing the sample(s) in the VCF, this program will add additional INFO and FORMAT
+tags RA and AA indicating the number of observations of the reference and alternate allele based on the REF and ALT columns
+of the input VCF. Results are written to STDOUT with a new VCF*::
+
+       vcf_pysam_allele_pileup.py --bam file.bam [options] file.vcf
+
+This program is meant add information about the total number of reference and alt allele observations to a VCF that doesn't 
+include it already.
+
+   

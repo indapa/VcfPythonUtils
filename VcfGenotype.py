@@ -49,7 +49,10 @@ class VcfGenotype(object):
         self.gstring=":".join( [ self.gdict[k] for k in self.gdict.keys() ] )
         self.formatstring=":".join(self.gdict.keys())
         
-        
+    def addFormat(self,formatstring):
+        """ add a format field to the genotype """ 
+        self.formatstring+=":"+formatstring
+         
         
 
     def setAlleles(self, allele1, allele2):

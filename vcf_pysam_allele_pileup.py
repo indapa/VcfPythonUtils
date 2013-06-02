@@ -91,11 +91,14 @@ def main():
                 #print pileupread.alignment.seq, len(pileupread.alignment.seq), pileupread.qpos
             
             vrec.addInfo("RA="+str(seqdict[vrec.getRef()]))
-            vrec.addInfo("AA="+str(seqdict[vrec.getAlt()]))
+            if vrec.getAlt() != ".":
+                vrec.addInfo("AA="+str(seqdict[vrec.getAlt()]))
             zip_genos=vrec.zipGenotypes(samples)
             for (sample, vcfgenobj) in zip_genos:
+               
                 if len(sampledict[sample]) == 0:
-                    
+                    vcfgenobj.addFormat("RA")
+                    vcfgenobj.addFormat("AA")
                     continue
                 else:
                     ra=0

@@ -5,7 +5,7 @@ from VcfSampleEval import *
 import numpy as np
 import re
 from optparse import OptionParser
-from common import grouper
+from common import grouper, melt_lol
 from common import typeofGenotype
 import os
 
@@ -15,12 +15,11 @@ import os
 def main():
     usage = "usage: %prog [options] file.vcf \n calcuate NRS and NRD on a vcf generated from CombineVariants --genotypemergeoption UNIQUIFY\n"
     parser = OptionParser(usage)
+    
     parser.add_option("--matrixonly", action="store_true", dest="matrixonly", help="only print concordance matrixe", default=False)
     parser.add_option("--includeRef", action="store_true", dest="includeRef", help="include sites in the set ReferenceInAll", default=False)
     parser.add_option("--includeFilter", action="store_true", dest="includeFilter", help="include site filtered or not!", default=False)
-    
     (options, args)=parser.parse_args()
-
 
     vcfilename=args[0]
     basename=os.path.splitext(vcfilename)[0]
@@ -66,9 +65,10 @@ def main():
     #for (comparename, evalname) in grouper(2,samples):
     #    print comparename, evalname
     vcf_sample_eval_objects = [ VcfSampleEval(compare,eval,basename) for  (compare,eval) in grouper(2,samples) ] 
-    print len(vcf_sample_eval_objects)
-    for f in vcf_sample_eval_objects:
-        print f
+    
+    for evalObj in vcf_sample_eval_objects:
+        evalObj.writeHeaders(header)
+    
     totalrecords=0
 
     pattern=';set=(\S+)'

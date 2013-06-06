@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 from itertools import *
 from VcfFile import *
+from VcfSampleEval import *
 import numpy as np
 import re
 from optparse import OptionParser
-from common import grouper
+from common import grouper, melt_lol
 from common import typeofGenotype
 import os
 
@@ -38,12 +39,14 @@ def main():
     filterlog=".".join([basename, 'filtered','log'])
     multialleliclog=".".join([basename, 'multiallelic','log'])
     concordancelog=".".join([basename, 'concordance','log'])
+    genotypematrix=".".join([basename, 'genotype.matrix', 'csv'])
     fieldslog=".".join([basename, 'fields', 'log'])
     nrsfh=open(nrslog, 'w')
     nrdfh=open(nrdlog, 'w')
     filteredfh=open(filterlog, 'w')
     multifh=open(multialleliclog, 'w')
     concordancefh=open(concordancelog, 'w')
+    genotypematrixfh=open(genotypematrix, 'w')
     fieldsfh=open(fieldslog, 'w')
     fieldsfh.write('set'+"\n")
     vcfobj=VcfFile(vcfilename)
@@ -51,6 +54,7 @@ def main():
 
     vcfobj.parseMetaAndHeaderLines(vcfh)
     header=vcfobj.returnHeader() +"\n"
+    
     nrsfh.write(header)
     nrdfh.write(header)
     filteredfh.write(header)
@@ -60,7 +64,11 @@ def main():
     #multifh.write(header)
 
     samples=vcfobj.getSampleList()
-
+    
+    #for (comparename, evalname) in grouper(2,samples):
+    #    print comparename, evalname
+    vcf_sample_eval_objects = [ VcfSampleEval(compare,eval,basename) for  (compare,eval) in grouper(2,samples) ] 
+    
     totalrecords=0
 
     pattern=';set=(\S+)'
@@ -84,8 +92,10 @@ def main():
             outstring=vrec.toStringwithGenotypes() + "\n"
             filteredfh.write(outstring)
             continue
+        #returns a list [ (samplename, vcfgenotype) , ... () ]
         vrec_ziptuple=vrec.zipGenotypes(samples)
-
+        #compare_eval =[ compare+evalu  for (compare,evalu) in grouper(2,vrec_ziptuple) ]
+        
         #what set are you in?
         field=re.search(pattern, vrec.getInfo()).groups()[0]
         fieldsfh.write(field+"\n")
@@ -93,7 +103,7 @@ def main():
         """ we take records two at a time, assuming the first is the comparison genotype the second is the evaluation genotype  """
         for (compare, eval) in grouper(2,vrec_ziptuple):
 
-           
+            
             (comp_allele1, comp_allele2)=compare[1].getAlleles()
             (eval_allele1, eval_allele2)=eval[1].getAlleles()
 
@@ -178,7 +188,9 @@ def main():
     outputfh.write( str(sum) +"\n")
    
     outputfh.write("\n")
-
+    
+    outstring=",".join( map(str,melt_lol(concordancetable.tolist())) )
+    genotypematrixfh.write(outstring+"\n")
 
     if options.matrixonly == False:
         discordance=concordancetable[0,1]+concordancetable[0,2]+concordancetable[1,0]+concordancetable[1,2]+concordancetable[2,0]+concordancetable[2,1]

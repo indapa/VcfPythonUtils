@@ -5,7 +5,7 @@ Created on May 28, 2013
 '''
 from VcfFile import *
 import numpy as np
-from common import grouper
+from common import grouper, melt_lol
 
 class VcfSampleEval(object):
     """ a class to represent a genotype comparison 
@@ -24,11 +24,13 @@ class VcfSampleEval(object):
         self.nrslog=".".join([basename, evalName, compareName,'nrs','log'])
         self.nrdlog=".".join([basename, evalName, compareName,'nrd','log'])
         self.concordancelog=".".join([basename,evalName, compareName, 'concordance','log'])
+        self.genotypematrix=".".join([basename,evalName, compareName, 'genotype.matrix', 'csv'])
         
         self.nrsfh=open(self.nrslog, 'w')
         self.nrdfh=open(self.nrdlog, 'w')
         self.concordancefh=open(self.concordancelog, 'w')
         self.outputfh=open(self.outputfile, 'w')
+        self.genotypematrixfh=open(self.genotypematrix, 'w')
         
         
         
@@ -41,6 +43,13 @@ class VcfSampleEval(object):
          """
         self.concordancetable[eval_alleletype, comp_alleletype]+=1
         
+    
+    def writeHeaders(self, headerline):
+        """ write VCF headers to the log files  """
+        self.nrdfh.write( headerline )
+        self.nrsfh.write( headerline )
+        self.concordancefh.write( headerline )
+
     def writeNrd(self,outstring):
         """ write the vcfrecord dataline outstirng to the nrd log """
         self.nrdfh.write( outstring )
@@ -108,6 +117,11 @@ class VcfSampleEval(object):
     
         self.outputfh.write( "NRD: " + str(nrd) +" \n")
         self.outputfh.write( "NRS " + str(nrs) +" \n")
+        
+        outstring=",".join( map(str,melt_lol(self.concordancetable.tolist())) )
+        self.genotypematrixfh.write(outstring+"\n")
+        
+         
         
     def __str__(self):
         rownames=[0,'AA', 1,'AB', 2,'BB', 3,'./.']

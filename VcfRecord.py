@@ -49,6 +49,7 @@ class VcfRecord(object):
         """ add more information to the infostring of the vcf record """
         infostring=";".join([self.info, info])
         self.info=infostring
+    
     def isTransition(self):
         """ C <->T or A <->G is Transition; everything else is Transversion """
         if self.ref == 'A':
@@ -137,10 +138,15 @@ class VcfRecord(object):
     def addGenotype(self,genotypeobj):
         """ append a VcfGenotype object to genotype list """
         self.genotypes.append(genotypeobj)
+    
+    def addGenotypeList(self, genotypelist):
+        """ given a list of VcfGenotype obj, set the genotype list for the record """
+        self.genotypes=genotypelist
 
     def getGenotypes(self):
         """ return the list of VcfGenotype objects of the VcfRecord """
         return self.genotypes
+    
 
     def getGenotypesAlleles(self):
         """ return list of tuples with (allele1, allele2) for each VcfGenotype object in genotypes list  """
@@ -188,7 +194,7 @@ class VcfRecord(object):
     def toStringwithGenotypes(self):
         outstring=self.toString()
         formatstring=self.genotypes[0].getFormatString()
-
+       
         genotypestrings=[]
         for g in self.genotypes:
             genotypestrings.append( g.toString() )

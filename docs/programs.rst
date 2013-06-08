@@ -57,6 +57,15 @@ This program is meant add information about the total number of reference and al
 include it already. Also, this program relies on the `pysam  <http://www.cgat.org/~andreas/documentation/pysam/contents.html>`_
 Python samtools interface. At the time of writing, I was using v0.7.3
 
+**vcf_removeSamples.py**
+
+*Given a VCF file remove sample(s) as provided on the command line*::
+
+       vcf_removeSamples.py [-h] [-vcf VCFILE] sample [sample ...]
+
+Specify the vcf file by the -vcf option and then just list the sample(s) you want to remove. Output is written to STDOUT
+
+
 
 
    

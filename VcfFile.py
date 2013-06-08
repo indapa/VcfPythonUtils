@@ -87,6 +87,9 @@ class VcfFile(object):
 
     def getSampleList(self):
         return self.headerline.getSampleList()
+    
+    def setSampleList(self, newlist):
+        self.headerline.setSampleList(newlist)
 
     def getMetaInfoNames(self):
         """  return the IDs of the INFO metalines"""

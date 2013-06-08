@@ -328,6 +328,10 @@ class HeaderLines(object):
             
     def getSampleList(self):
         return self.samplelist
+    
+    def setSampleList(self,newlist):
+        """ set a new samplelist """
+        self.samplelist=newlist
 
     def toString(self):
         headerstring= "\t".join(self.headercolumns)

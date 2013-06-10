@@ -123,6 +123,13 @@ class VcfGenotype(object):
             if self.allele1 != self.allele2:
                 return True
         return False
+    
+    def isHomoz(self):
+        if self.allele1 != "." and self.allele2 != "."
+            if self.allele1 == '0' and self.allele2 == "0":
+                return True
+        return False
+    
     def checkFormatIds(self, formatlist):
         """ check the ids in the FORMAT field to make sure they are contained in the list of FORMAT ids (the format list) """
         formatfields=self.formatstring.split(':')

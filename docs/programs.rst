@@ -65,6 +65,16 @@ Python samtools interface. At the time of writing, I was using v0.7.3
 
 Specify the vcf file by the -vcf option and then just list the sample(s) you want to remove. Output is written to STDOUT
 
+**vcf_gt-filter.py**
+
+*Filter records based on genotypes*::
+
+	vcf_gt-filter.py [-h] file.vcf -filter "sample1 0/1" -filter "sample1 1/0" -filter "sample2 0/0" [ -filter FILTER ] [ --no-header ]
+
+Records are filtered based the value given to  -filter. Going dataline by dataline, if all the genotypes pass the filters
+for each specified sample, the line is printed. Option to supress the printing of the header lines with --no-header
+
+
 
 
 

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import sys
+import gzip
 from optparse import OptionParser
 
 from VcfFile import *
@@ -13,7 +14,7 @@ from VcfPed import Ped
 
 
 def main():
-    usage = "usage: %prog [options] file.vcf"
+    usage = "usage: %prog [options] file.vcf.gz"
     parser = OptionParser(usage)
     parser.add_option("--model", type="string", dest="model", default = "dominant", help=" inheritance model [dominant|recessive], default is dominant ")
     parser.add_option("--ped", type="string", dest="pedfile", default=None, help="ped file of samples with phenotype (disease) status")
@@ -54,7 +55,7 @@ def main():
 
 
     vcfilename=args[0]
-    vcfh=open(vcfilename,'r')
+    vcfh=gzip.open(vcfilename,'r')
 
     #instantiate a VcfFile object
     vcfobj=VcfFile(vcfilename)

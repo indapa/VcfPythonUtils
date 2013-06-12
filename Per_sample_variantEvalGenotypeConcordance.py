@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import gzip
 from itertools import *
 from VcfFile import *
 from VcfSampleEval import *
@@ -13,7 +14,7 @@ import os
    Briefly, it calculates genotype concordance metrics of an evaluation callset to a comparison callset in a merged VCF file of the two """
 
 def main():
-    usage = "usage: %prog [options] file.vcf \n calcuate NRS and NRD on a vcf generated from CombineVariants --genotypemergeoption UNIQUIFY\n"
+    usage = "usage: %prog [options] file.vcf.gz \n calcuate NRS and NRD on a vcf generated from CombineVariants --genotypemergeoption UNIQUIFY\n"
     parser = OptionParser(usage)
     
     parser.add_option("--matrixonly", action="store_true", dest="matrixonly", help="only print concordance matrixe", default=False)
@@ -22,7 +23,7 @@ def main():
     (options, args)=parser.parse_args()
 
     vcfilename=args[0]
-    basename=os.path.splitext(vcfilename)[0]
+    basename=os.path.splitext(os.path.splitext(vcfilename)[0])[0]
     """ row is eval, column is comparison 
         make a numpy matrix to represent genotype concordance matrix """
     
@@ -47,7 +48,7 @@ def main():
     fieldsfh=open(fieldslog, 'w')
     fieldsfh.write('set'+"\n")
     vcfobj=VcfFile(vcfilename)
-    vcfh=open(vcfilename,'r')
+    vcfh=gzip.open(vcfilename,'r')
 
     vcfobj.parseMetaAndHeaderLines(vcfh)
     header=vcfobj.returnHeader() +"\n"

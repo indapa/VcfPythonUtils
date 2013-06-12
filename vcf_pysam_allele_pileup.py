@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import gzip
 from VcfFile import *
 from VcfMetaLines import FormatLine
 from optparse import OptionParser
@@ -8,11 +9,11 @@ import pysam
 
 def main():
     
-    """ given a VCF file and bam file containing the sample(s) in the VCF this willl print out 
-    a pileup count of the ref and alt allele that is in the VCF file """
+    """ given a VCF file and bam file containing the sample(s) in the VCF this will add INFO and FORMAT tags 
+    to indicate the count of reference and alt alleles observed in total and per-sample and print out a new VCF"""
 
 
-    usage = "usage: %prog [option] file.vcf"
+    usage = "usage: %prog [option] file.vcf.gz"
     parser =OptionParser(usage)
     parser.add_option("--bam", type="string", dest="bam", default=None, help="bam file to perform pileup on")
     parser.add_option("--mapq", type="float", dest="mapq", default=0., help="Exclude alignments from analysis if they have a mapping less than mapq (default is 0)")
@@ -24,7 +25,7 @@ def main():
         sys.exit(1)
     
     vcfilename=args[0]
-    basename=os.path.splitext(vcfilename)[0]
+    
     bamfilename=options.bam
     
     ra_formatline=FormatLine("RA", number='1', type='Integer', description='number of reference alleles observed')
@@ -36,7 +37,7 @@ def main():
         
     vcfobj=VcfFile(vcfilename)
     
-    vcfh=open(vcfilename,'r')
+    vcfh=gzip.open(vcfilename,'r')
 
     vcfobj.parseMetaAndHeaderLines(vcfh)
     vcfobj.addMetaFormatHeader(ra_formatline)

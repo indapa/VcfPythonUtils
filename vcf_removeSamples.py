@@ -1,10 +1,9 @@
 #!/usr/bin/env python
+import gzip
 from itertools import *
 from VcfFile import *
 from VcfSampleEval import *
 from optparse import OptionParser
-from common import grouper
-from common import typeofGenotype
 import argparse
 import os
 
@@ -12,7 +11,7 @@ import os
 def main():
     
     """  remove samples from a vcf file """
-    usage = "usage: %prog [options] file.vcf "
+    usage = "usage: %prog [options] file.vcf.gz "
     #parser = OptionParser(usage)
     parser = argparse.ArgumentParser(description='remove samples from vcf file')
     parser.add_argument('removesamples', metavar='sample', type=str, nargs='+',
@@ -24,7 +23,7 @@ def main():
     #print args.vcfile
     
     
-    vcfh=open(args.vcfile,'r')
+    vcfh=gzip.open(args.vcfile,'r')
     vcfobj=VcfFile(args.vcfile)
     
     vcfobj.parseMetaAndHeaderLines(vcfh)

@@ -1,21 +1,21 @@
 #!/usr/bin/env python
-
+import gzip
 import sys
 from optparse import OptionParser
 from collections import defaultdict
 from VcfFile import *
 import argparse
 
-""" filter records to match genotypes according to a pattern
+""" Select vcf data lines based on genotype criterions
 Specify genotypes with the -gt option: -gt <sample><single-space><genotype string>
 i.e. -gt "sampleOne 0/0 """
 
 def main():
-    usage = "usage: %prog [options] file.vcf "
-    parser = argparse.ArgumentParser(description='filter records based on genotypes')
+    usage = "usage: %prog [options] file.vcf.gz "
+    parser = argparse.ArgumentParser(description='filter records  based on genotypes')
    
     parser.add_argument('vcf', metavar='vcf', type=str,
-                   help='vcf file')
+                   help='vcf.gz file')
     """ http://stackoverflow.com/a/15008806/1735942 """
     parser.add_argument('--no-header',dest='header',action='store_false')
     parser.add_argument('-gt', metavar='gt', type=str, nargs='*', action='append',
@@ -39,7 +39,7 @@ def main():
     
     
     
-    vcfh=open(args.vcf,'r')
+    vcfh=gzip.open(args.vcf,'r')
     vcfobj=VcfFile(args.vcf)
     vcfobj.parseMetaAndHeaderLines(vcfh)
     header=vcfobj.returnHeader()
@@ -70,7 +70,7 @@ def main():
                         genotypes_toFilter.append(True)
                     else:genotypes_toFilter.append(False)
                 
-        #print genotypes_toFilter
+        # all gt filters need to evaluate to True in order for record to print
         if all(item == True for item in genotypes_toFilter):
             print vrec.toStringwithGenotypes()
                 

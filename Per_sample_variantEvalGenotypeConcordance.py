@@ -9,20 +9,25 @@ from optparse import OptionParser
 from common import grouper, melt_lol
 from common import typeofGenotype
 import os
+import pdb
 
 """ See the documentation here: https://vcfpythonutils.readthedocs.org/en/latest/programs.html for what this program does
-   Briefly, it calculates genotype concordance metrics of an evaluation callset to a comparison callset in a merged VCF file of the two """
+   Briefly, it calculates genotype concordance metrics of an evaluation callset to a comparison (gold) callset in a merged VCF file of the two
+   and calculates per-sample metrics of NRS and NRD """
 
 def main():
     usage = "usage: %prog [options] file.vcf.gz \n calcuate NRS and NRD on a vcf generated from CombineVariants --genotypemergeoption UNIQUIFY\n"
     parser = OptionParser(usage)
     
-    parser.add_option("--matrixonly", action="store_true", dest="matrixonly", help="only print concordance matrixe", default=False)
+    parser.add_option("--matrixonly", action="store_true", dest="matrixonly", help="only print concordance matrix", default=False)
     parser.add_option("--includeRef", action="store_true", dest="includeRef", help="include sites in the set ReferenceInAll", default=False)
     parser.add_option("--includeFilter", action="store_true", dest="includeFilter", help="include site filtered or not!", default=False)
     (options, args)=parser.parse_args()
 
     vcfilename=args[0]
+    if not vcfilename.endswith('.gz'):
+        sys.stderr.write("please bgzip the file!\n")
+        sys.exit(1)
     basename=os.path.splitext(os.path.splitext(vcfilename)[0])[0]
     """ row is eval, column is comparison 
         make a numpy matrix to represent genotype concordance matrix """
@@ -39,6 +44,10 @@ def main():
     filterlog=".".join([basename, 'filtered','log'])
     multialleliclog=".".join([basename, 'multiallelic','log'])
     concordancelog=".".join([basename, 'concordance','log'])
+    genotypegqlog=".".join([basename, 'genotype', 'gq', 'log'])
+    
+    gentoypegq_fh=open(genotypegqlog, 'w')
+    gentoypegq_fh.write("sample\tGQ\n")
     fieldslog=".".join([basename, 'fields', 'log'])
     nrsfh=open(nrslog, 'w')
     nrdfh=open(nrdlog, 'w')
@@ -65,7 +74,8 @@ def main():
     
     #for (comparename, evalname) in grouper(2,samples):
     #    print comparename, evalname
-    vcf_sample_eval_objects = [ VcfSampleEval(compare,eval,basename) for  (compare,eval) in grouper(2,samples) ] 
+    vcf_sample_eval_objects = [ VcfSampleEval(compare,eval,basename) for  (compare,eval) in grouper(2,samples) ]
+    
     
     for evalObj in vcf_sample_eval_objects:
         evalObj.writeHeaders(header)
@@ -95,6 +105,7 @@ def main():
             continue
         #returns a list [ (samplename, vcfgenotype) , ... () ]
         vrec_ziptuple=vrec.zipGenotypes(samples)
+        
         """ we make a hack and make a list like so:
            [(sample.variant, compare_genotype, sample.variant2, eval_genotype) ...   ] 
            basically it halves the length of vrec_ziptuple and gives it the same structure
@@ -109,10 +120,16 @@ def main():
         """ we take records two at a time, assuming the first is the comparison genotype the second is the evaluation genotype  """
         
         for (genotype_tuple, evalObj) in izip(compare_eval, vcf_sample_eval_objects):
-            
+            """ genotype_tuple is a tuple (suprise!) in which the first two
+                elements are the name and VcfGentype object of the (gold) comparison call 
+                and the last two are the name and VcfGenotype of the eval call """
+            #pdb.set_trace()
             #print genotype_tuple
             compare=genotype_tuple[0:2]
+            
             eval=genotype_tuple[2::]
+            genotype_gq_outstring="\t".join( [ eval[0], eval[1].getFormatVal('GQ') ] )
+            gentoypegq_fh.write(genotype_gq_outstring+"\n")
             #print compare
             #print eval
             

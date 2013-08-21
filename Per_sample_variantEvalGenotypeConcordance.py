@@ -123,17 +123,22 @@ def main():
             """ genotype_tuple is a tuple (suprise!) in which the first two
                 elements are the name and VcfGentype object of the (gold) comparison call 
                 and the last two are the name and VcfGenotype of the eval call """
-            #pdb.set_trace()
+            
             #print genotype_tuple
             compare=genotype_tuple[0:2]
-            
             eval=genotype_tuple[2::]
+            
+            (compare_name,gold) = compare[0].split('.')
+            (eval_name,variant2) = eval[0].split('.')
+            if compare_name != eval_name:
+                sys.stderr.write("eval and compare sample names do not match. Check sample order in CombineVariants derived VCF!")
+                sys.exit(1)
             genotype_gq_outstring="\t".join( [ eval[0], eval[1].getFormatVal('GQ') ] )
             gentoypegq_fh.write(genotype_gq_outstring+"\n")
             #print compare
             #print eval
             
-
+            #pdb.set_trace()
            
                 
             (comp_allele1, comp_allele2)=compare[1].getAlleles()

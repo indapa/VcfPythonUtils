@@ -41,6 +41,17 @@ class VcfGenotype(object):
         else:
             return "."
         
+    def setFormatVal(self,key,value):
+        """ set a value of a format field """
+        if key in self.gdict:
+            self.gdict[key]=value
+            """ then reset the gstring"""
+            self.gstring=":".join( [ self.gdict[k] for k in self.gdict.keys() ] )
+        else:
+            sys.stderr.write(key + " not in format of genotype!\n")
+            
+        
+        
     def addFormatVal(self, key, value):
         """ add a new format key/value to the genotype format string;
             we then implicitly update the gstring and formatstring  """
@@ -78,7 +89,10 @@ class VcfGenotype(object):
             return
         else:
             sys.stderr.write("un-recognized genotype delimiter: " + allelefield + "\n")
-            exit(1)
+            self.allele1='.'
+            self.allele2='.'
+            return
+            
         (allele1,allele2) = allelefield.split(delimiter)
 
         self.allele1=allele1
@@ -125,7 +139,7 @@ class VcfGenotype(object):
         return False
     
     def isHomoz(self):
-        if self.allele1 != "." and self.allele2 != "."
+        if self.allele1 != "." and self.allele2 != ".":
             if self.allele1 == '0' and self.allele2 == "0":
                 return True
         return False
@@ -137,7 +151,11 @@ class VcfGenotype(object):
             if elem not in self.gdict.keys():
                 sys.stderr.write(elem + " is not in FORMAT column!\n ")
                 exit(1)
-
+    def containsFormatKey(self, key):
+        if key in self.gdict.keys():
+            return True
+        return False
+    
     def toString(self):
         return self.gstring
 

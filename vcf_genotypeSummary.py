@@ -55,7 +55,7 @@ def main():
         #print vrec.toString()
         counter+=1
         
-
+        if vrec.getAlt() == ".": continue
         ref=vrec.getRef()
         numAlleles=vrec.getAlt().split(',')
         

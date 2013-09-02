@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import sys
+import gzip
 import os
 import string
 import re
@@ -29,8 +30,11 @@ def main():
     (options, args)=parser.parse_args()
 
     vcfilename=args[0]
-    vcfh=open(vcfilename,'r')
-
+    if not vcfilename.endswith('.gz'):
+        sys.stderr.write("please bgzip the file!\n")
+        sys.exit(1)
+    #vcfh=open(vcfilename,'r')
+    vcfh=gzip.open(vcfilename,'r')
     #instantiate a VcfFile object
     vcfobj=VcfFile(vcfilename)
     #parse its metainfo lines (ones that begin with ##)

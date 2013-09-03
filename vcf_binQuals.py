@@ -51,7 +51,10 @@ def main():
     """ we create a list of filehandles for the binned VCFs """                     
     binned_fh=list(itertools.imap(lambda x:open(x,'w'), binned_vcfilenames))                               
     
-    vcfh=gzip.open(args.vcfile,'r')
+    if args.vcfile.endswith(".gz"):
+        vcfh=gzip.open(args.vcfile,'r')
+    else:
+        vcfh=open(args.vcfile,'r')
     vcfobj=VcfFile(args.vcfile)
     
     

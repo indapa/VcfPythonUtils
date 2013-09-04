@@ -28,7 +28,7 @@ def main():
     parser.add_argument('vcfile', metavar='vcfile', type=str, help='file.vcf.gz')
     parser.add_argument('-filter', dest='filter', type=str, default=".", help='filter value')
     parser.add_argument('-start', dest='start', type=int, help="starting point for QUAL range")
-    parser.add_argument('-stop', dest='end', type=int, help="ending pint for QUAL range")
+    parser.add_argument('-end', dest='end', type=int, help="ending pint for QUAL range")
     parser.add_argument('-num', dest='num', type=int, help='number of bins')
     
     #parser.add_argument("vcf", help="vcf file to analyze")

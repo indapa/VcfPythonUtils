@@ -98,6 +98,27 @@ class VcfGenotype(object):
         self.allele1=allele1
         self.allele2=allele2
 
+    def setFormatAndGString(self, fstring, gstring):
+        #print gstring
+        self.formatstring=fstring
+        self.gstring=gstring
+        
+        self.gdict=OrderedDict()
+        formatids=self.formatstring.split(':')
+        gstringvals=self.gstring.split(':')
+        
+        self.parseAlleles(gstringvals[0]) # the first format is always the GT (genotype)
+       
+        zipiter=itertools.izip_longest(formatids,gstringvals,fillvalue='.')
+
+        for (format,gstringval) in zipiter:
+            self.gdict[format]=gstringval
+        #print self.gstring
+        
+    
+    def setFormatString(self,fstring):
+        self.formatstring =fstring
+        
     def getFormatString(self):
         return self.formatstring
 

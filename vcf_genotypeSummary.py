@@ -30,11 +30,12 @@ def main():
     (options, args)=parser.parse_args()
 
     vcfilename=args[0]
-    if not vcfilename.endswith('.gz'):
-        sys.stderr.write("please bgzip the file!\n")
-        sys.exit(1)
+    if vcfilename.endswith(".gz"):
+        vcfh=gzip.open(vcfilename,'r')
+    else:
+        vcfh=open(vcfilename,'r')
     #vcfh=open(vcfilename,'r')
-    vcfh=gzip.open(vcfilename,'r')
+    
     #instantiate a VcfFile object
     vcfobj=VcfFile(vcfilename)
     #parse its metainfo lines (ones that begin with ##)
@@ -101,7 +102,8 @@ def main():
 
     for (type,count) in TsTv_counter.items():
         print type, count
-    
+    TsTvratio=float(TsTv_counter['transition'])/float(TsTv_counter['transversion'])
+    print "TsTv: ",  round( TsTvratio,2)
     
 
     totalpercent=0

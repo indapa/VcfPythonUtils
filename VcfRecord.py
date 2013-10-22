@@ -34,6 +34,9 @@ class VcfRecord(object):
     def setQual(self,qual):
         self.qual=qual
 
+    def overwriteFilter(self,filter):
+        self.filter=filter
+
     def setFilter(self,filter):
         """ a VCF filter can have more than one filter tag """
         if self.filter != '.' and self.filter != filter and self.filter!= "PASS": # catn tag the site twice with same  filter id
@@ -100,7 +103,7 @@ class VcfRecord(object):
         return self.info
     
     def returnInfoDict(self):
-        """ return a dictionary made from the the info field
+        """ return a dictioqry made from the the info field
             Splitting a semicolon-separated string to a dictionary, in Python 
             http://stackoverflow.com/a/186873 """
         

@@ -99,6 +99,21 @@ class FilterLine(object):
         outstring=hashstring+filterstring+">"
         return outstring
 
+class MiscLines(object):
+    def __init__(self):
+        """ class to hold format lines that are not FORMAT, INFO, FILTER tags """
+        # I don't really care about the the text between < > in this tag, we just hold them in a list
+        self.lines=[]
+
+    def parseMiscInfo(self, line):
+        self.lines.append( line.strip() )
+
+    def yieldPrintMiscInfo(self):
+        for line in self.lines:
+            yield line
+
+
+
 class MetaLines(object):
 
     def __init__(self):

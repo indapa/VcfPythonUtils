@@ -1,5 +1,6 @@
 from VcfMetaLines import MetaLines
 from VcfMetaLines import HeaderLines
+from VcfMetaLines import MiscLines
 from VcfRecord import VcfRecord
 from VcfGenotype import VcfGenotype
 
@@ -12,32 +13,27 @@ class VcfFile(object):
     def __init__(self, filename):
         self.metaline = MetaLines()
         self.headerline = HeaderLines()
+        self.miscline = MiscLines()
         self.filename=filename
-
 
     def parseMetaAndHeaderLines(self, fh):
         """ parse meta lines that begin with ## and header line that begins with # """
         for line in fh:
-            
+        
             if '##fileformat' in line.strip():
-                
                 self.metaline.setFileFormat(line.strip())
             elif '##INFO' in line.strip():
-                
                 self.metaline.parseMetaInfo(line)
             elif '##FILTER' in line.strip():
-              
                 self.metaline.parseMetaFilter(line)
             elif '##FORMAT' in line.strip():
-                
                 self.metaline.parseMetaFormat(line)
             elif '#CHROM' in line.strip():
                 self.headerline.add_format_column(line.strip() )
                 self.headerline.append_samplelist( line.strip() )
                 break
             else:
-                pass
-                
+                self.miscline.parseMiscInfo(line)
 
     def parseMetaLines(self, fh):
         """ parse the meta lines that begin with ## in a VCF file """
@@ -57,10 +53,10 @@ class VcfFile(object):
                 self.headerline.append_samplelist( line.strip() )
                 self.printHeaderLine()
                 break
-            elif '##reference' in line.strip():
-                break
+            #elif '##reference' in line.strip():
+                #break
             else:
-                pass
+                self.miscline.parseMiscInfo( line.strip() )
 
     def hasFormatHeader(self,headerline):
         """ check if header line has FORMAT column """
@@ -178,6 +174,10 @@ class VcfFile(object):
             headerlines.append(str)
 
         for str in self.yieldMetaFilterLines():
+            headerlines.append(str)
+
+
+        for str in self.miscline.yieldPrintMiscInfo():
             headerlines.append(str)
 
         headerlines.append( self.headerline.toString() )

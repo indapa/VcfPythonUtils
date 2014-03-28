@@ -3,6 +3,7 @@ import sys
 import os
 import string
 import re
+import gzip
 from optparse import OptionParser
 from VcfFile import *
 from bx.bitset import *
@@ -28,7 +29,15 @@ def binned_bitsets_from_vcffile( vcfilename, chrom_col=0, start_col=1,  upstream
     MAX=2147483647
 
     vcfobj=VcfFile(vcfilename)
-    fh=open(vcfilename,'r')
+    
+    in1_fname_ext=os.path.splitext(vcfilename)[1]
+    
+    if '.gz' in in1_fname_ext:
+        vcfh=gzip.open(vcfilename,'r')
+    else:
+        vcfh=open(vcfilename,'r')
+    
+   
 
     for vrec in vcfobj.yieldVcfRecord(fh):
 
@@ -69,7 +78,7 @@ def binned_bitsets_from_vcffile( vcfilename, chrom_col=0, start_col=1,  upstream
 
 def main():
     
-    usage = "usage: %prog [options] vcf_file_one vcf|bed_file_two\n\nFind regions in the first vcf file that overlap regions of the second vcf or bed file\n"
+    usage = "usage: %prog [options] vcf_file_one vcf|bed_file_two\n\nFind regions in the first vcf(.gz) file that overlap regions of the second vcf(.gz) or bed file\n"
     parser = OptionParser(usage)
     parser.add_option("--minCols", type="int", dest="mincols", default=1, help="mininum basepair overlap (default is one)")
     parser.add_option("--v", action="store_true", dest="reverse",  help="Print regions in first vcf  that DO NOT overlap second vcf|bed file")
@@ -84,6 +93,9 @@ def main():
     sys.stderr.write("intersecting two files ...\n")
     
     vcf_file_one=args[0]
+    
+    in1_fname_ext=os.path.splitext(vcf_file_one)[1]
+    
     in2_fname=args[1]
 
     in2_fname_ext= os.path.splitext(in2_fname)[1][1:]
@@ -95,9 +107,14 @@ def main():
     if "vcf" ==  in2_fname_ext:
          bitsets = binned_bitsets_from_vcffile( in2_fname , options.filter)
 
+    
    
     vcfobj=VcfFile(vcf_file_one)
-    vcfh=open(vcf_file_one,'r')
+    
+    if '.gz' in in1_fname_ext:
+        vcfh=gzip.open(vcf_file_one,'r')
+    else:
+        vcfh=open(vcf_file_one,'r')
 
     if options.noheader == False:
         vcfobj.parseMetaAndHeaderLines(vcfh)

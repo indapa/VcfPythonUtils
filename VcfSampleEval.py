@@ -11,7 +11,7 @@ class VcfSampleEval(object):
     """ a class to represent a genotype comparison 
         We can do a sample by sample comparison, rather than
         lump all samples together when evalating a callset like in variantEvalGenotypeConcordance.py"""
-    def __init__(self, compareName, evalName, basename):
+    def __init__(self, compareName, evalName, basename, logfiles=False):
         
         self.comparename=compareName
         self.evalname=evalName
@@ -26,15 +26,20 @@ class VcfSampleEval(object):
         self.concordancelog=".".join([basename,evalName, compareName, 'concordance','log'])
         self.genotypematrix=".".join([basename,evalName, compareName, 'genotype.matrix', 'csv'])
         
-        self.nrsfh=open(self.nrslog, 'w')
-        self.nrdfh=open(self.nrdlog, 'w')
-        self.concordancefh=open(self.concordancelog, 'w')
-        self.outputfh=open(self.outputfile, 'w')
+        if logfiles == True:
+            self.nrsfh=open(self.nrslog, 'w')
+            self.nrdfh=open(self.nrdlog, 'w')
+            self.concordancefh=open(self.concordancelog, 'w')
+            self.outputfh=open(self.outputfile, 'w')
+        
         self.genotypematrixfh=open(self.genotypematrix, 'w')
         
         
         
-        
+    def write_genotype_matrix(self):
+        """ melt the genotypematrix into a CSV of numbers  """
+        outstring=",".join( map(str,melt_lol(self.concordancetable.tolist())) )
+        self.genotypematrixfh.write(outstring+"\n")
         
     def incrementcellcount (self, eval_alleletype, comp_alleletype):
         """ the parameters are results of calling common.typeofGenotype
@@ -63,6 +68,21 @@ class VcfSampleEval(object):
         """ write the vcfrecord dataline outstirng to the concordance log """
         self.concordancefh.write( outstring )
         
+    
+    def returnNRS_NRD(self):
+        
+        discordance=self.concordancetable[0,1]+self.concordancetable[0,2]+self.concordancetable[1,0]+self.concordancetable[1,2]+self.concordancetable[2,0]+self.concordancetable[2,1]
+        total=self.concordancetable[0,1]+self.concordancetable[0,2]+self.concordancetable[1,0]+self.concordancetable[1,1]+ self.concordancetable[1,2]+self.concordancetable[2,0]+self.concordancetable[2,1] +self.concordancetable[2,2]
+    
+        nrd=round( (float(discordance)/float(total)) * 100, 2)
+    
+        variant_count_evaluation= self.concordancetable[1,1]+ self.concordancetable[1,2]+ self.concordancetable[2,1]+ self.concordancetable[2,2]
+    
+        variant_count_comparison= self.concordancetable[0,1]+self.concordancetable[0,2]+self.concordancetable[1,1]+self.concordancetable[1,2]+self.concordancetable[2,1]+self.concordancetable[2,2]+self.concordancetable[3,1]+self.concordancetable[3,2]
+        nrs=round( float(variant_count_evaluation)/float(variant_count_comparison) * 100 , 2)
+        
+        return (nrs, nrd)
+    
     def writeEvalOutput(self):
         
         self.outputfh.write( "rows are eval genotypes columns comparison genotypes\n")
